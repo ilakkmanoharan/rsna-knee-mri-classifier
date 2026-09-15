@@ -29,6 +29,18 @@ bash scripts/install_agent1_launchd.sh
 
 Set the Mac timezone to **America/Chicago** so LaunchAgent 01:00 matches the competition clock.
 
-## State
+## Failure behavior
 
-Quota / cycle counters: `artifacts/agent_state/day_state.json`
+- Cycle errors are caught: Agent-1 **keeps retrying** (5 min → up to 30 min backoff).
+- Each failure writes `artifacts/agent_state/last_alert.txt` and emails **ilakkmanoharan@gmail.com**.
+- LaunchAgent uses `KeepAlive` so a crashed process is restarted.
+
+### Email setup (required for SMTP)
+
+```bash
+cp private/agent/email.env.example private/agent/email.env
+# edit email.env — set AGENT1_SMTP_PASSWORD to a Gmail App Password
+```
+
+Without SMTP credentials, alerts are still logged locally and shown as a macOS notification.
+

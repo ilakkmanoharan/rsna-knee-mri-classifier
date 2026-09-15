@@ -36,3 +36,21 @@ research:
     - "radiology report weak supervision negation"
     - "macro ROC-AUC multi-label medical imaging"
     - "plane-aware MRI classification sagittal coronal axial"
+
+# On error: keep retrying + email operator
+resilience:
+  retry_base_seconds: 300   # 5 min, doubles each consecutive failure
+  retry_max_seconds: 1800   # cap 30 min
+
+notify:
+  enabled: true
+  # Typo-correcting gail.com → gmail.com; override via AGENT1_NOTIFY_TO if needed
+  to: ilakkmanoharan@gmail.com
+  from_addr: ilakkmanoharan@gmail.com
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  # Do NOT put passwords in this file — use env or private/agent/email.env:
+  #   AGENT1_SMTP_USER=ilakkmanoharan@gmail.com
+  #   AGENT1_SMTP_PASSWORD=your-gmail-app-password
+  smtp_user: null
+  smtp_password: null
