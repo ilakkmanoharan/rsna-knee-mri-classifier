@@ -13,7 +13,6 @@
     <string>--config</string>
     <string>/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/agent/config.yaml</string>
   </array>
-  <!-- Fire at 01:00 local time; set Mac timezone to America/Chicago for CST/CDT -->
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
@@ -21,14 +20,6 @@
     <key>Minute</key>
     <integer>0</integer>
   </dict>
-  <!-- If the process crashes after start, relaunch it -->
-  <key>KeepAlive</key>
-  <dict>
-    <key>SuccessfulExit</key>
-    <false/>
-  </dict>
-  <key>ThrottleInterval</key>
-  <integer>60</integer>
   <key>RunAtLoad</key>
   <false/>
   <key>StandardOutPath</key>
