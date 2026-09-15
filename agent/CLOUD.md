@@ -37,7 +37,10 @@ gh workflow run agent1-cloud.yml
 gh workflow run agent1-cloud.yml -f skip_submit=true
 ```
 
-## 2. Cursor Cloud Automation (optional)
+## 2. Cursor Cloud Automation (preferred full cloud agent)
+
+Step-by-step paste values: [`CURSOR_AUTOMATION_SETUP.md`](CURSOR_AUTOMATION_SETUP.md).
+
 
 1. Open https://cursor.com/automations (or run `/automate` in Cursor).
 2. Select repo `ilakkmanoharan/rsna-knee-mri-classifier`.
