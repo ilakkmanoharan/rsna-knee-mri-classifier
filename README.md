@@ -66,12 +66,7 @@ python -m src.infer --config configs/submission_001.yaml
 - **ASRA** records H0–H5 in `artifacts/hypothesis_ledger/` and accepts changes only when OOF evidence supports them.
 - **Inference** discovers paths, ensembles fold checkpoints, and falls back to fewer slices if the 9h runtime budget (15% safety margin) is threatened.
 
-## Agent-1 (daily improvement loop)
+## Cloud (laptop closed)
 
-See [`agent/README.md`](agent/README.md). Starts at 01:00 America/Chicago, every 90 minutes, up to 5 Kaggle submissions/day: Research → Analysis → Hypothesis → Plan → implement & submit → git push.
-
-```bash
-python3 agent/run_cycle.py          # one cycle
-bash scripts/install_agent1_launchd.sh
-```
+See [`agent/CLOUD.md`](agent/CLOUD.md). Primary runner is **GitHub Actions** (`.github/workflows/agent1-cloud.yml`). Optional: Cursor Cloud Automations using `agent/cursor_cloud_automation_prompt.md`.
 

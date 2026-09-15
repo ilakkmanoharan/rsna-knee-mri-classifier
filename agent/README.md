@@ -11,23 +11,9 @@ Starts at **01:00 America/Chicago** (competition quota reset), then every **90 m
 5. **Implement + submit** offline Kaggle notebook for `rsna-knee-abnormality-detection`
 6. **Git commit + push** to `https://github.com/ilakkmanoharan/rsna-knee-mri-classifier.git`
 
-## Commands
+## Cloud (recommended when laptop is closed)
 
-```bash
-# One cycle now (research…submit)
-python3 agent/run_cycle.py
-
-# One cycle without submitting
-python3 agent/run_cycle.py --skip-submit
-
-# Daily daemon (waits for 01:00 CST boundary, then loops)
-python3 agent/run_daily.py
-
-# Install macOS LaunchAgent (fires daily at 01:00 local time)
-bash scripts/install_agent1_launchd.sh
-```
-
-Set the Mac timezone to **America/Chicago** so LaunchAgent 01:00 matches the competition clock.
+See [`CLOUD.md`](CLOUD.md). Use GitHub Actions — not LaunchAgent — for unattended daily runs.
 
 ## Failure behavior
 

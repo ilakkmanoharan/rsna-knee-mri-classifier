@@ -1,0 +1,104 @@
+# Agent-1 cloud runner (laptop can be closed)
+#
+# Fires ~5 times per competition day (01:00 America/Chicago + every 90 min).
+# September–March note: GitHub cron is UTC. CDT=UTC-5 → 06:00 UTC = 01:00 CDT.
+# When clocks fall back to CST (UTC-6), 01:00 CST = 07:00 UTC — adjust if needed
+# or rely on workflow_dispatch / the agent's own day_id + quota guards.
+#
+# Required repo secrets:
+#   KAGGLE_USERNAME
+#   KAGGLE_KEY
+# Optional (email alerts):
+#   AGENT1_SMTP_USER
+#   AGENT1_SMTP_PASSWORD
+#   AGENT1_NOTIFY_TO
+
+name: agent1-cloud
+
+on:
+  schedule:
+    # Competition day slots in CDT (UTC-5): 01:00, 02:30, 04:00, 05:30, 07:00 local
+    - cron: "0 6 * * *"
+    - cron: "30 7 * * *"
+    - cron: "0 9 * * *"
+    - cron: "30 10 * * *"
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Ignore daily quota guard"
+        type: boolean
+        default: false
+      skip_submit:
+        description: "Research/analyze only (no Kaggle submit)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: agent1-cloud
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install agent dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "kaggle>=1.6" pyyaml pandas numpy
+
+      - name: Configure Kaggle credentials
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          if [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; then
+            echo "Missing KAGGLE_USERNAME / KAGGLE_KEY secrets" >&2
+            exit 1
+          fi
+          mkdir -p "$HOME/.kaggle"
+          printf '{"username":"%s","key":"%s"}\n' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > "$HOME/.kaggle/kaggle.json"
+          chmod 600 "$HOME/.kaggle/kaggle.json"
+
+      - name: Configure git for agent commits
+        run: |
+          git config user.name "ilakk manoharan"
+          git config user.email "28582192+ilakkmanoharan@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+      - name: Run one Agent-1 cycle
+        env:
+          AGENT1_NOTIFY_TO: ${{ secrets.AGENT1_NOTIFY_TO }}
+          AGENT1_SMTP_USER: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_SMTP_PASSWORD: ${{ secrets.AGENT1_SMTP_PASSWORD }}
+          AGENT1_NOTIFY_FROM: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_NOTIFY_ENABLED: "true"
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -euo pipefail
+          if [ -z "${AGENT1_NOTIFY_TO:-}" ]; then
+            export AGENT1_NOTIFY_TO="ilakkmanoharan@gmail.com"
+          fi
+          ARGS=()
+          if [ "${{ github.event.inputs.skip_submit || 'false' }}" = "true" ]; then
+            ARGS+=(--skip-submit)
+          fi
+          if [ "${{ github.event.inputs.force || 'false' }}" = "true" ]; then
+            ARGS+=(--force)
+          fi
+          python agent/run_cycle.py "${ARGS[@]}"
