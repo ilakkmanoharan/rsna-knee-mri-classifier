@@ -1,0 +1,38 @@
+# Agent-1 daily competition loop
+competition: rsna-knee-abnormality-detection
+github_repo: https://github.com/ilakkmanoharan/rsna-knee-mri-classifier.git
+branch: main
+
+# Competition clock: quota resets at 01:00 America/Chicago (CST/CDT)
+day_start_hour_cst: 1
+day_start_tz: America/Chicago
+cycle_interval_minutes: 90
+max_submissions_per_day: 5
+
+paths:
+  research: Research
+  analysis: Analysis
+  hypothesis: Hypothesis analysis
+  plans: Plans
+  state: artifacts/agent_state
+  kaggle_kernel_dir: kaggle_submit_agent
+
+kaggle:
+  kernel_slug_prefix: rsna-knee-asra-agent
+  notebook_title_prefix: rsna-knee-asra-agent
+
+git:
+  # Author overridden per workspace rule at commit time
+  auto_commit: true
+  auto_push: true
+  commit_prefix: "agent1"
+
+research:
+  max_arxiv_results: 12
+  queries:
+    - "knee MRI multi-label abnormality detection deep learning"
+    - "RSNA knee abnormality detection"
+    - "multi-planar MRI aggregation CNN EfficientNet"
+    - "radiology report weak supervision negation"
+    - "macro ROC-AUC multi-label medical imaging"
+    - "plane-aware MRI classification sagittal coronal axial"
