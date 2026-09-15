@@ -17,6 +17,8 @@ ARXIV_API = "http://export.arxiv.org/api/query"
 
 
 def _arxiv_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
+    import time
+
     params = {
         "search_query": f"all:{query}",
         "start": 0,
@@ -26,8 +28,20 @@ def _arxiv_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
     }
     url = ARXIV_API + "?" + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={"User-Agent": "rsna-knee-agent1/0.1"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = resp.read()
+    data = None
+    last_exc: Exception | None = None
+    for attempt in range(4):
+        try:
+            # arXiv asks for polite spacing between requests
+            time.sleep(3 if attempt == 0 else 8 * attempt)
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = resp.read()
+            break
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            logger.warning("arxiv attempt %d failed: %s", attempt + 1, exc)
+    if data is None:
+        raise RuntimeError(str(last_exc))
     root = ET.fromstring(data)
     ns = {"a": "http://www.w3.org/2005/Atom"}
     papers = []

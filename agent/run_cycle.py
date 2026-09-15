@@ -38,6 +38,48 @@ def read_strategy(plan_json: Path) -> str:
     return "metadata_prior_blend"
 
 
+def _sync_quota_from_kaggle(cfg: dict, state) -> None:
+    """Align submissions_used with COMPLETE submissions since competition day start."""
+    try:
+        from agent.stages.analyze import fetch_submissions
+        from agent.clock import competition_day_start
+        from datetime import datetime
+
+        rows = fetch_submissions(cfg["competition"])
+        tz = cfg.get("day_start_tz", "America/Chicago")
+        hour = int(cfg.get("day_start_hour_cst", 1))
+        start = competition_day_start(hour=hour, tz_name=tz)
+        used = 0
+        for r in rows:
+            status = str(r.get("status") or "")
+            if "COMPLETE" not in status.upper() and "PENDING" not in status.upper() and "SCORING" not in status.upper():
+                # still count pending toward quota
+                if "SUBMIT" not in status.upper():
+                    continue
+            # Count COMPLETE + PENDING/SCORING toward daily quota
+            if not any(x in status.upper() for x in ("COMPLETE", "PENDING", "SCORING", "SUBMITTED")):
+                continue
+            date_s = str(r.get("date") or "")
+            try:
+                # e.g. 2026-09-15 09:15:13.110000
+                dt = datetime.fromisoformat(date_s.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    from zoneinfo import ZoneInfo
+
+                    dt = dt.replace(tzinfo=ZoneInfo("UTC")).astimezone(start.tzinfo)
+                else:
+                    dt = dt.astimezone(start.tzinfo)
+                if dt >= start:
+                    used += 1
+            except Exception:  # noqa: BLE001
+                used += 1  # conservative
+        if used > state.submissions_used:
+            logger.info("Syncing quota from Kaggle: %d → %d", state.submissions_used, used)
+            state.submissions_used = used
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Could not sync quota from Kaggle: %s", exc)
+
+
 def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> dict:
     tz = cfg.get("day_start_tz", "America/Chicago")
     hour = int(cfg.get("day_start_hour_cst", 1))
@@ -45,6 +87,7 @@ def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> d
     state_path = ROOT / cfg["paths"]["state"] / "day_state.json"
     store = StateStore(state_path)
     state = store.load(day_id)
+    _sync_quota_from_kaggle(cfg, state)
 
     max_sub = int(cfg.get("max_submissions_per_day", 5))
     if state.submissions_used >= max_sub and not force:
