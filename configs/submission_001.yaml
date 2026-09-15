@@ -1,0 +1,99 @@
+# RSNA Knee Abnormality Detection — first submission (ASRA-controlled)
+
+seed: 42
+experiment_name: submission_001
+parser_version: report_parser_v1
+
+paths:
+  # Discovered at runtime; override for local development.
+  competition_root: data  # local mount; on Kaggle use /kaggle/input/rsna-knee-abnormality-detection
+  artifacts_dir: artifacts
+  output_submission: submission.csv
+
+targets:
+  - ACL
+  - MCL
+  - Medial Meniscus
+  - Lateral Meniscus
+  - Medial OA
+  - Lateral OA
+  - PF OA
+  - Effusion
+  - Synovitis
+  - Baker's
+  - Contusion
+  - Fracture
+
+data:
+  n_folds: 5
+  group_col_candidates:
+    - PatientID
+    - patient_id
+    - PatientIDHash
+    - subject_id
+  study_id_col: StudyInstanceUID
+  series_id_col: SeriesInstanceUID
+  report_col: Report
+  plane_col: Anatomical_Plane
+  slices_per_series: 16
+  image_size: 224
+  percentile_clip: [1.0, 99.0]
+  cache_dir: artifacts/cache
+
+model:
+  backbone: efficientnet_b0
+  pretrained: true
+  freeze_encoder: true
+  unfreeze_last_block: false
+  slice_pool: mean_max  # mean_max | mean | max | attn
+  use_plane_slots: true
+  use_availability_mask: true
+  use_symbolic_features: true
+  dropout: 0.2
+  embedding_dim: null  # inferred from backbone
+
+train:
+  batch_size: 4
+  num_workers: 2
+  epochs: 8
+  lr_head: 1.0e-3
+  lr_encoder: 1.0e-5
+  weight_decay: 1.0e-4
+  mixed_precision: true
+  lambda_weak: 0.25
+  lambda_consistency: 0.02
+  early_stopping_patience: 3
+
+weak_labels:
+  # Soft-label mapping hypotheses (ASRA-tunable)
+  positive: 0.90
+  negative: 0.10
+  uncertain: 0.60
+  historical: 0.50
+  # unmentioned uses train-fold prevalence shrinkage
+  unmentioned_shrinkage: 0.5
+  min_confidence: 0.05
+
+symbolic:
+  enabled: true
+  use_constraints: true
+  constraint_weight: 0.02
+
+asra:
+  ledger_path: artifacts/hypothesis_ledger/submission_001.jsonl
+  accept_min_macro_delta: 0.001
+  require_no_target_collapse: true
+  target_collapse_auc: 0.45
+
+inference:
+  runtime_limit_hours: 9.0
+  safety_margin: 0.15
+  fallback_slices_per_series: 8
+  mixed_precision: true
+  batch_studies: 1
+  device: cuda
+
+submission:
+  clip_eps: 1.0e-6
+  require_nontrivial_variance: true
+  min_std: 1.0e-6

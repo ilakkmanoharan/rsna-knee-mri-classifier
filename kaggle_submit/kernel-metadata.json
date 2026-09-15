@@ -1,0 +1,16 @@
+{
+  "id": "ilakkmanoharan/rsna-knee-submission-001-prevalence-baseline",
+  "id_no": 0,
+  "title": "rsna-knee-submission-001-prevalence-baseline",
+  "code_file": "rsna-knee-submission-001-prevalence.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [],
+  "competition_sources": ["rsna-knee-abnormality-detection"],
+  "kernel_sources": [],
+  "model_sources": []
+}

@@ -1,0 +1,8 @@
+# Keep artifacts directory in git; ignore generated contents except keepers
+artifacts/**
+!artifacts/**/
+!artifacts/**/.gitkeep
+!artifacts/hypothesis_ledger/.gitkeep
+!artifacts/folds/.gitkeep
+!artifacts/oof/.gitkeep
+!artifacts/checkpoints/.gitkeep

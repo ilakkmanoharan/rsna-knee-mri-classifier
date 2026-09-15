@@ -1,0 +1,95 @@
+# Local smoke / partial-mount profile (inherits submission_001 defaults via merge in CLI)
+seed: 42
+experiment_name: submission_001_local
+parser_version: report_parser_v1
+
+paths:
+  competition_root: data
+  artifacts_dir: artifacts
+  output_submission: artifacts/submission.csv
+
+targets:
+  - ACL
+  - MCL
+  - Medial Meniscus
+  - Lateral Meniscus
+  - Medial OA
+  - Lateral OA
+  - PF OA
+  - Effusion
+  - Synovitis
+  - Baker's
+  - Contusion
+  - Fracture
+
+data:
+  n_folds: 2
+  group_col_candidates:
+    - PatientID
+    - patient_id
+    - PatientIDHash
+    - subject_id
+  study_id_col: StudyInstanceUID
+  series_id_col: SeriesInstanceUID
+  report_col: Report
+  plane_col: Anatomical_Plane
+  slices_per_series: 8
+  image_size: 128
+  percentile_clip: [1.0, 99.0]
+  cache_dir: artifacts/cache
+
+model:
+  backbone: efficientnet_b0
+  pretrained: true
+  freeze_encoder: true
+  unfreeze_last_block: false
+  slice_pool: mean_max
+  use_plane_slots: true
+  use_availability_mask: true
+  use_symbolic_features: true
+  dropout: 0.2
+  embedding_dim: null
+
+train:
+  batch_size: 2
+  num_workers: 0
+  epochs: 3
+  lr_head: 1.0e-3
+  lr_encoder: 1.0e-5
+  weight_decay: 1.0e-4
+  mixed_precision: false
+  lambda_weak: 0.25
+  lambda_consistency: 0.02
+  early_stopping_patience: 2
+
+weak_labels:
+  positive: 0.90
+  negative: 0.10
+  uncertain: 0.60
+  historical: 0.50
+  unmentioned_shrinkage: 0.5
+  min_confidence: 0.05
+
+symbolic:
+  enabled: true
+  use_constraints: true
+  constraint_weight: 0.02
+
+asra:
+  ledger_path: artifacts/hypothesis_ledger/submission_001.jsonl
+  accept_min_macro_delta: 0.001
+  require_no_target_collapse: true
+  target_collapse_auc: 0.45
+
+inference:
+  runtime_limit_hours: 9.0
+  safety_margin: 0.15
+  fallback_slices_per_series: 4
+  mixed_precision: false
+  batch_studies: 1
+  device: cpu
+
+submission:
+  clip_eps: 1.0e-6
+  require_nontrivial_variance: true
+  min_std: 1.0e-6

@@ -1,0 +1,73 @@
+{
+  "per_target_auc": {
+    "ACL": 0.588235294117647,
+    "MCL": 0.4693877551020408,
+    "Medial Meniscus": 0.3485576923076923,
+    "Lateral Meniscus": 0.5875776397515529,
+    "Medial OA": 0.48682170542635655,
+    "Lateral OA": 0.5996131528046422,
+    "PF OA": 0.4247104247104247,
+    "Effusion": 0.39378881987577635,
+    "Synovitis": 0.4551971326164874,
+    "Baker's": 0.5398550724637681,
+    "Contusion": 0.6639676113360323,
+    "Fracture": 0.42361111111111116
+  },
+  "macro_oof_auc": 0.49844361763529427,
+  "fold_metrics": [
+    {
+      "fold": 0,
+      "best_macro": 0.5724205231294566
+    },
+    {
+      "fold": 1,
+      "best_macro": 0.5141882390914899
+    }
+  ],
+  "fingerprint": {
+    "root": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data",
+    "targets": [
+      "ACL",
+      "MCL",
+      "Medial Meniscus",
+      "Lateral Meniscus",
+      "Medial OA",
+      "Lateral OA",
+      "PF OA",
+      "Effusion",
+      "Synovitis",
+      "Baker's",
+      "Contusion",
+      "Fracture"
+    ],
+    "files": {
+      "train": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train.csv",
+        "sha256_prefix": "ce03b1469eee2727",
+        "nbytes": 5690007
+      },
+      "test": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test.csv",
+        "sha256_prefix": "c09182793baecff1",
+        "nbytes": 212
+      },
+      "train_series": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train_series.csv",
+        "sha256_prefix": "dd4bd5664e45efd1",
+        "nbytes": 3458834
+      },
+      "test_series": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test_series.csv",
+        "sha256_prefix": "236344f4e2af6c50",
+        "nbytes": 2213
+      },
+      "sample_submission": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/sample_submission.csv",
+        "sha256_prefix": "a4ca1ceb7f10d3e3",
+        "nbytes": 470
+      }
+    },
+    "fingerprint": "fd41c4cadedaa021"
+  },
+  "n_studies": 58
+}

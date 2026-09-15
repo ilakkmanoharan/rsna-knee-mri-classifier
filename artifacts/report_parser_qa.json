@@ -1,0 +1,20 @@
+{
+  "n_reports": 4407,
+  "match_categories": {
+    "unmentioned": 40188,
+    "negated_mention": 5577,
+    "bare_mention": 3723,
+    "positive_mention": 1874,
+    "generic_oa_family_only": 1469,
+    "uncertain_mention": 45,
+    "historical_mention": 8
+  },
+  "states": {
+    "unmentioned": 41657,
+    "negative": 5577,
+    "positive": 5597,
+    "uncertain": 45,
+    "historical": 8
+  },
+  "parser_version": "report_parser_v1"
+}

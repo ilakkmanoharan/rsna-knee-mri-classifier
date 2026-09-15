@@ -1,0 +1,175 @@
+{
+  "paths": {
+    "root": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data",
+    "train_csv": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train.csv",
+    "test_csv": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test.csv",
+    "train_series_csv": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train_series.csv",
+    "test_series_csv": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test_series.csv",
+    "sample_submission": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/sample_submission.csv",
+    "train_series_dir": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train_series",
+    "test_series_dir": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test_series",
+    "train_labels_csv": null,
+    "extras": {}
+  },
+  "targets": [
+    "ACL",
+    "MCL",
+    "Medial Meniscus",
+    "Lateral Meniscus",
+    "Medial OA",
+    "Lateral OA",
+    "PF OA",
+    "Effusion",
+    "Synovitis",
+    "Baker's",
+    "Contusion",
+    "Fracture"
+  ],
+  "n_sample_rows": 3,
+  "n_train_studies": 4407,
+  "n_test_studies": 3,
+  "n_train_series": 24371,
+  "n_test_series": 15,
+  "train_columns": [
+    "StudyInstanceUID",
+    "Report",
+    "ACL",
+    "MCL",
+    "Medial Meniscus",
+    "Lateral Meniscus",
+    "Medial OA",
+    "Lateral OA",
+    "PF OA",
+    "Effusion",
+    "Synovitis",
+    "Baker's",
+    "Contusion",
+    "Fracture"
+  ],
+  "train_series_columns": [
+    "StudyInstanceUID",
+    "SeriesInstanceUID",
+    "Fluid_Sensitive",
+    "Fat_Suppression",
+    "Anatomical_Plane"
+  ],
+  "has_reports": true,
+  "plane_value_counts": {
+    "Sagittal": 9864,
+    "Coronal": 8609,
+    "Axial": 5898
+  },
+  "labeled_studies": 58,
+  "prevalence": {
+    "ACL": {
+      "n_obs": 58,
+      "n_pos": 24,
+      "rate": 0.41379310344827586
+    },
+    "MCL": {
+      "n_obs": 58,
+      "n_pos": 9,
+      "rate": 0.15517241379310345
+    },
+    "Medial Meniscus": {
+      "n_obs": 58,
+      "n_pos": 26,
+      "rate": 0.4482758620689655
+    },
+    "Lateral Meniscus": {
+      "n_obs": 58,
+      "n_pos": 23,
+      "rate": 0.39655172413793105
+    },
+    "Medial OA": {
+      "n_obs": 58,
+      "n_pos": 15,
+      "rate": 0.25862068965517243
+    },
+    "Lateral OA": {
+      "n_obs": 58,
+      "n_pos": 11,
+      "rate": 0.1896551724137931
+    },
+    "PF OA": {
+      "n_obs": 58,
+      "n_pos": 21,
+      "rate": 0.3620689655172414
+    },
+    "Effusion": {
+      "n_obs": 58,
+      "n_pos": 35,
+      "rate": 0.603448275862069
+    },
+    "Synovitis": {
+      "n_obs": 58,
+      "n_pos": 27,
+      "rate": 0.46551724137931033
+    },
+    "Baker's": {
+      "n_obs": 58,
+      "n_pos": 12,
+      "rate": 0.20689655172413793
+    },
+    "Contusion": {
+      "n_obs": 58,
+      "n_pos": 19,
+      "rate": 0.3275862068965517
+    },
+    "Fracture": {
+      "n_obs": 58,
+      "n_pos": 18,
+      "rate": 0.3103448275862069
+    }
+  },
+  "missing_plane": 0,
+  "fingerprint": {
+    "root": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data",
+    "targets": [
+      "ACL",
+      "MCL",
+      "Medial Meniscus",
+      "Lateral Meniscus",
+      "Medial OA",
+      "Lateral OA",
+      "PF OA",
+      "Effusion",
+      "Synovitis",
+      "Baker's",
+      "Contusion",
+      "Fracture"
+    ],
+    "files": {
+      "train": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train.csv",
+        "sha256_prefix": "ce03b1469eee2727",
+        "nbytes": 5690007
+      },
+      "test": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test.csv",
+        "sha256_prefix": "c09182793baecff1",
+        "nbytes": 212
+      },
+      "train_series": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/train_series.csv",
+        "sha256_prefix": "dd4bd5664e45efd1",
+        "nbytes": 3458834
+      },
+      "test_series": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/test_series.csv",
+        "sha256_prefix": "236344f4e2af6c50",
+        "nbytes": 2213
+      },
+      "sample_submission": {
+        "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/data/sample_submission.csv",
+        "sha256_prefix": "a4ca1ceb7f10d3e3",
+        "nbytes": 470
+      }
+    },
+    "fingerprint": "fd41c4cadedaa021"
+  },
+  "todos": [
+    "TODO: no patient/group id found; folds will group by StudyInstanceUID only"
+  ],
+  "group_column": null
+}
