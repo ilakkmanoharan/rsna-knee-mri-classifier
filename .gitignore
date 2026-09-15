@@ -59,3 +59,15 @@ Thumbs.db
 !.env.example
 *.pem
 secrets/
+
+# Agent runtime logs (keep day_state.json tracked)
+artifacts/agent_state/*.log
+artifacts/agent_state/*.stdout.log
+artifacts/agent_state/*.stderr.log
+artifacts/cache/
+artifacts/checkpoints/
+artifacts/submission*.csv
+kaggle_submit/
+kaggle_submit_v2/
+submission.csv
+

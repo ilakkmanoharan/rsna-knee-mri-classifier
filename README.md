@@ -66,6 +66,12 @@ python -m src.infer --config configs/submission_001.yaml
 - **ASRA** records H0–H5 in `artifacts/hypothesis_ledger/` and accepts changes only when OOF evidence supports them.
 - **Inference** discovers paths, ensembles fold checkpoints, and falls back to fewer slices if the 9h runtime budget (15% safety margin) is threatened.
 
-## Definition of done (submission 1)
+## Agent-1 (daily improvement loop)
 
-See `private/rsna-knee-first-submission-asra-spec.md` §11. Minimum local bar: unit tests green + schema-valid `submission.csv` from the inference path.
+See [`agent/README.md`](agent/README.md). Starts at 01:00 America/Chicago, every 90 minutes, up to 5 Kaggle submissions/day: Research → Analysis → Hypothesis → Plan → implement & submit → git push.
+
+```bash
+python3 agent/run_cycle.py          # one cycle
+bash scripts/install_agent1_launchd.sh
+```
+

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.ilakkmanoharan.rsna-knee-agent1</string>
+  <key>WorkingDirectory</key>
+  <string>/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/agent/run_daily.py</string>
+    <string>--config</string>
+    <string>/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/agent/config.yaml</string>
+  </array>
+  <!-- Fire at 01:00 America/Chicago wall time; macOS StartCalendarInterval is local timezone -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>1</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>StandardOutPath</key>
+  <string>/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/artifacts/agent_state/agent1.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/artifacts/agent_state/agent1.stderr.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/ilakkmanoharan2026/Library/Python/3.9/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>KAGGLE_CONFIG_DIR</key>
+    <string>/Users/ilakkmanoharan2026/.kaggle</string>
+  </dict>
+</dict>
+</plist>
