@@ -1,0 +1,49 @@
+{
+  "papers": [],
+  "techniques": [
+    {
+      "name": "Plane-aware multi-series aggregation",
+      "why": "Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.",
+      "how": "Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative."
+    },
+    {
+      "name": "Weak supervision from multilingual reports",
+      "why": "Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseudo-labels from negation mistakes invert targets.",
+      "how": "Negation/uncertainty/temporality-aware parser \u2192 soft labels + confidence weights; calibrate on gold folds only; never use test reports."
+    },
+    {
+      "name": "Per-target calibrated prevalence prior blend",
+      "why": "Macro AUC cares about ranking per target. Pure constant prevalence (~0.49 public) is a floor; blending study-level model logits with target prevalence stabilizes rare labels (MCL, Baker's).",
+      "how": "p = clip((1-\u03b1)\u00b7\u03c3(logit) + \u03b1\u00b7prev_t); tune \u03b1 on OOF; larger \u03b1 for rare/unstable heads."
+    },
+    {
+      "name": "Fluid-sensitive / fat-suppression series routing",
+      "why": "train_series.csv exposes Fluid_Sensitive and Fat_Suppression. Contusion/effusion/synovitis benefit from fluid-sensitive series; bone findings may prefer others.",
+      "how": "Weight series embeddings by sequence flags before plane pooling; ablate via ASRA H-routing."
+    },
+    {
+      "name": "Frozen encoder then last-block unfreeze",
+      "why": "Tiny gold set overfits if the full backbone trains early. Frozen ImageNet/RadImageNet encoder + heads first is the reliable baseline.",
+      "how": "Train heads only until OOF beats prevalence; then unfreeze last block at low LR."
+    },
+    {
+      "name": "Target-specific view preference soft regularizer",
+      "why": "Hard rules (no sagittal \u21d2 ACL=0) destroy recall. Soft preferred-plane coverage features improve ranking without forcing zeros.",
+      "how": "Concatenate preferred-plane coverage; small consistency loss only after ablation accepts it."
+    },
+    {
+      "name": "Ensemble fold checkpoints + rank average",
+      "why": "Single fold on 58 labels is noisy. Probability or rank ensembling across folds lifts macro AUC more than architecture churn.",
+      "how": "Save fold*.pt; at inference mean probs or average ranks then rescale to [eps,1-eps]."
+    }
+  ],
+  "errors": [
+    "knee MRI multi-label abnormality detection deep learning: RuntimeError: HTTP Error 429: Unknown Error",
+    "RSNA knee abnormality detection: RuntimeError: HTTP Error 429: Unknown Error",
+    "multi-planar MRI aggregation CNN EfficientNet: RuntimeError: HTTP Error 429: Too Many Requests",
+    "radiology report weak supervision negation: RuntimeError: HTTP Error 429: Unknown Error",
+    "macro ROC-AUC multi-label medical imaging: RuntimeError: HTTP Error 429: Unknown Error",
+    "plane-aware MRI classification sagittal coronal axial: RuntimeError: HTTP Error 429: Unknown Error"
+  ],
+  "path": "/Users/ilakkmanoharan2026/Projects/rsna-knee-mri-classifier/Research/2026-09-15_cycle02_20260915T115912-0500_research.md"
+}
