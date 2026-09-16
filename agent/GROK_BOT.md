@@ -5,7 +5,8 @@ logs — it verifies what actually landed in git and on Kaggle.
 
 - Code: [`agent/supervisor.py`](supervisor.py), [`agent/grok.py`](grok.py), [`agent/github_api.py`](github_api.py)
 - Schedule: [`.github/workflows/grok-supervisor.yml`](../.github/workflows/grok-supervisor.yml) —
-  hourly through the submission window; the late runs double as a sweep for unused quota
+  hourly, all day. `agent1-cloud.yml` only fires across the early competition day, so the
+  supervisor is what recovers quota if the agent falls behind later on
 - Reports: `Supervision/<day>_<stamp>_supervision.md` (+ `.json`), committed to `main`
 - Bot state: `artifacts/agent_state/supervisor_state.json` (dispatch cooldowns, asked questions)
 

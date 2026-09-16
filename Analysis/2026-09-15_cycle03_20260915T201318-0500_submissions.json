@@ -1,0 +1,38 @@
+[
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-15 17:13:15.320000",
+    "description": "agent1 2026-09-15 cycle 2 strategy=metadata_prior_blend | 2026-09-15_cycle02_20260915T120433-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.498,
+    "privateScore": null,
+    "ref": 56259580
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-15 17:08:11.313000",
+    "description": "agent1 2026-09-15 cycle 2 strategy=metadata_prior_blend | 2026-09-15_cycle02_20260915T115912-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.498,
+    "privateScore": null,
+    "ref": 56259512
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-15 16:52:24.720000",
+    "description": "agent1 2026-09-15 cycle 1 strategy=report_shrinkage_priors | 2026-09-15_cycle01_20260915T114138-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.498,
+    "privateScore": null,
+    "ref": 56259307
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-15 09:15:13.110000",
+    "description": "ASRA submission_001 Stage B: gold-label prevalence baseline with tiny noise",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.494,
+    "privateScore": null,
+    "ref": 56250767
+  }
+]
