@@ -1,0 +1,132 @@
+{
+  "papers": [
+    {
+      "title": "The Modern Mathematics of Deep Learning",
+      "summary": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+      "url": "https://arxiv.org/abs/2105.04026v2",
+      "published": "2021-05-09",
+      "query": "knee MRI multi-label abnormality detection deep learning"
+    },
+    {
+      "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+      "summary": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world dataset",
+      "url": "https://arxiv.org/abs/2306.11113v2",
+      "published": "2023-06-19",
+      "query": "knee MRI multi-label abnormality detection deep learning"
+    },
+    {
+      "title": "Coherence Learning using Keypoint-based Pooling Network for Accurately Assessing Radiographic Knee Osteoarthritis",
+      "summary": "Knee osteoarthritis (OA) is a common degenerate joint disorder that affects a large population of elderly people worldwide. Accurate radiographic assessment of knee OA severity plays a critical role in chronic patient management. Current clinically-adopted knee OA grading systems are observer subjective and suffer from inter-rater disagreements. In this work, we propose a computer-aided diagnosis approach to provide more accurate and consistent assessments of both composite and fine-grained OA grades simultaneously. A novel semi-supervised learning method is presented to exploit the underlying coherence in the composite and fine-grained OA grades by learning from unlabeled data. By representing the grade coherence using the log-probability of a pre-trained Gaussian Mixture Model, we formulate an incoherence loss to incorporate unlabeled data in training. The proposed method also describes a keypoint-based pooling network, where deep image features are pooled from the disease-targeted keypoints (extracted along the knee joint) to provide more aligned and pathologically informative feature representations, for accurate OA grade assessments. The proposed method is comprehensively eval",
+      "url": "https://arxiv.org/abs/2112.09177v1",
+      "published": "2021-12-16",
+      "query": "RSNA knee abnormality detection"
+    },
+    {
+      "title": "Generating 3D Pseudo-Healthy Knee MR Images to Support Trochleoplasty Planning",
+      "summary": "Purpose: Trochlear Dysplasia (TD) is a common malformation in adolescents, leading to anterior knee pain and instability. Surgical interventions such as trochleoplasty require precise planning to correct the trochlear groove. However, no standardized preoperative plan exists to guide surgeons in reshaping the femur. This study aims to generate patient-specific, pseudo-healthy MR images of the trochlear region that should theoretically align with the respective patient's patella, potentially supporting the pre-operative planning of trochleoplasty.   Methods: We employ a Wavelet Diffusion Model (WDM) to generate personalized pseudo-healthy, anatomically plausible MR scans of the trochlear region. We train our model using knee MR scans of healthy subjects. During inference, we mask out pathological regions around the patella in scans of patients affected by TD, and replace them with their pseudo-healthy counterpart. An orthopedic surgeon measured the sulcus angle (SA), trochlear groove depth (TGD) and D\u00e9jour classification in MR scans before and after inpainting. The code is available at https://github.com/wehrlimi/Generate-Pseudo-Healthy-Knee-MRI .   Results: The inpainting by our mo",
+      "url": "https://arxiv.org/abs/2412.09962v1",
+      "published": "2024-12-13",
+      "query": "RSNA knee abnormality detection"
+    },
+    {
+      "title": "Current Methods for Hyperpolarized [1-13C]pyruvate MRI Human Studies",
+      "summary": "MRI with hyperpolarized (HP) 13C agents, also known as HP 13C MRI, can measure processes such as localized metabolism that is altered in numerous cancers, liver, heart, kidney diseases, and more. It has been translated into human studies during the past 10 years, with recent rapid growth in studies largely based on increasing availability of hyperpolarized agent preparation methods suitable for use in humans. This paper aims to capture the current successful practices for HP MRI human studies with [1-13C]pyruvate - by far the most commonly used agent, which sits at a key metabolic junction in glycolysis. The paper is divided into four major topic areas: (1) HP 13C-pyruvate preparation, (2) MRI system setup and calibrations, (3) data acquisition and image reconstruction, and (4) data analysis and quantification. In each area, we identified the key components for a successful study, summarized both published studies and current practices, and discuss evidence gaps, strengths, and limitations. This paper is the output of the HP 13C MRI Consensus Group as well as the ISMRM Hyperpolarized Media MR and Hyperpolarized Methods & Equipment study groups. It further aims to provide a comprehe",
+      "url": "https://arxiv.org/abs/2309.04040v2",
+      "published": "2023-09-07",
+      "query": "multi-planar MRI aggregation CNN EfficientNet"
+    },
+    {
+      "title": "EfficientNet-eLite: Extremely Lightweight and Efficient CNN Models for Edge Devices by Network Candidate Search",
+      "summary": "Embedding Convolutional Neural Network (CNN) into edge devices for inference is a very challenging task because such lightweight hardware is not born to handle this heavyweight software, which is the common overhead from the modern state-of-the-art CNN models. In this paper, targeting at reducing the overhead with trading the accuracy as less as possible, we propose a novel of Network Candidate Search (NCS), an alternative way to study the trade-off between the resource usage and the performance through grouping concepts and elimination tournament. Besides, NCS can also be generalized across any neural network. In our experiment, we collect candidate CNN models from EfficientNet-B0 to be scaled down in varied way through width, depth, input resolution and compound scaling down, applying NCS to research the scaling-down trade-off. Meanwhile, a family of extremely lightweight EfficientNet is obtained, called EfficientNet-eLite. For further embracing the CNN edge application with Application-Specific Integrated Circuit (ASIC), we adjust the architectures of EfficientNet-eLite to build the more hardware-friendly version, EfficientNet-HF. Evaluation on ImageNet dataset, both proposed Ef",
+      "url": "https://arxiv.org/abs/2009.07409v1",
+      "published": "2020-09-16",
+      "query": "multi-planar MRI aggregation CNN EfficientNet"
+    },
+    {
+      "title": "Best Practices for Large Language Models in Radiology",
+      "summary": "At the heart of radiological practice is the challenge of integrating complex imaging data with clinical information to produce actionable insights. Nuanced application of language is key for various activities, including managing requests, describing and interpreting imaging findings in the context of clinical data, and concisely documenting and communicating the outcomes. The emergence of large language models (LLMs) offers an opportunity to improve the management and interpretation of the vast data in radiology. Despite being primarily general-purpose, these advanced computational models demonstrate impressive capabilities in specialized language-related tasks, even without specific training. Unlocking the potential of LLMs for radiology requires basic understanding of their foundations and a strategic approach to navigate their idiosyncrasies. This review, drawing from practical radiology and machine learning expertise and recent literature, provides readers insight into the potential of LLMs in radiology. It examines best practices that have so far stood the test of time in the rapidly evolving landscape of LLMs. This includes practical advice for optimizing LLM characteristic",
+      "url": "https://arxiv.org/abs/2412.01233v1",
+      "published": "2024-12-02",
+      "query": "radiology report weak supervision negation"
+    },
+    {
+      "title": "RadioRAG: Online Retrieval-augmented Generation for Radiology Question Answering",
+      "summary": "Large language models (LLMs) often generate outdated or inaccurate information based on static training datasets. Retrieval-augmented generation (RAG) mitigates this by integrating outside data sources. While previous RAG systems used pre-assembled, fixed databases with limited flexibility, we have developed Radiology RAG (RadioRAG), an end-to-end framework that retrieves data from authoritative radiologic online sources in real-time. We evaluate the diagnostic accuracy of various LLMs when answering radiology-specific questions with and without access to additional online information via RAG. Using 80 questions from the RSNA Case Collection across radiologic subspecialties and 24 additional expert-curated questions with reference standard answers, LLMs (GPT-3.5-turbo, GPT-4, Mistral-7B, Mixtral-8x7B, and Llama3 [8B and 70B]) were prompted with and without RadioRAG in a zero-shot inference scenario RadioRAG retrieved context-specific information from Radiopaedia in real-time. Accuracy was investigated. Statistical analyses were performed using bootstrapping. The results were further compared with human performance. RadioRAG improved diagnostic accuracy across most LLMs, with relati",
+      "url": "https://arxiv.org/abs/2407.15621v3",
+      "published": "2024-07-22",
+      "query": "radiology report weak supervision negation"
+    },
+    {
+      "title": "Search for massive rare particles with MACRO",
+      "summary": "Massive rare particles have been searched for in the penetrating cosmic radiation using the MACRO apparatus at the Gran Sasso National Laboratories. Liquid scintillators, streamer tubes and nuclear track detectors have been used to search for magnetic monopoles (MMs).  Based on no observation of such signals, stringent flux limits are established for MMs as slow as a few 10^(-5)c. The methods based on the scintillator and on the nuclear track subdetectors were also applied to search for nuclearites. Preliminary results of the searches for charged Q-balls are also presented.",
+      "url": "https://arxiv.org/abs/hep-ex/0009002v1",
+      "published": "2000-09-01",
+      "query": "macro ROC-AUC multi-label medical imaging"
+    },
+    {
+      "title": "Automatic Landmarks Correspondence Detection in Medical Images with an Application to Deformable Image Registration",
+      "summary": "Purpose: Deformable Image Registration (DIR) can benefit from additional guidance using corresponding landmarks in the images. However, the benefits thereof are largely understudied, especially due to the lack of automatic landmark detection methods for three-dimensional (3D) medical images.   Approach: We present a Deep Convolutional Neural Network (DCNN), called DCNN-Match, that learns to predict landmark correspondences in 3D images in a self-supervised manner. We trained DCNN-Match on pairs of Computed Tomography (CT) scans containing simulated deformations. We explored five variants of DCNN-Match that use different loss functions and assessed their effect on the spatial density of predicted landmarks and the associated matching errors. We also tested DCNN-Match variants in combination with the open-source registration software Elastix to assess the impact of predicted landmarks in providing additional guidance to DIR.   Results: We tested our approach on lower-abdominal CT scans from cervical cancer patients: 121 pairs containing simulated deformations and 11 pairs demonstrating clinical deformations. The results showed significant improvement in DIR performance when landmark ",
+      "url": "https://arxiv.org/abs/2109.02722v2",
+      "published": "2021-09-06",
+      "query": "macro ROC-AUC multi-label medical imaging"
+    },
+    {
+      "title": "FOLC-Net: A Federated-Optimized Lightweight Architecture for Enhanced MRI Disease Diagnosis across Axial, Coronal, and Sagittal Views",
+      "summary": "The framework is designed to improve performance in the analysis of combined as well as single anatomical perspectives for MRI disease diagnosis. It specifically addresses the performance degradation observed in state-of-the-art (SOTA) models, particularly when processing axial, coronal, and sagittal anatomical planes. The paper introduces the FOLC-Net framework, which incorporates a novel federated-optimized lightweight architecture with approximately 1.217 million parameters and a storage requirement of only 0.9 MB. FOLC-Net integrates Manta-ray foraging optimization (MRFO) mechanisms for efficient model structure generation, global model cloning for scalable training, and ConvNeXt for enhanced client adaptability. The model was evaluated on combined multi-view data as well as individual views, such as axial, coronal, and sagittal, to assess its robustness in various medical imaging scenarios. Moreover, FOLC-Net tests a ShallowFed model on different data to evaluate its ability to generalize beyond the training dataset. The results show that FOLC-Net outperforms existing models, particularly in the challenging sagittal view. For instance, FOLC-Net achieved an accuracy of 92.44% o",
+      "url": "https://arxiv.org/abs/2507.06763v1",
+      "published": "2025-07-09",
+      "query": "plane-aware MRI classification sagittal coronal axial"
+    },
+    {
+      "title": "Multi-Plane Vision Transformer for Hemorrhage Classification Using Axial and Sagittal MRI Data",
+      "summary": "Identifying brain hemorrhages from magnetic resonance imaging (MRI) is a critical task for healthcare professionals. The diverse nature of MRI acquisitions with varying contrasts and orientation introduce complexity in identifying hemorrhage using neural networks. For acquisitions with varying orientations, traditional methods often involve resampling images to a fixed plane, which can lead to information loss. To address this, we propose a 3D multi-plane vision transformer (MP-ViT) for hemorrhage classification with varying orientation data. It employs two separate transformer encoders for axial and sagittal contrasts, using cross-attention to integrate information across orientations. MP-ViT also includes a modality indication vector to provide missing contrast information to the model. The effectiveness of the proposed model is demonstrated with extensive experiments on real world clinical dataset consists of 10,084 training, 1,289 validation and 1,496 test subjects. MP-ViT achieved substantial improvement in area under the curve (AUC), outperforming the vision transformer (ViT) by 5.5% and CNN-based architectures by 1.8%. These results highlight the potential of MP-ViT in impro",
+      "url": "https://arxiv.org/abs/2505.07349v1",
+      "published": "2025-05-12",
+      "query": "plane-aware MRI classification sagittal coronal axial"
+    }
+  ],
+  "techniques": [
+    {
+      "name": "Plane-aware multi-series aggregation",
+      "why": "Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.",
+      "how": "Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative."
+    },
+    {
+      "name": "Weak supervision from multilingual reports",
+      "why": "Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseudo-labels from negation mistakes invert targets.",
+      "how": "Negation/uncertainty/temporality-aware parser \u2192 soft labels + confidence weights; calibrate on gold folds only; never use test reports."
+    },
+    {
+      "name": "Small-n gold-set metadata logistic",
+      "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494\u21920.499. The 58 gold labels can fit a regularized linear model on series-metadata features that actually learns which protocols correlate with each target, without waiting for a visual encoder.",
+      "how": "Fit ridge logistic per target on gold train studies using plane fractions + fluid/fat + log series count; apply to test_series; rank-transform; never read test reports or DICOM pixels."
+    },
+    {
+      "name": "Per-target calibrated prevalence prior blend",
+      "why": "Macro AUC cares about ranking per target. Pure constant prevalence (~0.49 public) is a floor; blending study-level model logits with target prevalence stabilizes rare labels (MCL, Baker's).",
+      "how": "p = clip((1-\u03b1)\u00b7\u03c3(logit) + \u03b1\u00b7prev_t); tune \u03b1 on OOF; larger \u03b1 for rare/unstable heads."
+    },
+    {
+      "name": "Fluid-sensitive / fat-suppression series routing",
+      "why": "train_series.csv exposes Fluid_Sensitive and Fat_Suppression. Contusion/effusion/synovitis benefit from fluid-sensitive series; bone findings may prefer others.",
+      "how": "Weight series embeddings by sequence flags before plane pooling; ablate via ASRA H-routing."
+    },
+    {
+      "name": "Frozen encoder then last-block unfreeze",
+      "why": "Tiny gold set overfits if the full backbone trains early. Frozen ImageNet/RadImageNet encoder + heads first is the reliable baseline.",
+      "how": "Train heads only until OOF beats prevalence; then unfreeze last block at low LR."
+    },
+    {
+      "name": "Target-specific view preference soft regularizer",
+      "why": "Hard rules (no sagittal \u21d2 ACL=0) destroy recall. Soft preferred-plane coverage features improve ranking without forcing zeros.",
+      "how": "Concatenate preferred-plane coverage; small consistency loss only after ablation accepts it."
+    },
+    {
+      "name": "Ensemble fold checkpoints + rank average",
+      "why": "Single fold on 58 labels is noisy. Probability or rank ensembling across folds lifts macro AUC more than architecture churn.",
+      "how": "Save fold*.pt; at inference mean probs or average ranks then rescale to [eps,1-eps]."
+    }
+  ],
+  "errors": [],
+  "path": "/workspace/Research/2026-09-16_cycle00_20260916T011234-0500_research.md"
+}
