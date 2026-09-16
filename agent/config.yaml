@@ -6,8 +6,16 @@ branch: main
 # Competition clock: quota resets at 01:00 America/Chicago (CST/CDT)
 day_start_hour_cst: 1
 day_start_tz: America/Chicago
-cycle_interval_minutes: 90
 max_submissions_per_day: 5
+
+# Adaptive cadence (no fixed slots): spend all 5 submissions every day, spacing them
+# 30-60 min apart — tighter when behind, relaxed when on track.
+pacing:
+  min_interval_minutes: 30
+  max_interval_minutes: 60
+  target_finish_hours: 4          # aim to have all 5 in within 4h of the day start
+  grace_minutes: 20               # slack before a submission counts as late
+  hard_stop_buffer_minutes: 60    # never submit inside this window before the day rolls over
 
 paths:
   research: Research
@@ -42,9 +50,8 @@ supervisor:
   enabled: true
   workflow_file: agent1-cloud.yml     # workflow the bot re-triggers when a slot is missed
   report_dir: Supervision
-  grace_minutes: 25                   # a slot may be this late before it counts as missed
-  dispatch_cooldown_minutes: 40
-  max_dispatches_per_day: 6
+  dispatch_cooldown_minutes: 30       # matches the pacing floor; null = follow pacing.min_interval
+  max_dispatches_per_day: 8
   hypothesis_aliases: ["Hypothesis analysis"]   # legacy folder name, still audited
   # Minimum substance per write-up; thin files count as a stage violation
   min_chars:

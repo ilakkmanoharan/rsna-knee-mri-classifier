@@ -6,7 +6,7 @@ Local LaunchAgent **cannot** run while the Mac is asleep. Use **GitHub Actions**
 
 Workflow: [`.github/workflows/agent1-cloud.yml`](../.github/workflows/agent1-cloud.yml)
 
-It runs ~5 times per day on GitHub’s runners (no laptop needed), executes `python agent/run_cycle.py`, commits Research/Analysis/Hypothesis/Plans, and submits to Kaggle.
+It fires every 30 minutes across the early competition day on GitHub’s runners (no laptop needed), executes `python agent/run_cycle.py`, commits Research/Analysis/Hypothesis/Plans, and submits to Kaggle. Each trigger is a *chance* to submit: the runner stops at the 5-per-day quota and refuses to submit within 30 minutes of the previous one, so actual spacing stays in the 30-60 minute band even with cron jitter or a DST shift, and the day’s quota still gets fully used.
 
 ### One-time secrets
 
@@ -44,7 +44,7 @@ Step-by-step paste values: [`CURSOR_AUTOMATION_SETUP.md`](CURSOR_AUTOMATION_SETU
 
 1. Open https://cursor.com/automations (or run `/automate` in Cursor).
 2. Select repo `ilakkmanoharan/rsna-knee-mri-classifier`.
-3. Add a **schedule** matching 01:00 America/Chicago + 90‑minute slots (max 5/day).
+3. Add a **schedule** covering 01:00 America/Chicago onward every 30-60 minutes (the agent enforces the 5/day cap itself).
 4. Paste instructions from [`cursor_cloud_automation_prompt.md`](cursor_cloud_automation_prompt.md).
 5. Provide Kaggle credentials to the cloud environment/secrets as required by Cursor.
 

@@ -1,9 +1,10 @@
 # Agent-1 cloud runner (laptop can be closed)
 #
-# Fires ~5 times per competition day (01:00 America/Chicago + every 90 min).
-# September–March note: GitHub cron is UTC. CDT=UTC-5 → 06:00 UTC = 01:00 CDT.
-# When clocks fall back to CST (UTC-6), 01:00 CST = 07:00 UTC — adjust if needed
-# or rely on workflow_dispatch / the agent's own day_id + quota guards.
+# Fires every 30 minutes across the early competition day so all 5 submissions get used.
+# The agent decides whether each trigger actually submits: run_cycle.py stops at the daily
+# quota and refuses to submit within pacing.min_interval_minutes (30) of the last submission,
+# so effective spacing lands in the 30-60 min band regardless of cron jitter or DST.
+# GitHub cron is UTC. The 06:00-13:30 UTC window covers 01:00-08:30 CDT and 00:00-07:30 CST.
 #
 # Required repo secrets:
 #   KAGGLE_USERNAME
@@ -17,12 +18,8 @@ name: agent1-cloud
 
 on:
   schedule:
-    # Competition day slots in CDT (UTC-5): 01:00, 02:30, 04:00, 05:30, 07:00 local
-    - cron: "0 6 * * *"
-    - cron: "30 7 * * *"
-    - cron: "0 9 * * *"
-    - cron: "30 10 * * *"
-    - cron: "0 12 * * *"
+    # every 30 min, 06:00-13:30 UTC (01:00-08:30 CDT / 00:00-07:30 CST)
+    - cron: "*/30 6-13 * * *"
   workflow_dispatch:
     inputs:
       force:

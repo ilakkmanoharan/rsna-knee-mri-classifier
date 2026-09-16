@@ -1,6 +1,6 @@
 # Agent-1 — daily competition improvement loop
 
-Starts at **01:00 America/Chicago** (competition quota reset), then every **90 minutes** until **5** Kaggle submissions are used.
+Starts at **01:00 America/Chicago** (competition quota reset) and keeps cycling until all **5** daily Kaggle submissions are used. Spacing is adaptive — **30-60 minutes** between cycles, tightening toward 30 when behind pace or the day is running out, relaxing toward 60 when on track (`pacing` in [`config.yaml`](config.yaml), logic in [`pacing.py`](pacing.py)). Leaving quota unused counts as a failure.
 
 ## Pipeline each cycle
 

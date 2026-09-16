@@ -1,4 +1,7 @@
-"""Daily Agent-1 daemon: wait for 01:00 America/Chicago, then cycle every 90 minutes until quota.
+"""Daily Agent-1 daemon: wait for 01:00 America/Chicago, then cycle until all 5 submissions are spent.
+
+Cadence is adaptive (agent/pacing.py): 30-60 minutes between cycles, tightening when the day is
+running out or submissions are behind pace.
 
 On errors: keep retrying (never exit the daily loop) and email the operator.
 """
@@ -26,6 +29,7 @@ from agent.clock import (
     seconds_until_next_day_start,
 )
 from agent.notify import send_alert
+from agent.pacing import pace_status
 from agent.run_cycle import run_cycle
 from agent.state import StateStore
 
@@ -83,7 +87,6 @@ def main() -> None:
 
     tz = cfg.get("day_start_tz", "America/Chicago")
     hour = int(cfg.get("day_start_hour_cst", 1))
-    interval = int(cfg.get("cycle_interval_minutes", 90)) * 60
     max_sub = int(cfg.get("max_submissions_per_day", 5))
     consecutive_failures = 0
 
@@ -137,8 +140,23 @@ def main() -> None:
                     remaining -= chunk
                 continue
 
-            logger.info("Sleeping %d seconds until next cycle", interval)
-            time.sleep(interval)
+            now = now_cst(tz)
+            pace = pace_status(
+                cfg,
+                state.submissions_used,
+                now,
+                competition_day_start(now, hour=hour, tz_name=tz),
+            )
+            gap = pace["next_gap_minutes"] or pace["min_interval_minutes"]
+            logger.info(
+                "Pacing: %d/%d submissions used, %d expected by now, deadline %s → next cycle in %.0f min",
+                state.submissions_used,
+                max_sub,
+                pace["expected_by_now"],
+                pace["deadline"],
+                gap,
+            )
+            time.sleep(gap * 60)
 
         except Exception as exc:  # noqa: BLE001
             consecutive_failures += 1

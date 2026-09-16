@@ -5,7 +5,7 @@ https://cursor.com/automations (or `/automate` in Cursor).
 
 ## Trigger
 
-- Schedule / cron covering competition day starts at **01:00 America/Chicago**, then every **90 minutes**, up to **5** runs/day.
+- Schedule / cron every **30 minutes** from **01:00 America/Chicago** onward; the agent submits at most 5 times per day and enforces a 30-minute floor between submissions, so extra triggers are no-ops.
 - Repository: `https://github.com/ilakkmanoharan/rsna-knee-mri-classifier.git` (branch `main`).
 
 ## Goal
@@ -32,6 +32,6 @@ Run **one** Agent-1 improvement cycle for RSNA Knee Abnormality Detection and pu
 ## Hard constraints
 
 - Internet disabled inside the **Kaggle** notebook; no test-report shortcut.
-- Max 5 Kaggle submissions per competition day; skip if quota full.
+- Use all 5 Kaggle submissions per competition day, 30-60 minutes apart; skip if quota full or the last submission was under 30 minutes ago.
 - Prefer metadata/prior strategies until real MRI training assets are mounted.
 - Never put SMTP/Kaggle passwords into the repo.

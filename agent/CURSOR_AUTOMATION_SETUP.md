@@ -9,17 +9,20 @@
 - **Must select a repository** (scheduled triggers default to no-repo — override that)
 
 ## Triggers (schedule)
-Use **custom cron** (UTC). These match **01:00 America/Chicago (CDT = UTC−5)** then every 90 minutes, 5 slots:
+Use **custom cron** (UTC), one trigger per line-item in Cursor. These fire every 30 minutes from **01:00 America/Chicago (CDT = UTC−5)** so all 5 submissions get used; the agent itself enforces the daily cap and the 30-minute floor between submissions:
 
 ```text
-0 6 * * *
-30 7 * * *
-0 9 * * *
-30 10 * * *
-0 12 * * *
+0,30 6 * * *
+0,30 7 * * *
+0,30 8 * * *
+0,30 9 * * *
+0,30 10 * * *
+0,30 11 * * *
+0,30 12 * * *
+0,30 13 * * *
 ```
 
-(When the US is on CST / UTC−6, shift each hour +1, or keep these and rely on the agent's quota guard.)
+(The window already covers the CST / UTC−6 shift; extra triggers are harmless no-ops once quota is spent.)
 
 ## Tools to enable
 - Pull request creation: **off** (agent should push commits to `main`, not open PRs unless blocked)
@@ -55,7 +58,8 @@ Pipeline (in order):
    (override per-commit; do not rewrite git config permanently).
 
 Quota rules:
-- At most 5 Kaggle submissions per competition day (day starts 01:00 America/Chicago).
+- Use all 5 Kaggle submissions every competition day (day starts 01:00 America/Chicago); unused quota is a failure.
+- Keep 30-60 minutes between submissions: skip submitting if the previous submission was under 30 minutes ago.
 - If quota is full, write analysis noting skip and exit successfully without submitting.
 - Never use test radiology reports. Kaggle notebooks must run offline.
 

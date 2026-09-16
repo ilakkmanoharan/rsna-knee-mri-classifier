@@ -14,8 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from agent.clock import competition_day_id, now_cst, stamp
+from agent.clock import competition_day_id, competition_day_start, now_cst, stamp
 from agent.git_sync import commit_and_push, ensure_dirs
+from agent.pacing import pace_cfg, pace_status
 from agent.state import StateStore
 from agent.stages.analyze import run_analysis
 from agent.stages.hypothesize import run_hypothesize
@@ -38,8 +39,9 @@ def read_strategy(plan_json: Path) -> str:
     return "metadata_prior_blend"
 
 
-def _sync_quota_from_kaggle(cfg: dict, state) -> None:
-    """Align submissions_used with COMPLETE submissions since competition day start."""
+def _sync_quota_from_kaggle(cfg: dict, state):
+    """Align submissions_used with submissions since day start; return the newest one's time."""
+    latest_at = None
     try:
         from agent.stages.analyze import fetch_submissions
         from agent.clock import competition_day_start
@@ -71,6 +73,8 @@ def _sync_quota_from_kaggle(cfg: dict, state) -> None:
                     dt = dt.astimezone(start.tzinfo)
                 if dt >= start:
                     used += 1
+                    if latest_at is None or dt > latest_at:
+                        latest_at = dt
             except Exception:  # noqa: BLE001
                 used += 1  # conservative
         if used > state.submissions_used:
@@ -78,6 +82,7 @@ def _sync_quota_from_kaggle(cfg: dict, state) -> None:
             state.submissions_used = used
     except Exception as exc:  # noqa: BLE001
         logger.warning("Could not sync quota from Kaggle: %s", exc)
+    return latest_at
 
 
 def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> dict:
@@ -87,12 +92,26 @@ def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> d
     state_path = ROOT / cfg["paths"]["state"] / "day_state.json"
     store = StateStore(state_path)
     state = store.load(day_id)
-    _sync_quota_from_kaggle(cfg, state)
+    last_submission_at = _sync_quota_from_kaggle(cfg, state)
 
     max_sub = int(cfg.get("max_submissions_per_day", 5))
     if state.submissions_used >= max_sub and not force:
         logger.warning("Daily quota exhausted (%d/%d). Skipping.", state.submissions_used, max_sub)
         return {"skipped": True, "reason": "quota", "state": state.to_dict()}
+
+    # Bunched cron deliveries / overlapping triggers must not submit faster than the floor gap.
+    now = now_cst(tz)
+    min_gap = float(pace_cfg(cfg)["min_interval_minutes"])
+    if last_submission_at and not skip_submit and not force:
+        since = (now - last_submission_at.astimezone(now.tzinfo)).total_seconds() / 60.0
+        if since < min_gap:
+            logger.info("Last submission was %.0f min ago (< %.0f min floor). Skipping.", since, min_gap)
+            return {
+                "skipped": True,
+                "reason": "min_interval",
+                "minutes_since_last_submission": round(since, 1),
+                "state": state.to_dict(),
+            }
 
     cycle_num = state.cycles_completed
     cycle_id = f"{cycle_num:02d}_{stamp(tz)}"
@@ -196,7 +215,15 @@ def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> d
             auto_push=bool(cfg.get("git", {}).get("auto_push", True)),
         )
 
-    return {"skipped": False, "cycle_id": cycle_id, "strategy": strategy, "submit": submit_info, "state": state.to_dict()}
+    pace = pace_status(cfg, state.submissions_used, now_cst(tz), competition_day_start(hour=hour, tz_name=tz))
+    return {
+        "skipped": False,
+        "cycle_id": cycle_id,
+        "strategy": strategy,
+        "submit": submit_info,
+        "pace": pace,
+        "state": state.to_dict(),
+    }
 
 
 def main() -> None:

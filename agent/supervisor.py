@@ -1,15 +1,15 @@
 """Grok supervisor bot for agent1.
 
 Audits whether the Cursor/GitHub agent actually performed the three supervised stages of
-private/agent/agent1.md for every due 90-minute slot of the competition day:
+private/agent/agent1.md for every submission that was due by now:
 
   Research/    - literature write-up: which methods to consider, why, how they raise the score
   Analysis/    - previous Kaggle submission logs: why the score was low, how to improve
   Hypothesis/  - falsifiable hypotheses derived from Research + Analysis
 
-then checks the Kaggle submission cadence (5 per competition day, one per 90 minutes), asks Grok
-for a verdict, remediates by re-running the agent through GitHub Actions, and escalates to the
-operator by email + GitHub issue when a human decision is required.
+then checks the adaptive cadence (all 5 daily submissions spent, 30-60 min apart — see
+agent/pacing.py), asks Grok for a verdict, remediates by re-running the agent through GitHub
+Actions, and escalates to the operator by email + GitHub issue when a human decision is required.
 
 Usage:
   python agent/supervisor.py                 # audit + remediate + report + ask
@@ -25,7 +25,7 @@ import logging
 import os
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -39,13 +39,13 @@ from agent import github_api, grok
 from agent.clock import competition_day_id, competition_day_start, now_cst, stamp
 from agent.git_sync import commit_and_push
 from agent.notify import send_alert
+from agent.pacing import pace_cfg, pace_status
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("grok.supervisor")
 
 STAGES = ("research", "analysis", "hypothesis")
 DEFAULT_MIN_CHARS = {"research": 1200, "analysis": 700, "hypothesis": 500}
-DEFAULT_GRACE_MIN = 25
 
 
 # --------------------------------------------------------------------------------------
@@ -228,28 +228,6 @@ def workflow_state(cfg: dict[str, Any], day_start: datetime) -> dict[str, Any]:
 # --------------------------------------------------------------------------------------
 # audit
 # --------------------------------------------------------------------------------------
-def slots_due(cfg: dict[str, Any], now: datetime, day_start: datetime) -> dict[str, Any]:
-    interval = int(cfg.get("cycle_interval_minutes", 90))
-    max_sub = int(cfg.get("max_submissions_per_day", 5))
-    grace = int(sup_cfg(cfg).get("grace_minutes", DEFAULT_GRACE_MIN))
-    schedule = []
-    due = 0
-    for i in range(max_sub):
-        slot_at = day_start + timedelta(minutes=interval * i)
-        is_due = now >= slot_at + timedelta(minutes=grace)
-        schedule.append({"slot": i, "at": slot_at.isoformat(), "due": is_due})
-        due += int(is_due)
-    next_slot = next((s for s in schedule if not s["due"]), None)
-    return {
-        "interval_minutes": interval,
-        "max_per_day": max_sub,
-        "grace_minutes": grace,
-        "due_count": due,
-        "schedule": schedule,
-        "next_slot_at": (next_slot or {}).get("at"),
-    }
-
-
 def build_audit(cfg: dict[str, Any], now: Optional[datetime] = None) -> dict[str, Any]:
     tz = cfg.get("day_start_tz", "America/Chicago")
     hour = int(cfg.get("day_start_hour_cst", 1))
@@ -258,7 +236,6 @@ def build_audit(cfg: dict[str, Any], now: Optional[datetime] = None) -> dict[str
     day_id = competition_day_id(now, hour=hour, tz_name=tz)
 
     stages = {s: audit_stage(cfg, s, day_id) for s in STAGES}
-    timing = slots_due(cfg, now, day_start)
     kaggle = kaggle_submissions_today(cfg, day_start)
     actions = workflow_state(cfg, day_start)
 
@@ -267,12 +244,13 @@ def build_audit(cfg: dict[str, Any], now: Optional[datetime] = None) -> dict[str
         & set(stages["analysis"]["cycles_with_artifact"])
         & set(stages["hypothesis"]["cycles_with_artifact"])
     )
-    due = int(timing["due_count"])
-    max_sub = int(timing["max_per_day"])
     submissions = kaggle["count_today"]
+    pace = pace_status(cfg, submissions, now, day_start)
+    due = int(pace["expected_by_now"])
+    max_sub = int(pace["quota"])
 
     artifact_deficit = max(0, due - len(complete_cycles))
-    submission_deficit = max(0, due - submissions) if submissions is not None else 0
+    submission_deficit = int(pace["deficit"]) if submissions is not None else 0
     quota_left = max(0, max_sub - submissions) if submissions is not None else max_sub
 
     violations: list[str] = []
@@ -283,11 +261,18 @@ def build_audit(cfg: dict[str, Any], now: Optional[datetime] = None) -> dict[str
             violations.append(f"{folder}/ folder is missing (agent1.md requires it)")
         elif st["count_today"] < due:
             violations.append(
-                f"{folder}/ has {st['count_today']} write-up(s) for day {day_id} but {due} slot(s) are due"
+                f"{folder}/ has {st['count_today']} write-up(s) for day {day_id} but {due} were due by now"
             )
         violations += [f"{folder}/: {i}" for i in st["quality_issues"]]
     if submissions is not None and submission_deficit:
-        violations.append(f"Kaggle submissions today: {submissions} of {due} due (cap {max_sub})")
+        violations.append(
+            f"Kaggle submissions today: {submissions}, behind pace ({due} due by now, cap {max_sub})"
+        )
+    if pace["quota_at_risk"]:
+        violations.append(
+            f"Quota at risk: {quota_left} submission(s) left but only {pace['minutes_to_deadline']:.0f} min "
+            f"until {pace['deadline']} at a {pace['min_interval_minutes']:.0f}-min floor"
+        )
     if kaggle.get("errored_today"):
         violations.append(f"{len(kaggle['errored_today'])} Kaggle submission(s) today ended in ERROR")
     if actions["failed_today"]:
@@ -300,7 +285,7 @@ def build_audit(cfg: dict[str, Any], now: Optional[datetime] = None) -> dict[str
         "day_id": day_id,
         "day_start": day_start.isoformat(),
         "competition": cfg.get("competition"),
-        "timing": timing,
+        "pace": pace,
         "stages": stages,
         "cycles_with_full_pipeline": complete_cycles,
         "kaggle": kaggle,
@@ -342,8 +327,9 @@ def save_state(cfg: dict[str, Any], state: dict[str, Any]) -> None:
 
 def dispatch_allowed(cfg: dict[str, Any], state: dict[str, Any], now: datetime) -> tuple[bool, str]:
     s = sup_cfg(cfg)
-    max_disp = int(s.get("max_dispatches_per_day", 6))
-    cooldown = int(s.get("dispatch_cooldown_minutes", 40))
+    max_disp = int(s.get("max_dispatches_per_day", 8))
+    # Never re-trigger faster than the pacing floor between submissions.
+    cooldown = int(s.get("dispatch_cooldown_minutes") or pace_cfg(cfg)["min_interval_minutes"])
     dispatches = state.get("dispatches") or []
     if len(dispatches) >= max_disp:
         return False, f"dispatch cap reached ({len(dispatches)}/{max_disp} today)"
@@ -370,12 +356,15 @@ def render_report(audit: dict[str, Any], verdict: dict[str, Any], actions_taken:
         "",
         f"- Verdict: **{verdict.get('verdict', 'unknown')}** "
         f"({'Grok' if verdict.get('source') == 'grok' else 'rule-based'} review)",
-        f"- Slots due so far: {audit['timing']['due_count']} / {audit['timing']['max_per_day']}"
-        f" (every {audit['timing']['interval_minutes']} min from {audit['day_start']})",
+        f"- Submissions due by now: {audit['pace']['expected_by_now']} / {audit['pace']['quota']}"
+        f" ({audit['pace']['min_interval_minutes']:.0f}-{audit['pace']['max_interval_minutes']:.0f} min adaptive"
+        f" pacing from {audit['day_start']})",
         f"- Cycles with Research + Analysis + Hypothesis: {audit['cycles_with_full_pipeline']}",
         f"- Kaggle submissions today: {audit['kaggle'].get('count_today')} "
         f"(best {audit['kaggle'].get('best_today')}, best all-time {audit['kaggle'].get('best_all_time')})",
-        f"- Next slot: {audit['timing'].get('next_slot_at')}",
+        f"- Next cycle gap: {audit['pace'].get('next_gap_minutes')} min · "
+        f"quota left {audit['pace']['quota_left']} · finish-by {audit['pace']['deadline']} "
+        f"({audit['pace']['minutes_to_deadline']:.0f} min out)",
         "",
         "## Supervised stages (agent1.md steps 1-3)",
         "",
@@ -437,7 +426,7 @@ def ask_human(
         "### Why",
         *[f"- {v}" for v in audit["violations"][:10]],
         "",
-        f"Slots due: {audit['timing']['due_count']}/{audit['timing']['max_per_day']} · "
+        f"Submissions due by now: {audit['pace']['expected_by_now']}/{audit['pace']['quota']} · "
         f"submissions today: {audit['kaggle'].get('count_today')} · "
         f"full pipelines: {audit['cycles_with_full_pipeline']}",
         "",
@@ -622,7 +611,8 @@ def supervise(
             commit_and_push(
                 [str(report_dir.relative_to(ROOT)), (cfg.get("paths") or {}).get("state", "artifacts/agent_state")],
                 message=f"grok-bot: supervision {audit['day_id']} verdict={verdict.get('verdict')} "
-                f"due={audit['timing']['due_count']} pipelines={len(audit['cycles_with_full_pipeline'])}",
+                f"due={audit['pace']['expected_by_now']} used={audit['pace']['used']} "
+                f"pipelines={len(audit['cycles_with_full_pipeline'])}",
                 branch=str(cfg.get("branch", "main")),
                 auto_push=bool(cfg.get("git", {}).get("auto_push", True)),
             )
@@ -662,8 +652,11 @@ def main() -> None:
         v = result["verdict"]
         a = result["audit"]
         print(f"verdict: {v.get('verdict')} ({v.get('source', 'grok')})")
-        print(f"day {a['day_id']}: {a['timing']['due_count']} slot(s) due, "
-              f"pipelines {a['cycles_with_full_pipeline']}, submissions {a['kaggle'].get('count_today')}")
+        print(
+            f"day {a['day_id']}: {a['pace']['expected_by_now']}/{a['pace']['quota']} submissions due by now, "
+            f"{a['kaggle'].get('count_today')} in, pipelines {a['cycles_with_full_pipeline']}, "
+            f"next gap {a['pace'].get('next_gap_minutes')} min"
+        )
         for viol in a["violations"]:
             print(f"  ! {viol}")
         for act in result["actions"]:
