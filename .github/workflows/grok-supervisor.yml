@@ -20,9 +20,9 @@ name: grok-supervisor
 
 on:
   schedule:
-    # hourly at :45 through the submission window (01:45-09:45 CDT / 00:45-08:45 CST);
-    # the last runs double as the sweep that spends any quota still left
-    - cron: "45 6-14 * * *"
+    # hourly, all day: outside agent1-cloud's early window this is the only thing that can
+    # still recover unused quota, and it remediates inline, so keep full-day coverage
+    - cron: "45 * * * *"
   workflow_dispatch:
     inputs:
       mode:
