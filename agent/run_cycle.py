@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
 
 from agent.clock import competition_day_id, competition_day_start, now_cst, stamp
 from agent.git_sync import commit_and_push, ensure_dirs
+from agent.kaggle_auth import ensure_kaggle_credentials
 from agent.pacing import pace_cfg, pace_status
 from agent.state import StateStore
 from agent.stages.analyze import run_analysis
@@ -86,6 +87,7 @@ def _sync_quota_from_kaggle(cfg: dict, state):
 
 
 def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> dict:
+    ensure_kaggle_credentials()
     tz = cfg.get("day_start_tz", "America/Chicago")
     hour = int(cfg.get("day_start_hour_cst", 1))
     day_id = competition_day_id(hour=hour, tz_name=tz)
@@ -233,6 +235,7 @@ def main() -> None:
     ap.add_argument("--force", action="store_true", help="Ignore daily quota guard")
     args = ap.parse_args()
     cfg = load_cfg(Path(args.config))
+    ensure_kaggle_credentials()
     result = run_cycle(cfg, skip_submit=args.skip_submit, force=args.force)
     print(json.dumps(result, indent=2, default=str))
 

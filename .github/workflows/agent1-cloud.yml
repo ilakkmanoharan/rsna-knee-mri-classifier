@@ -57,7 +57,7 @@ jobs:
       - name: Install agent dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install "kaggle>=1.6" pyyaml pandas numpy
+          pip install "kaggle>=2.2" pyyaml pandas numpy
 
       - name: Configure Kaggle credentials
         env:
@@ -71,6 +71,13 @@ jobs:
           mkdir -p "$HOME/.kaggle"
           printf '{"username":"%s","key":"%s"}\n' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > "$HOME/.kaggle/kaggle.json"
           chmod 600 "$HOME/.kaggle/kaggle.json"
+          # KGAT_* secrets are Kaggle access tokens (kaggle>=2.2); legacy hex keys stay in kaggle.json only.
+          case "$KAGGLE_KEY" in
+            KGAT_*)
+              printf '%s\n' "$KAGGLE_KEY" > "$HOME/.kaggle/access_token"
+              chmod 600 "$HOME/.kaggle/access_token"
+              ;;
+          esac
 
       - name: Configure git for agent commits
         run: |

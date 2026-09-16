@@ -61,6 +61,8 @@ sample = pd.read_csv(ROOT / "sample_submission.csv")
 train = pd.read_csv(ROOT / "train.csv")
 series_path = ROOT / "test_series.csv"
 test_series = pd.read_csv(series_path) if series_path.exists() else None
+train_series_path = ROOT / "train_series.csv"
+train_series = pd.read_csv(train_series_path) if train_series_path.exists() else None
 study_col = "StudyInstanceUID"
 targets = [c for c in sample.columns if c != study_col]
 
@@ -88,6 +90,7 @@ PREF = {{
     "Fracture": {{"Sagittal": 0.1, "Coronal": 0.1, "Axial": 0.1}},
 }}
 FLUID_BOOST = {{"Effusion": 0.25, "Synovitis": 0.2, "Contusion": 0.15, "Baker's": 0.1}}
+FAT_BOOST = {{"Medial OA": 0.12, "Lateral OA": 0.12, "PF OA": 0.1, "Fracture": 0.12, "Contusion": 0.08}}
 
 def logit(p):
     p = np.clip(p, EPS, 1 - EPS)
@@ -121,15 +124,76 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
         off += fb * (feats.get("fluid", 0.0) - 0.5)
+        off += FAT_BOOST.get(t, 0.0) * (feats.get("fat", 0.0) - 0.5)
     return float(off)
 
+def feat_map(series_df):
+    """Per-study vector: intercept, log1p(n), sag/cor/ax fractions, fluid frac, fat frac."""
+    empty = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=float)
+    if series_df is None or series_df.empty:
+        return {{}}, empty
+    df = series_df.copy()
+    uid = df[study_col].astype(str)
+    plane = df["Anatomical_Plane"].astype(str) if "Anatomical_Plane" in df.columns else ""
+    df["_sag"] = (plane == "Sagittal").astype(float)
+    df["_cor"] = (plane == "Coronal").astype(float)
+    df["_ax"] = (plane == "Axial").astype(float)
+    df["_fluid"] = pd.to_numeric(df["Fluid_Sensitive"], errors="coerce").fillna(0.0) if "Fluid_Sensitive" in df.columns else 0.0
+    df["_fat"] = pd.to_numeric(df["Fat_Suppression"], errors="coerce").fillna(0.0) if "Fat_Suppression" in df.columns else 0.0
+    agg = df.groupby(uid).agg(
+        n=(study_col, "size"),
+        sag=("_sag", "sum"),
+        cor=("_cor", "sum"),
+        ax=("_ax", "sum"),
+        fluid=("_fluid", "sum"),
+        fat=("_fat", "sum"),
+    )
+    out = {{}}
+    for sid, row in agg.iterrows():
+        n = max(float(row["n"]), 1.0)
+        out[str(sid)] = np.array([
+            1.0,
+            float(np.log1p(row["n"])),
+            float(row["sag"] / n),
+            float(row["cor"] / n),
+            float(row["ax"] / n),
+            float(row["fluid"] / n),
+            float(row["fat"] / n),
+        ], dtype=float)
+    return out, empty
+
+def fit_ridge_logit(X, y, lam=1.0, steps=40):
+    n, d = X.shape
+    w = np.zeros(d, dtype=float)
+    # intercept is not regularized as strongly
+    reg = lam * np.ones(d)
+    reg[0] = 0.05 * lam
+    for _ in range(steps):
+        p = sigmoid(X @ w)
+        g = X.T @ (p - y) / max(n, 1) + reg * w
+        s = np.clip(p * (1.0 - p), 1e-4, 0.25)
+        H = (X.T * s) @ X / max(n, 1) + np.diag(reg)
+        try:
+            w = w - np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            w = w - 0.2 * g
+    return w
+
+def rank_cols(a):
+    r = np.empty_like(a, dtype=float)
+    for j in range(a.shape[1]):
+        order = np.argsort(a[:, j], kind="mergesort")
+        ranks = np.empty(len(a), dtype=float)
+        ranks[order] = np.linspace(EPS, 1 - EPS, len(a))
+        r[:, j] = ranks
+    return r
+
 # Optional report-shrinkage constants (train-only derived; embedded, no test reports)
-# Slightly nudge meniscus/synovitis priors toward empirical soft positives rate.
 SHRINK = {{
     "Medial Meniscus": 0.03,
     "Lateral Meniscus": 0.02,
@@ -141,7 +205,8 @@ rng = np.random.default_rng(SEED)
 rows = []
 meta_mat = []
 prev_mat = []
-for uid in sample[study_col].astype(str).tolist():
+uids = sample[study_col].astype(str).tolist()
+for uid in uids:
     feats = study_features(uid)
     probs = {{}}
     for t in targets:
@@ -149,12 +214,15 @@ for uid in sample[study_col].astype(str).tolist():
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY == "metadata_prior_blend" or STRATEGY == "report_shrinkage_priors" or STRATEGY == "fluid_gate_metadata":
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
-        # tiny deterministic noise for variance / rank jitter
-        p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
+        # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
+        if STRATEGY != "gold_meta_logit":
+            p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
+        else:
+            p = float(np.clip(p, EPS, 1 - EPS))
         probs[t] = p
     prev_mat.append([prev[t] for t in targets])
     meta_mat.append([probs[t] for t in targets])
@@ -162,18 +230,58 @@ for uid in sample[study_col].astype(str).tolist():
 
 out = pd.DataFrame(rows)[sample.columns]
 
+if STRATEGY == "gold_meta_logit" and train_series is not None:
+    tr_map, default_x = feat_map(train_series)
+    te_map, _ = feat_map(test_series)
+    gold = train.copy()
+    gold[study_col] = gold[study_col].astype(str)
+    labeled = gold.dropna(subset=[t for t in targets if t in gold.columns], how="all")
+    X_rows, y_cols = [], {{t: [] for t in targets}}
+    keep_idx = []
+    for i, sid in enumerate(labeled[study_col].astype(str).tolist()):
+        x = tr_map.get(sid)
+        if x is None:
+            continue
+        keep_idx.append(i)
+        X_rows.append(x)
+        row = labeled.iloc[i]
+        for t in targets:
+            y_cols[t].append(row[t] if t in labeled.columns else np.nan)
+    scores = np.zeros((len(uids), len(targets)), dtype=float)
+    used_learned = False
+    if len(X_rows) >= 20:
+        X = np.vstack(X_rows)
+        # standardize non-intercept columns on gold, apply to test
+        mu = X.mean(axis=0)
+        sd = np.clip(X.std(axis=0), 1e-6, None)
+        mu[0], sd[0] = 0.0, 1.0
+        Xs = (X - mu) / sd
+        Xte = []
+        for uid in uids:
+            x = te_map.get(uid, default_x)
+            Xte.append((x - mu) / sd)
+        Xte = np.vstack(Xte)
+        for j, t in enumerate(targets):
+            y = np.array(y_cols[t], dtype=float)
+            mask = np.isfinite(y)
+            if mask.sum() < 12 or y[mask].min() == y[mask].max():
+                scores[:, j] = logit(prev[t])
+                continue
+            w = fit_ridge_logit(Xs[mask], y[mask], lam=2.0, steps=40)
+            scores[:, j] = Xte @ w
+        # Rank-transform: macro AUC only cares about order; drop additive noise.
+        ranked = rank_cols(scores)
+        out = sample[[study_col]].copy()
+        for j, t in enumerate(targets):
+            # map ranks through prevalence so means stay near the gold prior
+            out[t] = np.clip(prev[t] + 0.25 * (ranked[:, j] - 0.5), EPS, 1 - EPS)
+        out = out[sample.columns]
+        used_learned = True
+    print("gold_meta_logit used_learned", used_learned, "n_gold_with_series", len(X_rows))
+
 if STRATEGY == "rank_ensemble_safe":
     prev_arr = np.array(prev_mat)
     meta_arr = np.array(meta_mat)
-    # average ranks
-    def rank_cols(a):
-        r = np.empty_like(a)
-        for j in range(a.shape[1]):
-            order = np.argsort(a[:, j])
-            ranks = np.empty(len(a))
-            ranks[order] = np.linspace(EPS, 1 - EPS, len(a))
-            r[:, j] = ranks
-        return r
     blended = 0.5 * rank_cols(prev_arr) + 0.5 * rank_cols(meta_arr)
     out = sample[[study_col]].copy()
     for j, t in enumerate(targets):

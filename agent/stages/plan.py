@@ -17,7 +17,7 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "metadata_prior_blend",
+        "gold_meta_logit",
         "report_shrinkage_priors",
         "metadata_prior_blend",  # visual needs GPU dataset; keep safe default until assets ready
         "fluid_gate_metadata",
@@ -51,7 +51,20 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "metadata_prior_blend":
+    if strategy == "gold_meta_logit":
+        lines += [
+            "- Load `train.csv` gold labels (only rows with non-null targets, ~58 studies).",
+            "- Load `train_series.csv` and `test_series.csv`; do **not** walk DICOM trees.",
+            "- Per study, build a 7-d vector: intercept, log1p(n_series), sagittal/coronal/axial",
+            "  fractions, fluid-sensitive fraction, fat-suppression fraction.",
+            "- Standardize non-intercept features on gold; fit ridge logistic (λ≈2, 40 IRLS steps)",
+            "  independently per target. Skip a head if it has <12 labels or no class contrast.",
+            "- Score every test study; rank-transform each column; map ranks through gold prevalence.",
+            "- If train_series is missing or gold+series < 20, fall back to hand-tuned metadata offsets.",
+            "- No Gaussian rank-scrambling noise. No test reports. No pixel model.",
+            "",
+        ]
+    elif strategy == "metadata_prior_blend":
         lines += [
             "- Load `train.csv` gold labels → per-target prevalence.",
             "- Load `test_series.csv` → for each study compute:",

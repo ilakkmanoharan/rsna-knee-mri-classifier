@@ -72,6 +72,11 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Negation/uncertainty/temporality-aware parser → soft labels + confidence weights; calibrate on gold folds only; never use test reports.",
         },
         {
+            "name": "Small-n gold-set metadata logistic",
+            "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494→0.499. The 58 gold labels can fit a regularized linear model on series-metadata features that actually learns which protocols correlate with each target, without waiting for a visual encoder.",
+            "how": "Fit ridge logistic per target on gold train studies using plane fractions + fluid/fat + log series count; apply to test_series; rank-transform; never read test reports or DICOM pixels.",
+        },
+        {
             "name": "Per-target calibrated prevalence prior blend",
             "why": "Macro AUC cares about ranking per target. Pure constant prevalence (~0.49 public) is a floor; blending study-level model logits with target prevalence stabilizes rare labels (MCL, Baker's).",
             "how": "p = clip((1-α)·σ(logit) + α·prev_t); tune α on OOF; larger α for rare/unstable heads.",
@@ -153,9 +158,10 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. Replace constant/prevalence-only predictions with **target-calibrated priors + study-level adjustments** from series metadata (plane availability, fluid-sensitive counts).",
-        "2. Add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
-        "3. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet) once OOF beats prevalence on gold labels.",
+        "1. **Learn metadata weights** from the 58 gold labels (ridge logistic on plane/fluid/fat counts) and rank-transform — hand offsets have saturated at ~0.499.",
+        "2. Replace remaining constant/prevalence-only heads with **target-calibrated priors + study-level adjustments** only as a fallback.",
+        "3. Add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
+        "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet) once a metadata model beats 0.499 or is falsified.",
         "",
         "## Literature / arXiv notes",
         "",
