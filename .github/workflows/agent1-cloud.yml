@@ -20,6 +20,9 @@ on:
   schedule:
     # every 30 min, 06:00-13:30 UTC (01:00-08:30 CDT / 00:00-07:30 CST)
     - cron: "*/30 6-13 * * *"
+    # hourly for the rest of the day so quota can still be recovered late
+    - cron: "15 14-23 * * *"
+    - cron: "15 0-5 * * *"
   workflow_dispatch:
     inputs:
       force:
