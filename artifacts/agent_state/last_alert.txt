@@ -1,0 +1,32 @@
+[grok-bot] needs your input — RSNA knee day 2026-09-16
+
+The Grok supervisor bot needs a decision from you (verdict: **on_track**).
+
+### Questions
+- [ ] Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.
+- [ ] I cannot read Kaggle submission history (RuntimeError: Authentication required to call the Kaggle API.
+
+First, you will need a Kaggle account. You can sign up at
+  https://www.kaggle.com/account/login
+
+Recommended: log in with OAuth via a web-based authorization flow.
+No token to manage; credentials are cached locally for you.
+    kaggle auth login
+
+If you'd rather not use OAuth, generate an API token at
+  https://www.kaggle.com/settings/api  (click "Generate New Token" under "API")
+and supply it to the CLI in one of these ways:
+
+  Option A: Environment variable
+    export KAGGLE_API_TOKEN=xxxxxxxxxxxxxx  # token copied from the settings UI
+
+  Option B: API token file
+    Save the token to ~/.kaggle/access_token
+). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.
+- [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
+
+### Why
+
+Submissions due by now: 1/5 · submissions today: None · full pipelines: [0]
+
+Reply in a comment on this issue; the bot reads open issues on its next run.
