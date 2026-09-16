@@ -32,6 +32,7 @@ def test_notebook_contains_learned_metadata_path(tmp_path):
     assert "enable_internet" not in src  # notebook body; metadata is separate
     meta = json.loads((tmp_path / "kernel-metadata.json").read_text())
     assert meta["enable_internet"] is False
+    assert meta["id"] == "kaggle-user/slug"
     assert meta["competition_sources"] == ["rsna-knee-abnormality-detection"]
 
 

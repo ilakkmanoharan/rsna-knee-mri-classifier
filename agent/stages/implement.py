@@ -303,7 +303,7 @@ def implement_notebook(kernel_dir: Path, strategy: str, cycle_id: str, kernel_sl
     src = _source_for_strategy(strategy, cycle_id)
     (kernel_dir / nb_name).write_text(json.dumps(_notebook(src), indent=1))
     meta = {
-        "id": f"{username}/{kernel_slug}",
+        "id": f"kaggle-user/{kernel_slug}",
         "title": kernel_slug,
         "code_file": nb_name,
         "language": "python",

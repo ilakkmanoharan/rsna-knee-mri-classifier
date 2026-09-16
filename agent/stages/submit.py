@@ -16,6 +16,17 @@ def _kaggle_username() -> str:
     return cred["username"]
 
 
+def _owner_slug(kernel_id: str, username: str) -> str:
+    slug = str(kernel_id).split("/")[-1]
+    return f"{username}/{slug}"
+
+
+def _public_kernel_id(kernel_id: str) -> str:
+    """Repo-safe id: never embed KAGGLE_USERNAME (Cursor secret scanner)."""
+    slug = str(kernel_id).split("/")[-1]
+    return f"kaggle-user/{slug}"
+
+
 def push_and_submit(
     kernel_dir: Path,
     competition: str,
@@ -26,11 +37,20 @@ def push_and_submit(
 
     api = KaggleApi()
     api.authenticate()
-    meta = json.loads((kernel_dir / "kernel-metadata.json").read_text())
-    kernel = meta["id"]  # owner/slug
+    meta_path = kernel_dir / "kernel-metadata.json"
+    meta = json.loads(meta_path.read_text())
+    username = _kaggle_username()
+    kernel = _owner_slug(meta.get("id") or kernel_dir.name, username)
+    public_id = _public_kernel_id(kernel)
+    meta["id"] = kernel
+    meta_path.write_text(json.dumps(meta, indent=2))
 
-    logger.info("Pushing kernel %s from %s", kernel, kernel_dir)
-    push_result = api.kernels_push(str(kernel_dir))
+    logger.info("Pushing kernel %s from %s", public_id, kernel_dir)
+    try:
+        push_result = api.kernels_push(str(kernel_dir))
+    finally:
+        meta["id"] = public_id
+        meta_path.write_text(json.dumps(meta, indent=2) + "\n")
     # Extract version if present
     version = None
     try:
@@ -109,7 +129,7 @@ def push_and_submit(
         time.sleep(15)
 
     return {
-        "kernel": kernel,
+        "kernel": public_id,
         "kernel_version": version,
         "submission_ref": ref,
         "status": sub_status,
