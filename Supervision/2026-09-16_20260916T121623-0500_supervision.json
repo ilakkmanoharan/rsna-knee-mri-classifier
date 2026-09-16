@@ -1,0 +1,185 @@
+{
+  "audit": {
+    "generated_at": "2026-09-16T12:16:22.253433-05:00",
+    "day_id": "2026-09-16",
+    "day_start": "2026-09-16T01:00:00-05:00",
+    "competition": "rsna-knee-abnormality-detection",
+    "pace": {
+      "quota": 5,
+      "used": null,
+      "expected_by_now": 5,
+      "deficit": 5,
+      "quota_left": 5,
+      "behind": true,
+      "min_interval_minutes": 30.0,
+      "max_interval_minutes": 60.0,
+      "grace_minutes": 20.0,
+      "next_gap_minutes": 60.0,
+      "deadline": "2026-09-17T00:00:00-05:00",
+      "minutes_to_deadline": 703.6,
+      "quota_at_risk": false
+    },
+    "stages": {
+      "research": {
+        "folders": [
+          "Research"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0,
+          1,
+          2
+        ],
+        "count_today": 3,
+        "latest": {
+          "cycle": 2,
+          "path": "Research/2026-09-16_cycle02_20260916T120718-0500_research.md",
+          "chars": 11213,
+          "papers_retrieved": 12,
+          "issues": [],
+          "excerpt": "# Research write-up \u2014 competition day 2026-09-16, cycle 02_20260916T120718-0500\n\n_Generated 2026-09-16 17:07 UTC by agent1._\n\n## Goal\n\nImprove macro ROC-AUC on RSNA Knee Abnormality Detection (12 independent study-level targets) beyond the Stage-B prevalence baseline (~0.494 public).\n\n## Methods to consider\n\n### 1. Plane-aware multi-series aggregation\n\n**Why it should help:** Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.\n\n**How to apply:** Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative.\n\n### 2. Weak supervision from multilingual reports\n\n**Why it should help:** Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseud"
+        },
+        "quality_issues": [],
+        "min_chars": 1200
+      },
+      "analysis": {
+        "folders": [
+          "Analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0,
+          1,
+          2
+        ],
+        "count_today": 3,
+        "latest": {
+          "cycle": 2,
+          "path": "Analysis/2026-09-16_cycle02_20260916T120718-0500_analysis.md",
+          "chars": 3088,
+          "papers_retrieved": null,
+          "issues": [],
+          "excerpt": "# Submission analysis \u2014 competition day 2026-09-16, cycle 02_20260916T120718-0500\n\n_Generated 2026-09-16 17:07 UTC by agent1._\n\nCompetition: `rsna-knee-abnormality-detection`\n\n## Submission log (newest first)\n\n| date | status | publicScore | description |\n|---|---|---|---|\n| 2026-09-16 16:16:22.763000 | SubmissionStatus.COMPLETE | 0.504 | agent1 2026-09-16 cycle 1 strategy=report_shrinkage_priors | 2026-09-16_cycle01_ |\n| 2026-09-16 06:13:31.973000 | SubmissionStatus.COMPLETE | 0.514 | agent1 2026-09-16 cycle 0 strategy=gold_meta_logit | 2026-09-16_cycle00_20260916 |\n| 2026-09-16 01:14:18.410000 | SubmissionStatus.COMPLETE | 0.499 | agent1 2026-09-15 cycle 3 strategy=fluid_gate_metadata | 2026-09-15_cycle03_2026 |\n| 2026-09-15 17:13:15.320000 | SubmissionStatus.COMPLETE | 0.498 | agent1 2026-09-15 cycle 2 strategy=metadata_prior_blend | 2026-09-15_cycle02_202 |\n| 2026-09-15 17:08:11.3130"
+        },
+        "quality_issues": [],
+        "min_chars": 700
+      },
+      "hypothesis": {
+        "folders": [
+          "Hypothesis",
+          "Hypothesis analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0,
+          1,
+          2
+        ],
+        "count_today": 3,
+        "latest": {
+          "cycle": 2,
+          "path": "Hypothesis/2026-09-16_cycle02_20260916T120718-0500_hypotheses.md",
+          "chars": 3053,
+          "papers_retrieved": null,
+          "issues": [],
+          "excerpt": "# Hypothesis analysis \u2014 competition day 2026-09-16, cycle 02_20260916T120718-0500\n\n_Generated 2026-09-16 17:07 UTC by agent1._\n\nInputs: `2026-09-16_cycle02_20260916T120718-0500_research.md`, `2026-09-16_cycle02_20260916T120718-0500_analysis.md`\n\n## Why this hypothesis now\n\nHand-specified metadata offsets (plane availability, fluid-sensitive counts, report-shrinkage\npriors) moved public macro ROC-AUC only from 0.494 (prevalence + noise) to 0.499\n(fluid-gated metadata). That is a ranking problem, not a calibration problem: Gaussian\n0.005 noise is the same order as the logit offsets, so it can scramble the weak signal.\nThe next testable change is to *learn* the metadata weights from the 58 gold labels\ninstead of guessing them, then rank-transform so AUC sees a clean ordering. Visual MRI\nencoders stay out of scope until a metadata model beats 0.499 or is clearly falsified.\n\n## Primary hypoth"
+        },
+        "quality_issues": [],
+        "min_chars": 500
+      }
+    },
+    "cycles_with_full_pipeline": [
+      0,
+      1,
+      2
+    ],
+    "kaggle": {
+      "available": false,
+      "error": "RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n",
+      "count_today": null,
+      "rows": []
+    },
+    "github_actions": {
+      "workflow_file": "agent1-cloud.yml",
+      "token_present": true,
+      "can_dispatch": false,
+      "runs_today": [
+        {
+          "id": 35115728028,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-16T15:29:53Z",
+          "updated_at": "2026-09-16T15:30:16Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35115728028"
+        },
+        {
+          "id": 35088466664,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-16T11:05:39Z",
+          "updated_at": "2026-09-16T11:06:04Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35088466664"
+        }
+      ],
+      "failed_today": [
+        {
+          "id": 35115728028,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-16T15:29:53Z",
+          "updated_at": "2026-09-16T15:30:16Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35115728028"
+        },
+        {
+          "id": 35088466664,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-16T11:05:39Z",
+          "updated_at": "2026-09-16T11:06:04Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35088466664"
+        }
+      ],
+      "in_progress": []
+    },
+    "deficits": {
+      "artifact_deficit": 2,
+      "submission_deficit": 0,
+      "quota_left": 5
+    },
+    "violations": [
+      "Research/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now",
+      "Analysis/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now",
+      "Hypothesis/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now",
+      "2 agent workflow run(s) failed today"
+    ],
+    "remediation_needed": true
+  },
+  "verdict": {
+    "verdict": "failing",
+    "source": "rules",
+    "violations": [
+      "Research/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now",
+      "Analysis/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now",
+      "Hypothesis/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now",
+      "2 agent workflow run(s) failed today"
+    ],
+    "recommended_actions": [
+      "Re-run the agent cycle to fill the missing slot"
+    ],
+    "rerun_cycle": true,
+    "questions_for_human": [
+      "Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.",
+      "I cannot read Kaggle submission history (RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.",
+      "XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision."
+    ],
+    "confidence": 0.5
+  },
+  "actions": [
+    "dispatch disabled by flag; leaving remediation to the caller",
+    "requested inline remediation (supervisor workflow runs the cycle itself)"
+  ]
+}
