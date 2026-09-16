@@ -15,7 +15,7 @@ Run **one** Agent-1 improvement cycle for RSNA Knee Abnormality Detection and pu
 ## Steps (must follow in order)
 
 1. Pull latest `main`.
-2. Ensure folders exist: `Research/`, `Analysis/`, `Hypothesis analysis/`, `Plans/`.
+2. Ensure folders exist: `Research/`, `Analysis/`, `Hypothesis/`, `Plans/`.
 3. Run:
    ```bash
    python agent/run_cycle.py
@@ -24,7 +24,7 @@ Run **one** Agent-1 improvement cycle for RSNA Knee Abnormality Detection and pu
 4. If `run_cycle.py` is unavailable, manually:
    - Research methods to beat current public score; write markdown under `Research/`.
    - Fetch Kaggle submissions; write analysis under `Analysis/`.
-   - Write hypotheses under `Hypothesis analysis/` and a plan under `Plans/`.
+   - Write hypotheses under `Hypothesis/` and a plan under `Plans/`.
    - Implement the planned offline Kaggle notebook, push kernel, submit via `competition_submit_code`.
 5. Commit and push all new Research/Analysis/Hypothesis/Plans/state files to `main`.
 6. On failure: keep notes in `artifacts/agent_state/last_alert.txt` and do not exit silently — summarize the error in the agent result.

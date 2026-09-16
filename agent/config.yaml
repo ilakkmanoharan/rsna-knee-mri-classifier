@@ -12,7 +12,7 @@ max_submissions_per_day: 5
 paths:
   research: Research
   analysis: Analysis
-  hypothesis: Hypothesis analysis
+  hypothesis: Hypothesis
   plans: Plans
   state: artifacts/agent_state
   kaggle_kernel_dir: kaggle_submit_agent
@@ -36,6 +36,32 @@ research:
     - "radiology report weak supervision negation"
     - "macro ROC-AUC multi-label medical imaging"
     - "plane-aware MRI classification sagittal coronal axial"
+
+# Grok supervisor bot (agent/supervisor.py): watches agent1.md steps 1-3 + submission cadence
+supervisor:
+  enabled: true
+  workflow_file: agent1-cloud.yml     # workflow the bot re-triggers when a slot is missed
+  report_dir: Supervision
+  grace_minutes: 25                   # a slot may be this late before it counts as missed
+  dispatch_cooldown_minutes: 40
+  max_dispatches_per_day: 6
+  hypothesis_aliases: ["Hypothesis analysis"]   # legacy folder name, still audited
+  # Minimum substance per write-up; thin files count as a stage violation
+  min_chars:
+    research: 1200
+    analysis: 700
+    hypothesis: 500
+  grok:
+    enabled: true
+    model: grok-4-latest              # override with GROK_MODEL; needs XAI_API_KEY
+    base_url: https://api.x.ai/v1
+    max_output_tokens: 1500
+    timeout_seconds: 120
+  ask:                                # how the bot asks the operator for input
+    github_issue: true
+    email: true
+    issue_labels: ["grok-bot"]
+    assignees: ["ilakkmanoharan"]
 
 # On error: keep retrying + email operator
 resilience:

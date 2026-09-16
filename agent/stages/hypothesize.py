@@ -1,4 +1,4 @@
-"""Stage 3: form hypotheses from Research + Analysis → Hypothesis analysis/."""
+"""Stage 3: form hypotheses from Research + Analysis → Hypothesis/."""
 
 from __future__ import annotations
 

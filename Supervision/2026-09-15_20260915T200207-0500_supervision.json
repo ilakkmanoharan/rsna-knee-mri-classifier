@@ -1,0 +1,214 @@
+{
+  "audit": {
+    "generated_at": "2026-09-15T20:02:07.708915-05:00",
+    "day_id": "2026-09-15",
+    "day_start": "2026-09-15T01:00:00-05:00",
+    "competition": "rsna-knee-abnormality-detection",
+    "timing": {
+      "interval_minutes": 90,
+      "max_per_day": 5,
+      "grace_minutes": 25,
+      "due_count": 5,
+      "schedule": [
+        {
+          "slot": 0,
+          "at": "2026-09-15T01:00:00-05:00",
+          "due": true
+        },
+        {
+          "slot": 1,
+          "at": "2026-09-15T02:30:00-05:00",
+          "due": true
+        },
+        {
+          "slot": 2,
+          "at": "2026-09-15T04:00:00-05:00",
+          "due": true
+        },
+        {
+          "slot": 3,
+          "at": "2026-09-15T05:30:00-05:00",
+          "due": true
+        },
+        {
+          "slot": 4,
+          "at": "2026-09-15T07:00:00-05:00",
+          "due": true
+        }
+      ],
+      "next_slot_at": null
+    },
+    "stages": {
+      "research": {
+        "folders": [
+          "Research"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0,
+          1,
+          2
+        ],
+        "count_today": 3,
+        "latest": {
+          "cycle": 2,
+          "path": "Research/2026-09-15_cycle02_20260915T120433-0500_research.md",
+          "chars": 3909,
+          "papers_retrieved": 0,
+          "issues": [
+            "research cites only 0 sources (expected >= 3 paper/web links)",
+            "research stage retrieved 0 paper(s) \u2014 the internet/arXiv search returned nothing usable, so the write-up is not grounded in literature"
+          ],
+          "excerpt": "# Research write-up \u2014 competition day 2026-09-15, cycle 02_20260915T120433-0500\n\n_Generated 2026-09-15 17:12 UTC by agent1._\n\n## Goal\n\nImprove macro ROC-AUC on RSNA Knee Abnormality Detection (12 independent study-level targets) beyond the Stage-B prevalence baseline (~0.494 public).\n\n## Methods to consider\n\n### 1. Plane-aware multi-series aggregation\n\n**Why it should help:** Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.\n\n**How to apply:** Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative.\n\n### 2. Weak supervision from multilingual reports\n\n**Why it should help:** Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseud"
+        },
+        "quality_issues": [
+          "research cites only 0 sources (expected >= 3 paper/web links)",
+          "research stage retrieved 0 paper(s) \u2014 the internet/arXiv search returned nothing usable, so the write-up is not grounded in literature"
+        ],
+        "min_chars": 1200
+      },
+      "analysis": {
+        "folders": [
+          "Analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0,
+          1,
+          2
+        ],
+        "count_today": 3,
+        "latest": {
+          "cycle": 2,
+          "path": "Analysis/2026-09-15_cycle02_20260915T120433-0500_analysis.md",
+          "chars": 2016,
+          "papers_retrieved": null,
+          "issues": [],
+          "excerpt": "# Submission analysis \u2014 competition day 2026-09-15, cycle 02_20260915T120433-0500\n\n_Generated 2026-09-15 17:12 UTC by agent1._\n\nCompetition: `rsna-knee-abnormality-detection`\n\n## Submission log (newest first)\n\n| date | status | publicScore | description |\n|---|---|---|---|\n| 2026-09-15 17:08:11.313000 | SubmissionStatus.COMPLETE | 0.498 | agent1 2026-09-15 cycle 2 strategy=metadata_prior_blend | 2026-09-15_cycle02_202 |\n| 2026-09-15 16:52:24.720000 | SubmissionStatus.COMPLETE | 0.498 | agent1 2026-09-15 cycle 1 strategy=report_shrinkage_priors | 2026-09-15_cycle01_ |\n| 2026-09-15 09:15:13.110000 | SubmissionStatus.COMPLETE | 0.494 | ASRA submission_001 Stage B: gold-label prevalence baseline with tiny noise |\n\n**Best public score seen:** 0.498\n**Latest:** {\"fileName\": \"submission.csv\", \"date\": \"2026-09-15 17:08:11.313000\", \"description\": \"agent1 2026-09-15 cycle 2 strategy=metadata_prior"
+        },
+        "quality_issues": [],
+        "min_chars": 700
+      },
+      "hypothesis": {
+        "folders": [
+          "Hypothesis",
+          "Hypothesis analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0,
+          1,
+          2
+        ],
+        "count_today": 3,
+        "latest": {
+          "cycle": 2,
+          "path": "Hypothesis/2026-09-15_cycle02_20260915T120433-0500_hypotheses.md",
+          "chars": 1628,
+          "papers_retrieved": null,
+          "issues": [],
+          "excerpt": "# Hypothesis analysis \u2014 competition day 2026-09-15, cycle 02_20260915T120433-0500\n\n_Generated 2026-09-15 17:12 UTC by agent1._\n\nInputs: `2026-09-15_cycle02_20260915T120433-0500_research.md`, `2026-09-15_cycle02_20260915T120433-0500_analysis.md`\n\n## Primary hypothesis this cycle\n\n- **ID:** `H_plane_slots_visual`\n- **Hypothesis:** Frozen EfficientNet-B0 with plane slots trained on real (or JPEG) MRI lifts macro AUC over metadata-only.\n- **Mechanism:** Kaggle GPU notebook trains heads on mounted train_series; ensemble folds; infer offline.\n- **Falsification:** OOF macro \u2264 prevalence or public score drops.\n- **Expected targets:** *\n\n## Backlog (ASRA queue)\n\n- `H_meta_prior` : Series-metadata features (plane availability + fluid-sensitive counts) blended with per-target prevalence will beat pure prevalence on public macro AUC.\n- `H_report_shrinkage` : Train-time report soft-label shrinkage pr"
+        },
+        "quality_issues": [],
+        "min_chars": 500
+      }
+    },
+    "cycles_with_full_pipeline": [
+      0,
+      1,
+      2
+    ],
+    "kaggle": {
+      "available": true,
+      "count_today": 4,
+      "best_today": 0.498,
+      "best_all_time": 0.498,
+      "errored_today": [],
+      "rows": [
+        {
+          "fileName": "submission.csv",
+          "date": "2026-09-15 17:13:15.320000",
+          "description": "agent1 2026-09-15 cycle 2 strategy=metadata_prior_blend | 2026-09-15_cycle02_20260915T120433-0500_hypotheses.md",
+          "status": "SubmissionStatus.COMPLETE",
+          "publicScore": 0.498,
+          "privateScore": null,
+          "ref": 56259580
+        },
+        {
+          "fileName": "submission.csv",
+          "date": "2026-09-15 17:08:11.313000",
+          "description": "agent1 2026-09-15 cycle 2 strategy=metadata_prior_blend | 2026-09-15_cycle02_20260915T115912-0500_hypotheses.md",
+          "status": "SubmissionStatus.COMPLETE",
+          "publicScore": 0.498,
+          "privateScore": null,
+          "ref": 56259512
+        },
+        {
+          "fileName": "submission.csv",
+          "date": "2026-09-15 16:52:24.720000",
+          "description": "agent1 2026-09-15 cycle 1 strategy=report_shrinkage_priors | 2026-09-15_cycle01_20260915T114138-0500_hypotheses.md",
+          "status": "SubmissionStatus.COMPLETE",
+          "publicScore": 0.498,
+          "privateScore": null,
+          "ref": 56259307
+        },
+        {
+          "fileName": "submission.csv",
+          "date": "2026-09-15 09:15:13.110000",
+          "description": "ASRA submission_001 Stage B: gold-label prevalence baseline with tiny noise",
+          "status": "SubmissionStatus.COMPLETE",
+          "publicScore": 0.494,
+          "privateScore": null,
+          "ref": 56250767
+        }
+      ]
+    },
+    "github_actions": {
+      "workflow_file": "agent1-cloud.yml",
+      "token_present": false,
+      "can_dispatch": false,
+      "runs_today": [],
+      "failed_today": [],
+      "in_progress": []
+    },
+    "deficits": {
+      "artifact_deficit": 2,
+      "submission_deficit": 1,
+      "quota_left": 1
+    },
+    "violations": [
+      "Research/ has 3 write-up(s) for day 2026-09-15 but 5 slot(s) are due",
+      "Research/: research cites only 0 sources (expected >= 3 paper/web links)",
+      "Research/: research stage retrieved 0 paper(s) \u2014 the internet/arXiv search returned nothing usable, so the write-up is not grounded in literature",
+      "Analysis/ has 3 write-up(s) for day 2026-09-15 but 5 slot(s) are due",
+      "Hypothesis/ has 3 write-up(s) for day 2026-09-15 but 5 slot(s) are due",
+      "Kaggle submissions today: 4 of 5 due (cap 5)"
+    ],
+    "remediation_needed": true
+  },
+  "verdict": {
+    "verdict": "failing",
+    "source": "rules",
+    "violations": [
+      "Research/ has 3 write-up(s) for day 2026-09-15 but 5 slot(s) are due",
+      "Research/: research cites only 0 sources (expected >= 3 paper/web links)",
+      "Research/: research stage retrieved 0 paper(s) \u2014 the internet/arXiv search returned nothing usable, so the write-up is not grounded in literature",
+      "Analysis/ has 3 write-up(s) for day 2026-09-15 but 5 slot(s) are due",
+      "Hypothesis/ has 3 write-up(s) for day 2026-09-15 but 5 slot(s) are due",
+      "Kaggle submissions today: 4 of 5 due (cap 5)"
+    ],
+    "recommended_actions": [
+      "Re-run the agent cycle to fill the missing slot"
+    ],
+    "rerun_cycle": true,
+    "questions_for_human": [
+      "No GitHub token is visible to the bot. Add a repo secret AGENT1_GH_PAT (scopes: repo, workflow) so I can re-trigger agent runs and open issues.",
+      "XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision."
+    ],
+    "confidence": 0.5
+  },
+  "actions": [
+    "cannot dispatch agent1-cloud.yml without an AGENT1_GH_PAT secret; falling back to inline remediation",
+    "requested inline remediation (supervisor workflow runs the cycle itself)"
+  ]
+}

@@ -46,10 +46,10 @@ Run EXACTLY ONE improvement cycle per automation invocation. Do not loop 5 times
 Pipeline (in order):
 1) Research: search/read relevant methods to raise macro ROC-AUC beyond our current public score. Write a dated markdown under Research/.
 2) Analysis: fetch Kaggle competition submissions for rsna-knee-abnormality-detection; explain why the score is low and how to improve. Write under Analysis/.
-3) Hypothesis: propose the next testable change under "Hypothesis analysis/".
+3) Hypothesis: propose the next testable change under Hypothesis/.
 4) Plan: write an implementation spec under Plans/.
 5) Implement + submit: prefer `python agent/run_cycle.py` after `pip install kaggle pyyaml pandas numpy`. Ensure ~/.kaggle/kaggle.json exists from environment secrets KAGGLE_USERNAME + KAGGLE_KEY.
-6) Git: commit and push Research/, Analysis/, Hypothesis analysis/, Plans/, artifacts/agent_state/ to main using author:
+6) Git: commit and push Research/, Analysis/, Hypothesis/, Plans/, artifacts/agent_state/ to main using author:
    name "ilakk manoharan"
    email "28582192+ilakkmanoharan@users.noreply.github.com"
    (override per-commit; do not rewrite git config permanently).

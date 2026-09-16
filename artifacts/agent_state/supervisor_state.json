@@ -1,0 +1,17 @@
+{
+  "day_id": "2026-09-15",
+  "dispatches": [],
+  "asked": {},
+  "verdicts": [
+    {
+      "at": "2026-09-15T20:01:56.112852-05:00",
+      "verdict": "failing",
+      "report": "Supervision/2026-09-15_20260915T200156-0500_supervision.md"
+    },
+    {
+      "at": "2026-09-15T20:02:07.708915-05:00",
+      "verdict": "failing",
+      "report": "Supervision/2026-09-15_20260915T200207-0500_supervision.md"
+    }
+  ]
+}

@@ -70,3 +70,7 @@ python -m src.infer --config configs/submission_001.yaml
 
 See [`agent/CLOUD.md`](agent/CLOUD.md). Primary runner is **GitHub Actions** (`.github/workflows/agent1-cloud.yml`). Optional: Cursor Cloud Automations using `agent/cursor_cloud_automation_prompt.md`.
 
+## Supervision
+
+A Grok bot (`.github/workflows/grok-supervisor.yml`) audits `Research/`, `Analysis/`, `Hypothesis/` and the Kaggle submission cadence after every 90-minute slot, re-runs missed cycles, and emails/files an issue when it needs a decision. See [`agent/GROK_BOT.md`](agent/GROK_BOT.md).
+

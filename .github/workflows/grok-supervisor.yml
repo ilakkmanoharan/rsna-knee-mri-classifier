@@ -1,0 +1,163 @@
+# Grok supervisor bot — watches agent1 and repairs missed cycles
+#
+# Runs ~25 minutes after each of the five competition-day slots (01:00 America/Chicago
+# + every 90 min), audits Research/ + Analysis/ + Hypothesis/ and the Kaggle submission
+# cadence, asks Grok for a verdict, then:
+#   - re-triggers agent1-cloud.yml when an AGENT1_GH_PAT secret exists, or
+#   - runs the missing cycle inline in this job (no PAT needed), and
+#   - emails + opens a GitHub issue when it needs a decision from the operator.
+#
+# Repo secrets:
+#   XAI_API_KEY        Grok review (without it the bot falls back to rule-based checks)
+#   KAGGLE_USERNAME    read submission history / submit during inline remediation
+#   KAGGLE_KEY
+#   AGENT1_GH_PAT      optional; repo+workflow scopes, lets the bot dispatch agent1-cloud.yml
+#   AGENT1_SMTP_USER   optional; Gmail address + app password for the "needs your input" email
+#   AGENT1_SMTP_PASSWORD
+#   AGENT1_NOTIFY_TO   optional; defaults to ilakkmanoharan@gmail.com
+
+name: grok-supervisor
+
+on:
+  schedule:
+    # 25 min after each CDT slot (UTC-5): 01:25, 02:55, 04:25, 05:55, 07:25 local
+    - cron: "25 6 * * *"
+    - cron: "55 7 * * *"
+    - cron: "25 9 * * *"
+    - cron: "55 10 * * *"
+    - cron: "25 12 * * *"
+    # end-of-day sweep: flag/refill unused quota
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "audit (read-only) or supervise (act)"
+        type: choice
+        options: [supervise, audit]
+        default: supervise
+      allow_remediation:
+        description: "Let the bot run a missing cycle"
+        type: boolean
+        default: true
+
+concurrency:
+  group: grok-supervisor
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+jobs:
+  supervise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      MODE: ${{ github.event.inputs.mode || 'supervise' }}
+      ALLOW_REMEDIATION: ${{ github.event.inputs.allow_remediation || 'true' }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "kaggle>=1.6" pyyaml pandas numpy
+
+      - name: Configure Kaggle credentials (soft-fail)
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          if [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; then
+            echo "::warning::Kaggle secrets missing — the bot will report this and ask the operator"
+            exit 0
+          fi
+          mkdir -p "$HOME/.kaggle"
+          printf '{"username":"%s","key":"%s"}\n' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > "$HOME/.kaggle/kaggle.json"
+          chmod 600 "$HOME/.kaggle/kaggle.json"
+
+      - name: Configure git for bot commits
+        run: |
+          git config user.name "ilakk manoharan"
+          git config user.email "28582192+ilakkmanoharan@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+      - name: Grok supervision pass
+        id: sup
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GROK_MODEL: ${{ vars.GROK_MODEL }}
+          AGENT1_GH_PAT: ${{ secrets.AGENT1_GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          AGENT1_NOTIFY_TO: ${{ secrets.AGENT1_NOTIFY_TO }}
+          AGENT1_SMTP_USER: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_SMTP_PASSWORD: ${{ secrets.AGENT1_SMTP_PASSWORD }}
+          AGENT1_NOTIFY_FROM: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_NOTIFY_ENABLED: "true"
+        run: |
+          set -euo pipefail
+          if [ -z "${AGENT1_NOTIFY_TO:-}" ]; then export AGENT1_NOTIFY_TO="ilakkmanoharan@gmail.com"; fi
+          python agent/supervisor.py --mode "$MODE" | tee supervision.out
+          {
+            echo "### Grok supervision (${MODE})"
+            echo '```'
+            cat supervision.out
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Inline remediation — run the missing agent cycle
+        if: steps.sup.outputs.remediate == 'true' && env.ALLOW_REMEDIATION == 'true' && env.MODE == 'supervise'
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          AGENT1_NOTIFY_TO: ${{ secrets.AGENT1_NOTIFY_TO }}
+          AGENT1_SMTP_USER: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_SMTP_PASSWORD: ${{ secrets.AGENT1_SMTP_PASSWORD }}
+          AGENT1_NOTIFY_FROM: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_NOTIFY_ENABLED: "true"
+        run: |
+          set -euo pipefail
+          echo "::notice::Grok verdict ${{ steps.sup.outputs.verdict }} — ${{ steps.sup.outputs.reason }}"
+          if [ -z "${KAGGLE_USERNAME:-}" ]; then
+            echo "::error::Cannot remediate without Kaggle secrets"; exit 1
+          fi
+          if [ -z "${AGENT1_NOTIFY_TO:-}" ]; then export AGENT1_NOTIFY_TO="ilakkmanoharan@gmail.com"; fi
+          git pull --rebase --autostash origin main || true
+          python agent/run_cycle.py
+
+      - name: Post-remediation verification
+        if: always() && steps.sup.outputs.remediate == 'true' && env.MODE == 'supervise'
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          AGENT1_GH_PAT: ${{ secrets.AGENT1_GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          AGENT1_NOTIFY_TO: ${{ secrets.AGENT1_NOTIFY_TO }}
+          AGENT1_SMTP_USER: ${{ secrets.AGENT1_SMTP_USER }}
+          AGENT1_SMTP_PASSWORD: ${{ secrets.AGENT1_SMTP_PASSWORD }}
+          AGENT1_NOTIFY_FROM: ${{ secrets.AGENT1_SMTP_USER }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AGENT1_NOTIFY_TO:-}" ]; then export AGENT1_NOTIFY_TO="ilakkmanoharan@gmail.com"; fi
+          git pull --rebase --autostash origin main || true
+          python agent/supervisor.py --mode supervise --no-dispatch | tee supervision_after.out
+          {
+            echo "### After remediation"
+            echo '```'
+            cat supervision_after.out
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

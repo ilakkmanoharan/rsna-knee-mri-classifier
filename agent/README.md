@@ -6,7 +6,7 @@ Starts at **01:00 America/Chicago** (competition quota reset), then every **90 m
 
 1. **Research** → `Research/` (arXiv + curated methods write-up)
 2. **Analysis** → `Analysis/` (Kaggle submission logs + score diagnosis)
-3. **Hypothesis** → `Hypothesis analysis/`
+3. **Hypothesis** → `Hypothesis/`
 4. **Plan / spec** → `Plans/`
 5. **Implement + submit** offline Kaggle notebook for `rsna-knee-abnormality-detection`
 6. **Git commit + push** to `https://github.com/ilakkmanoharan/rsna-knee-mri-classifier.git`
@@ -14,6 +14,11 @@ Starts at **01:00 America/Chicago** (competition quota reset), then every **90 m
 ## Cloud (recommended when laptop is closed)
 
 See [`CLOUD.md`](CLOUD.md). Use GitHub Actions — not LaunchAgent — for unattended daily runs.
+
+## Supervision
+
+A separate Grok bot audits steps 1–3 and the submission cadence 25 minutes after every slot,
+re-runs missed cycles, and emails/opens an issue when it needs you. See [`GROK_BOT.md`](GROK_BOT.md).
 
 ## Failure behavior
 
