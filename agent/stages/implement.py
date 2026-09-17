@@ -124,7 +124,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -132,9 +132,13 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
         off += FAT_BOOST.get(t, 0.0) * (feats.get("fat", 0.0) - 0.5)
     return float(off)
 
-def feat_map(series_df):
-    """Per-study vector: intercept, log1p(n), sag/cor/ax fractions, fluid frac, fat frac."""
-    empty = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=float)
+def feat_map(series_df, interact=False):
+    """Per-study vector: intercept, log1p(n), sag/cor/ax fractions, fluid frac, fat frac.
+    If interact, also sag/cor/ax × fluid and sag/cor/ax × fat fractions (13-d).
+    """
+    dim = 13 if interact else 7
+    empty = np.zeros(dim, dtype=float)
+    empty[0] = 1.0
     if series_df is None or series_df.empty:
         return {{}}, empty
     df = series_df.copy()
@@ -145,6 +149,12 @@ def feat_map(series_df):
     df["_ax"] = (plane == "Axial").astype(float)
     df["_fluid"] = pd.to_numeric(df["Fluid_Sensitive"], errors="coerce").fillna(0.0) if "Fluid_Sensitive" in df.columns else 0.0
     df["_fat"] = pd.to_numeric(df["Fat_Suppression"], errors="coerce").fillna(0.0) if "Fat_Suppression" in df.columns else 0.0
+    df["_sag_fl"] = df["_sag"] * df["_fluid"]
+    df["_cor_fl"] = df["_cor"] * df["_fluid"]
+    df["_ax_fl"] = df["_ax"] * df["_fluid"]
+    df["_sag_ft"] = df["_sag"] * df["_fat"]
+    df["_cor_ft"] = df["_cor"] * df["_fat"]
+    df["_ax_ft"] = df["_ax"] * df["_fat"]
     agg = df.groupby(uid).agg(
         n=(study_col, "size"),
         sag=("_sag", "sum"),
@@ -152,11 +162,17 @@ def feat_map(series_df):
         ax=("_ax", "sum"),
         fluid=("_fluid", "sum"),
         fat=("_fat", "sum"),
+        sag_fl=("_sag_fl", "sum"),
+        cor_fl=("_cor_fl", "sum"),
+        ax_fl=("_ax_fl", "sum"),
+        sag_ft=("_sag_ft", "sum"),
+        cor_ft=("_cor_ft", "sum"),
+        ax_ft=("_ax_ft", "sum"),
     )
     out = {{}}
     for sid, row in agg.iterrows():
         n = max(float(row["n"]), 1.0)
-        out[str(sid)] = np.array([
+        vec = [
             1.0,
             float(np.log1p(row["n"])),
             float(row["sag"] / n),
@@ -164,7 +180,17 @@ def feat_map(series_df):
             float(row["ax"] / n),
             float(row["fluid"] / n),
             float(row["fat"] / n),
-        ], dtype=float)
+        ]
+        if interact:
+            vec += [
+                float(row["sag_fl"] / n),
+                float(row["cor_fl"] / n),
+                float(row["ax_fl"] / n),
+                float(row["sag_ft"] / n),
+                float(row["cor_ft"] / n),
+                float(row["ax_ft"] / n),
+            ]
+        out[str(sid)] = np.array(vec, dtype=float)
     return out, empty
 
 def fit_ridge_logit(X, y, lam=1.0, steps=40):
@@ -214,12 +240,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY != "gold_meta_logit":
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -230,54 +256,69 @@ for uid in uids:
 
 out = pd.DataFrame(rows)[sample.columns]
 
-if STRATEGY == "gold_meta_logit" and train_series is not None:
-    tr_map, default_x = feat_map(train_series)
-    te_map, _ = feat_map(test_series)
+def learned_scores(interact=False, lam=2.0):
+    """Ridge logits on gold studies. Returns (scores, n_gold) or (None, n)."""
+    if train_series is None:
+        return None, 0
+    tr_map, default_x = feat_map(train_series, interact=interact)
+    te_map, _ = feat_map(test_series, interact=interact)
     gold = train.copy()
     gold[study_col] = gold[study_col].astype(str)
     labeled = gold.dropna(subset=[t for t in targets if t in gold.columns], how="all")
     X_rows, y_cols = [], {{t: [] for t in targets}}
-    keep_idx = []
     for i, sid in enumerate(labeled[study_col].astype(str).tolist()):
         x = tr_map.get(sid)
         if x is None:
             continue
-        keep_idx.append(i)
         X_rows.append(x)
         row = labeled.iloc[i]
         for t in targets:
             y_cols[t].append(row[t] if t in labeled.columns else np.nan)
+    n_gold = len(X_rows)
+    if n_gold < 20:
+        return None, n_gold
+    X = np.vstack(X_rows)
+    mu = X.mean(axis=0)
+    sd = np.clip(X.std(axis=0), 1e-6, None)
+    mu[0], sd[0] = 0.0, 1.0
+    Xs = (X - mu) / sd
+    Xte = np.vstack([(te_map.get(uid, default_x) - mu) / sd for uid in uids])
     scores = np.zeros((len(uids), len(targets)), dtype=float)
-    used_learned = False
-    if len(X_rows) >= 20:
-        X = np.vstack(X_rows)
-        # standardize non-intercept columns on gold, apply to test
-        mu = X.mean(axis=0)
-        sd = np.clip(X.std(axis=0), 1e-6, None)
-        mu[0], sd[0] = 0.0, 1.0
-        Xs = (X - mu) / sd
-        Xte = []
-        for uid in uids:
-            x = te_map.get(uid, default_x)
-            Xte.append((x - mu) / sd)
-        Xte = np.vstack(Xte)
-        for j, t in enumerate(targets):
-            y = np.array(y_cols[t], dtype=float)
-            mask = np.isfinite(y)
-            if mask.sum() < 12 or y[mask].min() == y[mask].max():
-                scores[:, j] = logit(prev[t])
-                continue
-            w = fit_ridge_logit(Xs[mask], y[mask], lam=2.0, steps=40)
-            scores[:, j] = Xte @ w
-        # Rank-transform: macro AUC only cares about order; drop additive noise.
-        ranked = rank_cols(scores)
+    for j, t in enumerate(targets):
+        y = np.array(y_cols[t], dtype=float)
+        mask = np.isfinite(y)
+        if mask.sum() < 12 or y[mask].min() == y[mask].max():
+            scores[:, j] = logit(prev[t])
+            continue
+        w = fit_ridge_logit(Xs[mask], y[mask], lam=lam, steps=40)
+        scores[:, j] = Xte @ w
+    return scores, n_gold
+
+used_learned = False
+n7 = nI = 0
+if STRATEGY in {{"gold_meta_logit", "gold_rank_interact"}} and train_series is not None:
+    scores7, n7 = learned_scores(False, 2.0)
+    ranked = None
+    if STRATEGY == "gold_rank_interact":
+        scoresI, nI = learned_scores(True, 3.5)
+        if scores7 is not None and scoresI is not None:
+            # Keep the accepted 7-d ranks (0.514) as the majority vote; interact re-ranks fluid/OA.
+            ranked = 0.60 * rank_cols(scores7) + 0.40 * rank_cols(scoresI)
+            print("gold_rank_interact blend 0.6*7d + 0.4*plane-protocol", "n7", n7, "nI", nI)
+        elif scores7 is not None:
+            ranked = rank_cols(scores7)
+            print("gold_rank_interact fallback to 7d", "n7", n7, "nI", nI)
+    elif scores7 is not None:
+        ranked = rank_cols(scores7)
+        print("gold_meta_logit used_learned", True, "n_gold_with_series", n7)
+    if ranked is not None:
         out = sample[[study_col]].copy()
         for j, t in enumerate(targets):
-            # map ranks through prevalence so means stay near the gold prior
             out[t] = np.clip(prev[t] + 0.25 * (ranked[:, j] - 0.5), EPS, 1 - EPS)
         out = out[sample.columns]
         used_learned = True
-    print("gold_meta_logit used_learned", used_learned, "n_gold_with_series", len(X_rows))
+    else:
+        print("learned metadata path skipped; n7", n7, "nI", nI)
 
 if STRATEGY == "rank_ensemble_safe":
     prev_arr = np.array(prev_mat)

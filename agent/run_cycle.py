@@ -172,6 +172,7 @@ def run_cycle(cfg: dict, *, skip_submit: bool = False, force: bool = False) -> d
                 cfg["paths"]["research"],
                 cfg["paths"]["analysis"],
                 cfg["paths"]["hypothesis"],
+                "Hypothesis analysis",
                 cfg["paths"]["plans"],
                 "agent",
                 cfg["paths"]["kaggle_kernel_dir"],

@@ -93,25 +93,26 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "predictions likely lack study-level discriminative signal."
             )
             why_low.append(
-                "Stage-B prevalence (+tiny noise) scored 0.494; hand-tuned metadata_prior_blend / "
-                "report_shrinkage_priors scored 0.498; fluid_gate_metadata scored 0.499. That +0.005 "
-                "ladder shows *some* ranking from series metadata, but Gaussian 0.005 noise is the "
-                "same magnitude as the logit offsets and can scramble the order."
+                "Score ladder: Stage-B prevalence+noise 0.494; hand-tuned metadata_prior_blend / "
+                "report_shrinkage_priors 0.498; fluid_gate_metadata 0.499; gold_meta_logit 0.514 "
+                "(accepted). Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
+                "Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
             )
             why_low.append(
-                "Hand-specified plane/fluid weights have saturated near 0.50. Remaining lift on this "
-                "track must come from *learned* metadata weights on the 58 gold labels, or from real MRI."
+                "The 7-d additive metadata model cannot represent plane×fluid protocols (sagittal "
+                "fluid-sensitive vs axial fluid-sensitive). Remaining metadata lift must re-rank "
+                "studies via interaction features or a rank ensemble, not calibration."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Fit a regularized linear model on the 58 gold labels using train/test series metadata "
-            "(plane fractions, fluid/fat flags, log series count); rank-transform per target; drop scrambling noise.",
-            "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata is falsified or beaten.",
+            "Rank-blend the frozen 7-d gold_meta_logit (0.514) with a 13-d plane×fluid / plane×fat "
+            "ridge logit (λ=3.5); keep 0.60 weight on the accepted ranks; drop scrambling noise.",
+            "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall.",
             "Train with report weak labels on the large unlabeled train set; infer without reports.",
-            "ASRA-ablate one change per submission; keep fluid_gate_metadata (0.499) as the fallback.",
+            "ASRA-ablate one ranking change per submission; keep gold_meta_logit (0.514) as the fallback.",
             "Reserve ≥1 daily submission for a validated OOF-improving change only.",
         ]
 

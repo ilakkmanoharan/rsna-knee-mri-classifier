@@ -73,8 +73,13 @@ def _curated_techniques() -> list[dict[str, str]]:
         },
         {
             "name": "Small-n gold-set metadata logistic",
-            "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494→0.499. The 58 gold labels can fit a regularized linear model on series-metadata features that actually learns which protocols correlate with each target, without waiting for a visual encoder.",
-            "how": "Fit ridge logistic per target on gold train studies using plane fractions + fluid/fat + log series count; apply to test_series; rank-transform; never read test reports or DICOM pixels.",
+            "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494→0.499. The 58 gold labels fitted a 7-d ridge logistic that reached 0.514. That is now the frozen floor, not a research idea.",
+            "how": "Keep gold_meta_logit as fallback. Do not resubmit it as the day's first cycle; ablate ranking changes on top of it.",
+        },
+        {
+            "name": "Plane × protocol interaction ranks",
+            "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). Public models (MRNet plane-wise logits; RSNA knee label-attention with plane×fluid×fat counts) treat those combinations as first-class features. A 13-d interaction logit on the same 58 gold rows can re-rank fluid/OA heads.",
+            "how": "Extend the 7-d vector with sag/cor/ax × fluid and sag/cor/ax × fat fractions; fit ridge λ=3.5; rank-blend 0.60·7-d + 0.40·interact so a noisy interact head cannot fully overwrite the 0.514 ranking.",
         },
         {
             "name": "Per-target calibrated prevalence prior blend",
@@ -158,10 +163,10 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Learn metadata weights** from the 58 gold labels (ridge logistic on plane/fluid/fat counts) and rank-transform — hand offsets have saturated at ~0.499.",
-        "2. Replace remaining constant/prevalence-only heads with **target-calibrated priors + study-level adjustments** only as a fallback.",
+        "1. **Rank-blend plane×protocol interactions** on top of the frozen 7-d gold_meta_logit (0.514) — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
+        "2. Keep **gold_meta_logit** as the fallback notebook if the blend does not beat 0.514.",
         "3. Add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
-        "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet) once a metadata model beats 0.499 or is falsified.",
+        "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / label-attention) once metadata ablations stall.",
         "",
         "## Literature / arXiv notes",
         "",
