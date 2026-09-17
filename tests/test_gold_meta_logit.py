@@ -139,7 +139,7 @@ def test_gold_rank_interact_notebook_and_synthetic_acl(tmp_path):
     nb = implement_notebook(tmp_path / "nb", "gold_rank_interact", "00_test", "slug", "user")
     src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
     assert "STRATEGY = 'gold_rank_interact'" in src
-    assert "interact=True" in src
+    assert "learned_scores(True, 3.5)" in src
     assert "0.60 * rank_cols" in src
     assert "enable_internet" not in src
     meta = json.loads((tmp_path / "nb" / "kernel-metadata.json").read_text())
