@@ -1,0 +1,59 @@
+{
+  "papers": [],
+  "techniques": [
+    {
+      "name": "Plane-aware multi-series aggregation",
+      "why": "Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.",
+      "how": "Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative."
+    },
+    {
+      "name": "Weak supervision from multilingual reports",
+      "why": "Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseudo-labels from negation mistakes invert targets.",
+      "how": "Negation/uncertainty/temporality-aware parser \u2192 soft labels + confidence weights; calibrate on gold folds only; never use test reports."
+    },
+    {
+      "name": "Small-n gold-set metadata logistic",
+      "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494\u21920.499. The 58 gold labels fitted a 7-d ridge logistic that reached 0.514. That is now the frozen floor, not a research idea.",
+      "how": "Keep gold_meta_logit as fallback. Do not resubmit it as the day's first cycle; ablate ranking changes on top of it."
+    },
+    {
+      "name": "Plane \u00d7 protocol interaction ranks",
+      "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). Public models (MRNet plane-wise logits; RSNA knee label-attention with plane\u00d7fluid\u00d7fat counts) treat those combinations as first-class features. A 13-d interaction logit on the same 58 gold rows can re-rank fluid/OA heads.",
+      "how": "Extend the 7-d vector with sag/cor/ax \u00d7 fluid and sag/cor/ax \u00d7 fat fractions; fit ridge \u03bb=3.5; rank-blend 0.60\u00b77-d + 0.40\u00b7interact so a noisy interact head cannot fully overwrite the 0.514 ranking."
+    },
+    {
+      "name": "Per-target calibrated prevalence prior blend",
+      "why": "Macro AUC cares about ranking per target. Pure constant prevalence (~0.49 public) is a floor; blending study-level model logits with target prevalence stabilizes rare labels (MCL, Baker's).",
+      "how": "p = clip((1-\u03b1)\u00b7\u03c3(logit) + \u03b1\u00b7prev_t); tune \u03b1 on OOF; larger \u03b1 for rare/unstable heads."
+    },
+    {
+      "name": "Fluid-sensitive / fat-suppression series routing",
+      "why": "train_series.csv exposes Fluid_Sensitive and Fat_Suppression. Contusion/effusion/synovitis benefit from fluid-sensitive series; bone findings may prefer others.",
+      "how": "Weight series embeddings by sequence flags before plane pooling; ablate via ASRA H-routing."
+    },
+    {
+      "name": "Frozen encoder then last-block unfreeze",
+      "why": "Tiny gold set overfits if the full backbone trains early. Frozen ImageNet/RadImageNet encoder + heads first is the reliable baseline.",
+      "how": "Train heads only until OOF beats prevalence; then unfreeze last block at low LR."
+    },
+    {
+      "name": "Target-specific view preference soft regularizer",
+      "why": "Hard rules (no sagittal \u21d2 ACL=0) destroy recall. Soft preferred-plane coverage features improve ranking without forcing zeros.",
+      "how": "Concatenate preferred-plane coverage; small consistency loss only after ablation accepts it."
+    },
+    {
+      "name": "Ensemble fold checkpoints + rank average",
+      "why": "Single fold on 58 labels is noisy. Probability or rank ensembling across folds lifts macro AUC more than architecture churn.",
+      "how": "Save fold*.pt; at inference mean probs or average ranks then rescale to [eps,1-eps]."
+    }
+  ],
+  "errors": [
+    "knee MRI multi-label abnormality detection deep learning: RuntimeError: HTTP Error 406: Not Acceptable",
+    "RSNA knee abnormality detection: RuntimeError: HTTP Error 406: Not Acceptable",
+    "multi-planar MRI aggregation CNN EfficientNet: RuntimeError: HTTP Error 406: Not Acceptable",
+    "radiology report weak supervision negation: RuntimeError: HTTP Error 406: Not Acceptable",
+    "macro ROC-AUC multi-label medical imaging: RuntimeError: HTTP Error 406: Not Acceptable",
+    "plane-aware MRI classification sagittal coronal axial: RuntimeError: HTTP Error 406: Not Acceptable"
+  ],
+  "path": "/workspace/Research/2026-09-17_cycle00_20260917T011537-0500_research.md"
+}

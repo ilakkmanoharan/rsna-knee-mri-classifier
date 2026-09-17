@@ -18,6 +18,13 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each 90-min slot tests something different
     catalog = [
         {
+            "id": "H_gold_rank_interact",
+            "hypothesis": "Rank-blending the accepted 7-d gold_meta_logit ranks (public 0.514) with a stronger-regularized plane×fluid / plane×fat interaction logit will lift macro ROC-AUC above 0.514 without replacing the frozen ranking.",
+            "mechanism": "Fit the frozen 7-d ridge logistic (λ=2) and a 13-d interaction model (λ=3.5) on the 58 gold labels using only train_series.csv flags. Rank-transform each head, then 0.60·rank(7-d)+0.40·rank(interact). Map ranks through gold prevalence. No test reports, no DICOM pixels, no Gaussian noise.",
+            "falsify": "Public score ≤ 0.514 (frozen gold_meta_logit) or a notebook error falls back to 7-d ranks only.",
+            "expected_targets": ["Effusion", "Synovitis", "Contusion", "ACL", "Medial OA"],
+        },
+        {
             "id": "H_gold_meta_logit",
             "hypothesis": "Ridge logistic models fit on the 58 gold-labeled train studies using series-metadata features will rank test studies better than hand-tuned plane/fluid offsets (public macro AUC > 0.499).",
             "mechanism": "From train_series.csv/test_series.csv build per-study vectors (log series count, sagittal/coronal/axial fractions, fluid-sensitive fraction, fat-suppression fraction). Fit L2-regularized logistic regression independently per target on gold labels only. Apply weights to test metadata, rank-transform each column, map through prevalence. No test reports, no DICOM pixels.",
@@ -72,13 +79,12 @@ def run_hypothesize(
         "",
         "## Why this hypothesis now",
         "",
-        "Hand-specified metadata offsets (plane availability, fluid-sensitive counts, report-shrinkage",
-        "priors) moved public macro ROC-AUC only from 0.494 (prevalence + noise) to 0.499",
-        "(fluid-gated metadata). That is a ranking problem, not a calibration problem: Gaussian",
-        "0.005 noise is the same order as the logit offsets, so it can scramble the weak signal.",
-        "The next testable change is to *learn* the metadata weights from the 58 gold labels",
-        "instead of guessing them, then rank-transform so AUC sees a clean ordering. Visual MRI",
-        "encoders stay out of scope until a metadata model beats 0.499 or is clearly falsified.",
+        "gold_meta_logit (learned 7-d series metadata, no noise) is the frozen public baseline at 0.514.",
+        "Hand-tuned offsets + Gaussian jitter saturated at 0.498–0.499; replacing the learned ranks",
+        "with report-shrinkage priors dropped the score to 0.504. Per-target constant shrinkage cannot",
+        "change ROC-AUC. The next testable change must *re-rank* studies: blend plane×fluid and",
+        "plane×fat interaction logits on top of the accepted 7-d ranks (0.60 / 0.40). Visual MRI",
+        "encoders stay out of scope until this metadata ablation beats 0.514 or is clearly falsified.",
         "",
         "## Primary hypothesis this cycle",
         "",
@@ -93,8 +99,8 @@ def run_hypothesize(
         "- One offline Kaggle notebook; internet disabled; discover `sample_submission.csv`.",
         "- Fit only on gold rows of `train.csv` joined to `train_series.csv`.",
         "- Infer from `test_series.csv` metadata only — never open test radiology reports.",
-        "- Accept into the frozen baseline iff public score > 0.499 and status COMPLETE.",
-        "- Otherwise keep `fluid_gate_metadata` (0.499) as the fallback path.",
+        "- Accept into the frozen baseline iff public score > 0.514 and status COMPLETE.",
+        "- Otherwise keep `gold_meta_logit` (0.514) as the fallback path.",
         "",
         "## Backlog (ASRA queue)",
         "",
@@ -111,4 +117,9 @@ def run_hypothesize(
         "",
     ]
     md_path.write_text("\n".join(lines))
+    repo_root = Path(__file__).resolve().parents[2]
+    if out_dir.resolve() == (repo_root / "Hypothesis").resolve():
+        alias_dir = repo_root / "Hypothesis analysis"
+        alias_dir.mkdir(parents=True, exist_ok=True)
+        (alias_dir / md_path.name).write_text(md_path.read_text())
     return md_path

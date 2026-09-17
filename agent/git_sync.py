@@ -33,6 +33,12 @@ def ensure_dirs(paths: Iterable[Path]) -> None:
             keep.write_text("")
 
 
+def _current_branch() -> str:
+    proc = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"], check=False)
+    name = (proc.stdout or "").strip()
+    return name if name and name != "HEAD" else "main"
+
+
 def commit_and_push(
     paths: list[str],
     message: str,
@@ -65,8 +71,10 @@ def commit_and_push(
     sha = _run(["git", "rev-parse", "HEAD"]).stdout.strip()
     logger.info("Committed %s", sha)
     if auto_push:
+        # Push the branch we actually committed on (Cloud Agent feature branches ≠ main).
+        push_ref = _current_branch() or branch
         push = subprocess.run(
-            ["git", "push", "-u", "origin", branch],
+            ["git", "push", "-u", "origin", push_ref],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -74,5 +82,5 @@ def commit_and_push(
         if push.returncode != 0:
             logger.error("push failed: %s %s", push.stdout, push.stderr)
         else:
-            logger.info("Pushed to origin/%s", branch)
+            logger.info("Pushed to origin/%s", push_ref)
     return sha
