@@ -1,17 +1,18 @@
-[grok-bot] needs your input — RSNA knee day 2026-09-16
+[grok-bot] needs your input — RSNA knee day 2026-09-17
 
-The Grok supervisor bot needs a decision from you (verdict: **failing**).
+The Grok supervisor bot needs a decision from you (verdict: **degraded**).
 
 ### Questions
+- [ ] Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.
 - [ ] I cannot read Kaggle submission history (RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions
 ). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.
+- [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
 
 ### Why
-- Research/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now
-- Analysis/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now
-- Hypothesis/ has 3 write-up(s) for day 2026-09-16 but 5 were due by now
-- 2 agent workflow run(s) failed today
+- Research/ has 0 write-up(s) for day 2026-09-17 but 1 were due by now
+- Analysis/ has 0 write-up(s) for day 2026-09-17 but 1 were due by now
+- Hypothesis/ has 0 write-up(s) for day 2026-09-17 but 1 were due by now
 
-Submissions due by now: 5/5 · submissions today: None · full pipelines: [0, 1, 2]
+Submissions due by now: 1/5 · submissions today: None · full pipelines: []
 
 Reply in a comment on this issue; the bot reads open issues on its next run.
