@@ -163,8 +163,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Rank-blend plane×protocol interactions** on top of the frozen 7-d gold_meta_logit (0.514) — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
-        "2. Keep **gold_meta_logit** as the fallback notebook if the blend does not beat 0.514.",
+        "1. **Keep gold_rank_interact (0.517) frozen** and ablate blend weight / interaction λ — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
+        "2. Keep **gold_rank_interact** as the fallback notebook if the next ablation does not beat 0.517.",
         "3. Add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / label-attention) once metadata ablations stall.",
         "",

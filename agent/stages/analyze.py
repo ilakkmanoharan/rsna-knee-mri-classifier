@@ -94,25 +94,27 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
             )
             why_low.append(
                 "Score ladder: Stage-B prevalence+noise 0.494; hand-tuned metadata_prior_blend / "
-                "report_shrinkage_priors 0.498; fluid_gate_metadata 0.499; gold_meta_logit 0.514 "
-                "(accepted). Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
-                "Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
+                "report_shrinkage_priors 0.498; fluid_gate_metadata 0.499–0.505; gold_meta_logit 0.514; "
+                "gold_rank_interact 0.517 (accepted). Replacing learned ranks with shrinkage priors "
+                "scored 0.504 — a regression. Per-target constant shrinkage is AUC-invariant; "
+                "Gaussian 0.005 noise can scramble weak ranks."
             )
             why_low.append(
                 "The 7-d additive metadata model cannot represent plane×fluid protocols (sagittal "
-                "fluid-sensitive vs axial fluid-sensitive). Remaining metadata lift must re-rank "
-                "studies via interaction features or a rank ensemble, not calibration."
+                "fluid-sensitive vs axial fluid-sensitive). gold_rank_interact (0.60·7-d + 0.40·interact) "
+                "is the frozen floor. Remaining metadata lift must change ranking further (blend weight, "
+                "λ, or train-report weak labels), not calibration."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Rank-blend the frozen 7-d gold_meta_logit (0.514) with a 13-d plane×fluid / plane×fat "
-            "ridge logit (λ=3.5); keep 0.60 weight on the accepted ranks; drop scrambling noise.",
+            "Rank-blend remaining metadata heads on top of frozen gold_rank_interact (0.517); "
+            "ablate blend weight or λ rather than replacing learned ranks; drop scrambling noise.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall.",
             "Train with report weak labels on the large unlabeled train set; infer without reports.",
-            "ASRA-ablate one ranking change per submission; keep gold_meta_logit (0.514) as the fallback.",
+            "ASRA-ablate one ranking change per submission; keep gold_rank_interact (0.517) as the fallback.",
             "Reserve ≥1 daily submission for a validated OOF-improving change only.",
         ]
 
