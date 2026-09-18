@@ -17,10 +17,10 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
+        "gold_rank_w50",
+        "gold_rank_w70",
+        "gold_rank_interact",
         "gold_meta_logit",
-        "report_shrinkage_priors",
-        "metadata_prior_blend",  # visual needs GPU dataset; keep safe default until assets ready
-        "fluid_gate_metadata",
         "rank_ensemble_safe",
     ][cycle_num % 5]
 
@@ -51,7 +51,45 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "gold_meta_logit":
+    if strategy == "gold_rank_w50":
+        lines += [
+            "- Same two learned heads as frozen `gold_rank_interact` (public 0.517).",
+            "- Load `train.csv` gold labels (only rows with non-null targets, ~58 studies).",
+            "- Load `train_series.csv` and `test_series.csv`; do **not** walk DICOM trees.",
+            "- Fit the frozen 7-d gold_meta_logit (λ=2): intercept, log1p(n), sag/cor/ax fractions,",
+            "  fluid fraction, fat fraction.",
+            "- Fit a 13-d interaction model (λ=3.5) that also includes sag/cor/ax × fluid and",
+            "  sag/cor/ax × fat fractions.",
+            "- Rank-transform each model's 12 heads; blend `0.50 * rank(7-d) + 0.50 * rank(interact)`.",
+            "- Map blended ranks through gold prevalence. No Gaussian noise. No test reports.",
+            "- If interact fit fails, fall back to 7-d ranks alone (the 0.514 path).",
+            "- If gold+series < 20, fall back to hand-tuned metadata offsets.",
+            "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
+            "",
+        ]
+    elif strategy == "gold_rank_w70":
+        lines += [
+            "- Same two learned heads as frozen `gold_rank_interact` (public 0.517).",
+            "- Rank-blend `0.70 * rank(7-d) + 0.30 * rank(interact)` (more weight on the 0.514 head).",
+            "- Map blended ranks through gold prevalence. No Gaussian noise. No test reports.",
+            "- If interact fit fails, fall back to 7-d ranks alone.",
+            "",
+        ]
+    elif strategy == "gold_rank_interact":
+        lines += [
+            "- Load `train.csv` gold labels (only rows with non-null targets, ~58 studies).",
+            "- Load `train_series.csv` and `test_series.csv`; do **not** walk DICOM trees.",
+            "- Fit the frozen 7-d gold_meta_logit (λ=2): intercept, log1p(n), sag/cor/ax fractions,",
+            "  fluid fraction, fat fraction.",
+            "- Fit a 13-d interaction model (λ=3.5) that also includes sag/cor/ax × fluid and",
+            "  sag/cor/ax × fat fractions. Stronger L2 offsets the extra dimensions on n≈58.",
+            "- Rank-transform each model's 12 heads; blend `0.60 * rank(7-d) + 0.40 * rank(interact)`.",
+            "- Map blended ranks through gold prevalence. No Gaussian noise. No test reports.",
+            "- If interact fit fails, fall back to 7-d ranks alone (the 0.514 path).",
+            "- If gold+series < 20, fall back to hand-tuned metadata offsets.",
+            "",
+        ]
+    elif strategy == "gold_meta_logit":
         lines += [
             "- Load `train.csv` gold labels (only rows with non-null targets, ~58 studies).",
             "- Load `train_series.csv` and `test_series.csv`; do **not** walk DICOM trees.",
@@ -99,11 +137,13 @@ def run_plan(
         "",
         "- Full visual encoder training on all train DICOMs (schedule when GPU + data mount time allows).",
         "- LLM/API calls during inference.",
+        "- Test radiology reports (forbidden).",
         "",
         "### Acceptance",
         "",
         "- Notebook completes; submission status COMPLETE.",
-        "- Public score > previous best, or document falsification in Analysis next cycle.",
+        "- Public score > 0.517 (frozen gold_rank_interact), or document falsification in Analysis next cycle.",
+        "- Keep gold_rank_interact as the fallback notebook if this ablation does not beat 0.517.",
         "",
     ]
     md_path.write_text("\n".join(lines))

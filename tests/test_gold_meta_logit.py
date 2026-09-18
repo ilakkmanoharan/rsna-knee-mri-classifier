@@ -8,18 +8,37 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from agent.stages.hypothesize import run_hypothesize
 from agent.stages.implement import _source_for_strategy, implement_notebook
 from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_gold_meta_logit(tmp_path):
+def test_cycle0_plan_selects_gold_rank_w50(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
-    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-16", cycle_num=0)
-    assert "gold_meta_logit" in md.read_text()
-    sidecar = json.loads((tmp_path / "2026-09-16_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "gold_meta_logit"
+    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-18", cycle_num=0)
+    assert "gold_rank_w50" in md.read_text()
+    sidecar = json.loads((tmp_path / "2026-09-18_cycle00_test_plan.json").read_text())
+    assert sidecar["strategy"] == "gold_rank_w50"
+
+
+def test_cycle1_plan_selects_gold_rank_w70(tmp_path):
+    dummy = tmp_path / "dummy.md"
+    dummy.write_text("x")
+    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-18", cycle_num=1)
+    sidecar = json.loads((tmp_path / "2026-09-18_cycle01_test_plan.json").read_text())
+    assert sidecar["strategy"] == "gold_rank_w70"
+    assert "0.70" in md.read_text()
+
+
+def test_cycle2_plan_keeps_gold_rank_interact_fallback(tmp_path):
+    dummy = tmp_path / "dummy.md"
+    dummy.write_text("x")
+    sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-18", cycle_num=2)
+    sidecar = json.loads((tmp_path / "2026-09-18_cycle02_test_plan.json").read_text())
+    assert sidecar["strategy"] == "gold_rank_interact"
+    assert "0.60" in sidecar_md.read_text()
 
 
 def test_notebook_contains_learned_metadata_path(tmp_path):
@@ -123,3 +142,79 @@ def test_gold_meta_logit_ranks_synthetic_acl(tmp_path):
     low = out.iloc[12:]["ACL"].mean()
     assert high > low, (high, low)
     assert ns["used_learned"] is True
+
+
+def _run_strategy(tmp_path, strategy: str):
+    data = tmp_path / "input"
+    work = tmp_path / "work"
+    work.mkdir()
+    _write_synth(data)
+    src = _source_for_strategy(strategy, "00_test")
+    src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+    src = src.replace(
+        'path = Path("/kaggle/working/submission.csv")',
+        f"path = Path({str(work / 'submission.csv')!r})",
+    )
+    ns: dict = {}
+    exec(compile(src, f"{strategy}_nb.py", "exec"), ns, ns)
+    out = pd.read_csv(work / "submission.csv")
+    sample = pd.read_csv(data / "sample_submission.csv")
+    return ns, out, sample
+
+
+def test_gold_rank_interact_notebook_and_synthetic_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb", "gold_rank_interact", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'gold_rank_interact'" in src
+    assert "learned_scores(True, 3.5)" in src
+    assert "BLEND_W7" in src
+    assert "0.60" in src
+    meta = json.loads((tmp_path / "nb" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert meta["id"] == "kaggle-user/slug"
+
+    ns, out, sample = _run_strategy(tmp_path, "gold_rank_interact")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["nI"] >= 20
+
+
+def test_gold_rank_w50_notebook_and_synthetic_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb", "gold_rank_w50", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'gold_rank_w50'" in src
+    assert '"gold_rank_w50": 0.50' in src
+    assert "enable_internet" not in src
+    meta = json.loads((tmp_path / "nb" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+
+    ns, out, sample = _run_strategy(tmp_path, "gold_rank_w50")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["nI"] >= 20
+
+
+def test_hypothesize_cycle0_is_w50(tmp_path):
+    dummy = tmp_path / "dummy.md"
+    dummy.write_text("x")
+    md = run_hypothesize(
+        tmp_path / "Hypothesis",
+        dummy,
+        dummy,
+        cycle_id="00_test",
+        day_id="2026-09-18",
+        cycle_num=0,
+    )
+    text = md.read_text()
+    assert "H_gold_rank_w50" in text
+    assert "0.517" in text
+    assert "0.50" in text
+    assert "gold_rank_interact" in text

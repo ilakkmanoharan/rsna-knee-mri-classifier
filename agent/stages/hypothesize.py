@@ -15,8 +15,29 @@ def run_hypothesize(
     cycle_num: int,
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
-    # Cycle-indexed primary hypothesis so each 90-min slot tests something different
+    # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
+        {
+            "id": "H_gold_rank_w50",
+            "hypothesis": "Equal rank-blend (0.50·7-d + 0.50·13-d interact) of the frozen gold_rank_interact heads will lift public macro ROC-AUC above 0.517 because the interaction head already added +0.003 at 0.40 weight.",
+            "mechanism": "Fit the frozen 7-d ridge logistic (λ=2) and the 13-d plane×fluid / plane×fat model (λ=3.5) on the 58 gold labels using only train_series.csv flags. Rank-transform each head, then 0.50·rank(7-d)+0.50·rank(interact). Map ranks through gold prevalence. No test reports, no DICOM pixels, no Gaussian noise.",
+            "falsify": "Public score ≤ 0.517 (frozen gold_rank_interact 0.60/0.40) or a notebook error falls back to 7-d ranks only.",
+            "expected_targets": ["Effusion", "Synovitis", "Contusion", "ACL", "PF OA"],
+        },
+        {
+            "id": "H_gold_rank_w70",
+            "hypothesis": "Putting more weight on the proven 7-d ranks (0.70/0.30) will beat 0.517 if the 13-d interact head is noisy on rare targets.",
+            "mechanism": "Same two learned heads as gold_rank_interact; blend 0.70·rank(7-d)+0.30·rank(interact). Fallback to 7-d if interact fit fails.",
+            "falsify": "Public score ≤ 0.517.",
+            "expected_targets": ["ACL", "MCL", "Medial Meniscus", "Lateral Meniscus"],
+        },
+        {
+            "id": "H_gold_rank_interact",
+            "hypothesis": "Rank-blending the accepted 7-d gold_meta_logit ranks (public 0.514) with a stronger-regularized plane×fluid / plane×fat interaction logit will lift macro ROC-AUC above 0.514 without replacing the frozen ranking.",
+            "mechanism": "Fit the frozen 7-d ridge logistic (λ=2) and a 13-d interaction model (λ=3.5) on the 58 gold labels using only train_series.csv flags. Rank-transform each head, then 0.60·rank(7-d)+0.40·rank(interact). Map ranks through gold prevalence. No test reports, no DICOM pixels, no Gaussian noise.",
+            "falsify": "Public score ≤ 0.514 (frozen gold_meta_logit) or a notebook error falls back to 7-d ranks only.",
+            "expected_targets": ["Effusion", "Synovitis", "Contusion", "ACL", "Medial OA"],
+        },
         {
             "id": "H_gold_meta_logit",
             "hypothesis": "Ridge logistic models fit on the 58 gold-labeled train studies using series-metadata features will rank test studies better than hand-tuned plane/fluid offsets (public macro AUC > 0.499).",
@@ -25,11 +46,11 @@ def run_hypothesize(
             "expected_targets": ["ACL", "MCL", "Effusion", "Synovitis", "PF OA"],
         },
         {
-            "id": "H_meta_prior",
-            "hypothesis": "Series-metadata features (plane availability + fluid-sensitive counts) blended with per-target prevalence will beat pure prevalence on public macro AUC.",
-            "mechanism": "For each test study, compute availability and sequence counts from test_series.csv; map to a small additive logit offset per target using preferred-plane heuristics; sigmoid → blend with prevalence.",
-            "falsify": "Public score ≤ previous prevalence submission within 0.002.",
-            "expected_targets": ["ACL", "MCL", "PF OA", "Effusion", "Contusion"],
+            "id": "H_ensemble_rank",
+            "hypothesis": "Rank-average of prevalence and metadata models beats any single model.",
+            "mechanism": "Per-target rank across models → average → rescale to (eps,1-eps).",
+            "falsify": "Public score ≤ best single member.",
+            "expected_targets": ["*"],
         },
         {
             "id": "H_report_shrinkage",
@@ -45,20 +66,6 @@ def run_hypothesize(
             "falsify": "OOF macro ≤ prevalence or public score drops.",
             "expected_targets": ["*"],
         },
-        {
-            "id": "H_fluid_routing",
-            "hypothesis": "Up-weighting fluid-sensitive series for effusion/synovitis/contusion improves those target AUCs without hurting ligaments.",
-            "mechanism": "Sequence-flag gated pooling weights; ASRA accept only if no target collapses.",
-            "falsify": "Ligament AUCs drop >0.02 or macro flat.",
-            "expected_targets": ["Effusion", "Synovitis", "Contusion"],
-        },
-        {
-            "id": "H_ensemble_rank",
-            "hypothesis": "Rank-average of prevalence, metadata, and visual models beats any single model.",
-            "mechanism": "Per-target rank across models → average → rescale to (eps,1-eps).",
-            "falsify": "Public score ≤ best single member.",
-            "expected_targets": ["*"],
-        },
     ]
     primary = catalog[cycle_num % len(catalog)]
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -72,13 +79,14 @@ def run_hypothesize(
         "",
         "## Why this hypothesis now",
         "",
-        "Hand-specified metadata offsets (plane availability, fluid-sensitive counts, report-shrinkage",
-        "priors) moved public macro ROC-AUC only from 0.494 (prevalence + noise) to 0.499",
-        "(fluid-gated metadata). That is a ranking problem, not a calibration problem: Gaussian",
-        "0.005 noise is the same order as the logit offsets, so it can scramble the weak signal.",
-        "The next testable change is to *learn* the metadata weights from the 58 gold labels",
-        "instead of guessing them, then rank-transform so AUC sees a clean ordering. Visual MRI",
-        "encoders stay out of scope until a metadata model beats 0.499 or is clearly falsified.",
+        "gold_rank_interact (0.60·7-d gold_meta_logit + 0.40·13-d plane×protocol) is the frozen",
+        "public baseline at **0.517** (submission 56296980). Additive 7-d metadata alone scored",
+        "0.514; hand-tuned offsets saturated at 0.498–0.505; replacing learned ranks with",
+        "report-shrinkage priors dropped the score to 0.504. Per-target constant shrinkage cannot",
+        "change ROC-AUC. The interaction head already helped at 0.40 weight (+0.003), so the next",
+        "testable change is a **blend-weight ablation**: give interact equal voice (0.50/0.50)",
+        "instead of resubmitting 0.60/0.40 or gold_meta_logit. Visual MRI encoders stay out of",
+        "scope until this metadata ablation beats 0.517 or is clearly falsified.",
         "",
         "## Primary hypothesis this cycle",
         "",
@@ -93,8 +101,8 @@ def run_hypothesize(
         "- One offline Kaggle notebook; internet disabled; discover `sample_submission.csv`.",
         "- Fit only on gold rows of `train.csv` joined to `train_series.csv`.",
         "- Infer from `test_series.csv` metadata only — never open test radiology reports.",
-        "- Accept into the frozen baseline iff public score > 0.499 and status COMPLETE.",
-        "- Otherwise keep `fluid_gate_metadata` (0.499) as the fallback path.",
+        "- Accept into the frozen baseline iff public score > 0.517 and status COMPLETE.",
+        "- Otherwise keep `gold_rank_interact` (0.517) as the fallback path.",
         "",
         "## Backlog (ASRA queue)",
         "",
@@ -111,4 +119,9 @@ def run_hypothesize(
         "",
     ]
     md_path.write_text("\n".join(lines))
+    repo_root = Path(__file__).resolve().parents[2]
+    if out_dir.resolve() == (repo_root / "Hypothesis").resolve():
+        alias_dir = repo_root / "Hypothesis analysis"
+        alias_dir.mkdir(parents=True, exist_ok=True)
+        (alias_dir / md_path.name).write_text(md_path.read_text())
     return md_path
