@@ -1,4 +1,4 @@
-[grok-bot] needs your input — RSNA knee day 2026-09-17
+[grok-bot] needs your input — RSNA knee day 2026-09-18
 
 The Grok supervisor bot needs a decision from you (verdict: **degraded**).
 
@@ -9,10 +9,9 @@ The Grok supervisor bot needs a decision from you (verdict: **degraded**).
 - [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
 
 ### Why
-- Research/ has 0 write-up(s) for day 2026-09-17 but 1 were due by now
-- Analysis/ has 0 write-up(s) for day 2026-09-17 but 1 were due by now
-- Hypothesis/ has 0 write-up(s) for day 2026-09-17 but 1 were due by now
+- Research/: research cites only 2 sources (expected >= 3 paper/web links)
+- Research/: research stage retrieved 0 paper(s) — the internet/arXiv search returned nothing usable, so the write-up is not grounded in literature
 
-Submissions due by now: 1/5 · submissions today: None · full pipelines: []
+Submissions due by now: 1/5 · submissions today: None · full pipelines: [0]
 
 Reply in a comment on this issue; the bot reads open issues on its next run.
