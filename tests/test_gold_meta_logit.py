@@ -14,22 +14,22 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_gold_rank_w50(tmp_path):
+def test_cycle0_plan_selects_gold_rank_w70(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-18", cycle_num=0)
-    assert "gold_rank_w50" in md.read_text()
+    assert "gold_rank_w70" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-18_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "gold_rank_w50"
+    assert sidecar["strategy"] == "gold_rank_w70"
 
 
-def test_cycle1_plan_selects_gold_rank_w70(tmp_path):
+def test_cycle1_plan_keeps_gold_rank_w50_fallback(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-18", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-18_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "gold_rank_w70"
-    assert "0.70" in md.read_text()
+    assert sidecar["strategy"] == "gold_rank_w50"
+    assert "0.50" in md.read_text()
 
 
 def test_cycle2_plan_keeps_gold_rank_interact_fallback(tmp_path):
@@ -202,7 +202,7 @@ def test_gold_rank_w50_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_w50(tmp_path):
+def test_hypothesize_cycle0_is_w70(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -214,7 +214,7 @@ def test_hypothesize_cycle0_is_w50(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_gold_rank_w50" in text
-    assert "0.517" in text
-    assert "0.50" in text
-    assert "gold_rank_interact" in text
+    assert "H_gold_rank_w70" in text
+    assert "0.518" in text
+    assert "0.70" in text
+    assert "gold_rank_w50" in text

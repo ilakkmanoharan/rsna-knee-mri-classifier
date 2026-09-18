@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "gold_rank_w50",
         "gold_rank_w70",
+        "gold_rank_w50",
         "gold_rank_interact",
         "gold_meta_logit",
         "rank_ensemble_safe",
@@ -69,10 +69,11 @@ def run_plan(
         ]
     elif strategy == "gold_rank_w70":
         lines += [
-            "- Same two learned heads as frozen `gold_rank_interact` (public 0.517).",
-            "- Rank-blend `0.70 * rank(7-d) + 0.30 * rank(interact)` (more weight on the 0.514 head).",
+            "- Same two learned heads as frozen `gold_rank_w50` (public 0.518).",
+            "- Rank-blend `0.70 * rank(7-d) + 0.30 * rank(interact)` (more weight on the additive head).",
             "- Map blended ranks through gold prevalence. No Gaussian noise. No test reports.",
             "- If interact fit fails, fall back to 7-d ranks alone.",
+            "- Do **not** resubmit 0.50/0.50 (`gold_rank_w50`) as this cycle.",
             "",
         ]
     elif strategy == "gold_rank_interact":
@@ -142,8 +143,8 @@ def run_plan(
         "### Acceptance",
         "",
         "- Notebook completes; submission status COMPLETE.",
-        "- Public score > 0.517 (frozen gold_rank_interact), or document falsification in Analysis next cycle.",
-        "- Keep gold_rank_interact as the fallback notebook if this ablation does not beat 0.517.",
+            "- Public score > 0.518 (frozen gold_rank_w50), or document falsification in Analysis next cycle.",
+            "- Keep gold_rank_w50 as the fallback notebook if this ablation does not beat 0.518.",
         "",
     ]
     md_path.write_text("\n".join(lines))

@@ -74,16 +74,16 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Small-n gold-set metadata logistic",
             "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494→0.499. The 58 gold labels fitted a 7-d ridge logistic that reached 0.514. That is a fallback, not the day's first cycle.",
-            "how": "Keep gold_meta_logit as fallback. Do not resubmit it as cycle 0; ablate ranking changes on top of gold_rank_interact (0.517).",
+            "how": "Keep gold_meta_logit as a deep fallback. Do not resubmit it as cycle 0; ablate ranking changes on top of gold_rank_w50 (0.518).",
         },
         {
             "name": "Plane × protocol interaction ranks",
-            "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). gold_rank_interact (0.60·7-d + 0.40·interact) is the frozen public floor at 0.517.",
+            "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). gold_rank_w50 (0.50·7-d + 0.50·interact) is the frozen public floor at 0.518.",
             "how": "Keep the 13-d sag/cor/ax × fluid and × fat ridge (λ=3.5). Next ablation is blend weight, not a new architecture.",
         },
         {
-            "name": "Rank-blend weight ablation (0.50/0.50)",
-            "why": "Raising interact weight from 0.00 (0.514) to 0.40 (0.517) helped. Equal 0.50/0.50 is the smallest untested ranking change that still keeps the frozen 7-d head. 0.70/0.30 is the backup if interact is noisy on rare labels.",
+            "name": "Rank-blend weight ablation (0.70/0.30)",
+            "why": "Raising interact weight from 0.00 (0.514) to 0.40 (0.517) to 0.50 (0.518) helped. The untested neighbor is 0.70/0.30 (more 7-d). Do not resubmit 0.50/0.50.",
             "how": "Reuse both fitted heads; rank-transform; blend w·rank(7-d)+(1-w)·rank(interact); map through prevalence; no Gaussian noise.",
         },
         {
@@ -155,7 +155,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "",
         "## Goal",
         "",
-        "Improve macro ROC-AUC on RSNA Knee Abnormality Detection (12 independent study-level targets) beyond the frozen gold_rank_interact public score (0.517).",
+        "Improve macro ROC-AUC on RSNA Knee Abnormality Detection (12 independent study-level targets) beyond the frozen gold_rank_w50 public score (0.518).",
         "",
         "## Methods to consider",
         "",
@@ -173,8 +173,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep gold_rank_interact (0.517) frozen** and ablate blend weight (0.50/0.50 this cycle; 0.70/0.30 next) — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
-        "2. Keep **gold_rank_interact** as the fallback notebook if the ablation does not beat 0.517. Do not resubmit gold_meta_logit as cycle 0.",
+        "1. **Keep gold_rank_w50 (0.518) frozen** and ablate blend weight 0.70/0.30 next — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
+        "2. Keep **gold_rank_w50** as the fallback notebook if the ablation does not beat 0.518. Do not resubmit gold_meta_logit or 0.50/0.50 as cycle 0.",
         "3. Add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata ablations stall.",
         "",

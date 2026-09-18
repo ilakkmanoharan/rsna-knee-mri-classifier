@@ -95,24 +95,23 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
             why_low.append(
                 "Score ladder: Stage-B prevalence+noise 0.494; hand-tuned metadata_prior_blend / "
                 "report_shrinkage_priors 0.498; fluid_gate_metadata 0.499–0.505; gold_meta_logit 0.514; "
-                "gold_rank_interact 0.517 (accepted, submission 56296980). Replacing learned ranks with "
-                "shrinkage priors scored 0.504 — a regression. Per-target constant shrinkage is "
-                "AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
+                "gold_rank_interact 0.517; gold_rank_w50 0.518 (accepted, submission 56322623). "
+                "Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
+                "Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
             )
             why_low.append(
                 "The 7-d additive metadata model cannot represent plane×fluid protocols (sagittal "
-                "fluid-sensitive vs axial fluid-sensitive). gold_rank_interact (0.60·7-d + 0.40·interact) "
+                "fluid-sensitive vs axial fluid-sensitive). gold_rank_w50 (0.50·7-d + 0.50·interact) "
                 "is the frozen floor. Remaining metadata lift must change ranking further (blend weight "
-                "0.50/0.50 or 0.70/0.30, λ, or train-report weak labels), not calibration."
+                "0.70/0.30, λ, or train-report weak labels), not calibration."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Ablate the gold_rank_interact blend: 0.50/0.50 this cycle (more interact, which already "
-            "helped at 0.40); keep 0.70/0.30 as the next slot. Drop scrambling noise.",
-            "Do not resubmit gold_meta_logit or 0.60/0.40 as cycle 0; keep gold_rank_interact (0.517) as fallback.",
+            "Ablate the gold_rank_w50 blend: 0.70/0.30 next (more 7-d). Drop scrambling noise.",
+            "Do not resubmit gold_rank_w50 or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall.",
             "Train with report weak labels on the large unlabeled train set; infer without reports.",
             "ASRA-ablate one ranking change per submission; reserve ≥1 daily submission for a validated OOF-improving change only.",
