@@ -82,8 +82,8 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Keep the 13-d sag/cor/ax × fluid and × fat ridge (λ=3.5). Next ablation is blend weight, not a new architecture.",
         },
         {
-            "name": "Rank-blend weight ablation (0.70/0.30)",
-            "why": "Raising interact weight from 0.00 (0.514) to 0.40 (0.517) to 0.50 (0.518) helped. The untested neighbor is 0.70/0.30 (more 7-d). Do not resubmit 0.50/0.50. Forum work says a +0.01 gold-set gap is noisy (σ≈0.0125), so treat a miss as falsification of this weight, not of metadata.",
+            "name": "Rank-blend weight ablation (0.40/0.60)",
+            "why": "Public LB rose monotonically as interact weight went 0.00 (0.514) → 0.30 (0.516, gold_rank_w70, falsified) → 0.40 (0.517) → 0.50 (0.518). The untested neighbor is 0.40/0.60 (more interact). Do not resubmit 0.50/0.50 or 0.70/0.30.",
             "how": "Reuse both fitted heads; rank-transform; blend w·rank(7-d)+(1-w)·rank(interact); map through prevalence; no Gaussian noise.",
         },
         {
@@ -178,8 +178,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep gold_rank_w50 (0.518) frozen** and ablate blend weight 0.70/0.30 next — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
-        "2. Keep **gold_rank_w50** as the fallback notebook if the ablation does not beat 0.518. Do not resubmit gold_meta_logit or 0.50/0.50 as cycle 0.",
+        "1. **Keep gold_rank_w50 (0.518) frozen** and ablate blend weight 0.40/0.60 next — do not replace learned ranks with constants (report-shrinkage cannot change AUC).",
+        "2. Keep **gold_rank_w50** as the fallback notebook if the ablation does not beat 0.518. Do not resubmit gold_rank_w70 (0.516, falsified) or 0.50/0.50 as cycle 0.",
         "3. Add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata ablations stall.",
         "",
@@ -195,7 +195,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Kaggle discussion 733876 (2026).** Paired sigma of a macro-AUC comparison on the 58 gold studies is ~0.0125; a true +0.01 wins CV only ~78% of the time. The 58 are prevalence-enriched vs the 4,407 reports. Practical rule: rank on weak labels over all train reports; keep the 58 for calibration. URL: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733876",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and even grouped-fold metadata ~0.60 are the medium-run targets, but the only *currently executable* ranking lever that does not invent DICOM-header paths is the 7-d / 13-d series-flag blend on 58 gold labels. Ablate weight (0.70/0.30), not architecture. After that stall, fit ranks on train-report weak labels (n≈4407) and use gold only for calibration — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and even grouped-fold metadata ~0.60 are the medium-run targets, but the only *currently executable* ranking lever that does not invent DICOM-header paths is the 7-d / 13-d series-flag blend on 58 gold labels. Ablate weight (0.40/0.60), not architecture. After that stall, fit ranks on train-report weak labels (n≈4407) and use gold only for calibration — still no test reports.",
         "",
         "### arXiv query hits",
         "",

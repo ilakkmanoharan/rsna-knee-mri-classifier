@@ -110,8 +110,8 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Ablate the gold_rank_w50 blend: 0.70/0.30 this cycle (more 7-d). Drop scrambling noise.",
-            "Do not resubmit gold_rank_w50 or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
+            "Ablate the gold_rank_w50 blend: 0.40/0.60 next (more interact). gold_rank_w70 (0.70/0.30) scored 0.516 and is falsified. Drop scrambling noise.",
+            "Do not resubmit gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.518 public score is still below that series-flag ceiling, but gold-only n=58 is noisy (σ≈0.0125, discussion 733876).",
             "After this weight ablation, fit ranks on train-report weak labels (n≈4407) and keep gold for calibration only. Infer without reports.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",

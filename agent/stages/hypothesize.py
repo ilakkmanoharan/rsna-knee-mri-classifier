@@ -18,6 +18,13 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_gold_rank_w40",
+            "hypothesis": "Giving the 13-d interact head majority weight (0.40/0.60) will beat 0.518 because public LB has risen monotonically as interact weight went 0.00→0.30→0.40→0.50.",
+            "mechanism": "Same two learned heads as gold_rank_w50; blend 0.40·rank(7-d)+0.60·rank(interact). Fallback to 7-d if interact fit fails. No test reports, no pixels, no Gaussian noise.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "expected_targets": ["Effusion", "Synovitis", "Contusion", "ACL", "PF OA"],
+        },
+        {
             "id": "H_gold_rank_w70",
             "hypothesis": "Putting more weight on the proven 7-d ranks (0.70/0.30) will beat 0.518 if the 13-d interact head is noisy on rare targets at equal weight.",
             "mechanism": "Same two learned heads as gold_rank_w50; blend 0.70·rank(7-d)+0.30·rank(interact). Fallback to 7-d if interact fit fails. No test reports, no pixels, no Gaussian noise.",
@@ -80,11 +87,11 @@ def run_hypothesize(
         "## Why this hypothesis now",
         "",
         "gold_rank_w50 (0.50·7-d + 0.50·13-d plane×protocol) is the frozen public baseline at",
-        "**0.518** (submission 56322623). gold_rank_interact (0.60/0.40) scored 0.517; 7-d alone",
-        "scored 0.514; hand-tuned offsets saturated at 0.498–0.505. Per-target constant shrinkage",
-        "cannot change ROC-AUC. The next testable change is a **blend-weight ablation in the",
-        "other direction**: 0.70/0.30 (more 7-d) instead of resubmitting 0.50/0.50. Visual MRI",
-        "encoders stay out of scope until this metadata ablation beats 0.518 or is clearly falsified.",
+        "**0.518** (submission 56322623). gold_rank_w70 (0.70/0.30) scored 0.516 and is falsified;",
+        "gold_rank_interact (0.60/0.40) scored 0.517; 7-d alone scored 0.514. Interact weight has",
+        "been monotonically helpful. The next testable change is **0.40/0.60** (more interact),",
+        "not a resubmit of 0.50/0.50 or 0.70/0.30. Visual MRI encoders stay out of scope until",
+        "this metadata ablation beats 0.518 or is clearly falsified.",
         "",
         "## Primary hypothesis this cycle",
         "",
