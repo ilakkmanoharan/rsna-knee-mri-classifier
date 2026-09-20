@@ -102,8 +102,9 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
             why_low.append(
                 "The 7-d additive metadata model cannot represent plane×fluid protocols (sagittal "
                 "fluid-sensitive vs axial fluid-sensitive). gold_rank_w50 (0.50·7-d + 0.50·interact) "
-                "is the frozen floor. Remaining metadata lift must change ranking further (blend weight "
-                "0.70/0.30, λ, or train-report weak labels), not calibration."
+                "is the frozen floor. gold_rank_w70 (0.70/0.30) scored 0.516 and is falsified. "
+                "Remaining metadata lift must change ranking further (blend weight 0.40/0.60, λ, "
+                "or train-report weak labels), not calibration."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "

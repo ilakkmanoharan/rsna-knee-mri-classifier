@@ -13,7 +13,21 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-ARXIV_API = "http://export.arxiv.org/api/query"
+ARXIV_API = "https://export.arxiv.org/api/query"
+EUROPEPMC_API = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+UA = "rsna-knee-agent1/0.2 (research; kaggle-competition-literature)"
+
+
+def _http_get(url: str, timeout: int = 60) -> bytes:
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": UA,
+            "Accept": "application/atom+xml, application/json, text/xml, */*",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read()
 
 
 def _arxiv_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
@@ -27,15 +41,13 @@ def _arxiv_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
         "sortOrder": "descending",
     }
     url = ARXIV_API + "?" + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url, headers={"User-Agent": "rsna-knee-agent1/0.1"})
     data = None
     last_exc: Exception | None = None
-    for attempt in range(4):
+    for attempt in range(3):
         try:
             # arXiv asks for polite spacing between requests
-            time.sleep(3 if attempt == 0 else 8 * attempt)
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                data = resp.read()
+            time.sleep(2 if attempt == 0 else 6 * attempt)
+            data = _http_get(url)
             break
         except Exception as exc:  # noqa: BLE001
             last_exc = exc
@@ -54,7 +66,39 @@ def _arxiv_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
                 link = l.attrib.get("href", "")
                 break
         published = entry.findtext("a:published", default="", namespaces=ns) or ""
-        papers.append({"title": title, "summary": summary[:1200], "url": link, "published": published[:10]})
+        papers.append({"title": title, "summary": summary[:1200], "url": link, "published": published[:10], "source": "arxiv"})
+    return papers
+
+
+def _europepmc_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
+    """Fallback literature search when arXiv returns HTTP 406 from cloud egress."""
+    params = {
+        "query": query,
+        "format": "json",
+        "pageSize": max(1, max_results),
+        "resultType": "lite",
+    }
+    url = EUROPEPMC_API + "?" + urllib.parse.urlencode(params)
+    payload = json.loads(_http_get(url, timeout=45).decode("utf-8"))
+    papers = []
+    for hit in (payload.get("resultList") or {}).get("result") or []:
+        title = str(hit.get("title") or "").strip()
+        if not title:
+            continue
+        year = str(hit.get("pubYear") or "")
+        src = str(hit.get("source") or "MED")
+        pmid = str(hit.get("pmid") or hit.get("id") or "")
+        doi = str(hit.get("doi") or "")
+        url_hit = f"https://doi.org/{doi}" if doi else (f"https://europepmc.org/article/{src}/{pmid}" if pmid else "")
+        papers.append(
+            {
+                "title": title,
+                "summary": str(hit.get("authorString") or "")[:1200],
+                "url": url_hit,
+                "published": year,
+                "source": "europepmc",
+            }
+        )
     return papers
 
 
@@ -130,15 +174,23 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     errors: list[str] = []
     per_q = max(1, max_arxiv // max(len(queries), 1))
     for q in queries:
+        hits: list[dict[str, Any]] = []
         try:
             hits = _arxiv_search(q, max_results=per_q)
-            for h in hits:
-                h["query"] = q
-            papers.extend(hits)
             logger.info("arxiv query %r → %d hits", q, len(hits))
         except Exception as exc:  # noqa: BLE001
             errors.append(f"{q}: {type(exc).__name__}: {exc}")
             logger.warning("arxiv failed for %s: %s", q, exc)
+        if not hits:
+            try:
+                hits = _europepmc_search(q, max_results=per_q)
+                logger.info("europepmc query %r → %d hits", q, len(hits))
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"{q} (europepmc): {type(exc).__name__}: {exc}")
+                logger.warning("europepmc failed for %s: %s", q, exc)
+        for h in hits:
+            h["query"] = q
+        papers.extend(hits)
 
     # Dedup by title
     seen = set()
@@ -193,6 +245,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Bien, Rajpurkar et al. MRNet (PLOS Medicine, 2018).** Plane-wise CNNs then logistic stack of sagittal/coronal/axial logits. Our metadata analogue is plane×fluid×fat counts until pixels are trained. URL: https://doi.org/10.1371/journal.pmed.1002699",
         "- **Kaggle discussion 733517 (2026).** Full DICOM-header HistGBM reaches 0.6516 macro AUC on report-derived labels under random folds but only 0.5981 under scanner-grouped folds; series composition alone (`train_series.csv` four columns) is 0.5954. The 0.05 gap is site memorization and should not be the public-LB target. URL: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733517",
         "- **Kaggle discussion 733876 (2026).** Paired sigma of a macro-AUC comparison on the 58 gold studies is ~0.0125; a true +0.01 wins CV only ~78% of the time. The 58 are prevalence-enriched vs the 4,407 reports. Practical rule: rank on weak labels over all train reports; keep the 58 for calibration. URL: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733876",
+        "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
         "Implication for this cycle: visual AUCs of 0.8–0.9 and even grouped-fold metadata ~0.60 are the medium-run targets, but the only *currently executable* ranking lever that does not invent DICOM-header paths is the 7-d / 13-d series-flag blend on 58 gold labels. Ablate weight (0.40/0.60), not architecture. After that stall, fit ranks on train-report weak labels (n≈4407) and use gold only for calibration — still no test reports.",
