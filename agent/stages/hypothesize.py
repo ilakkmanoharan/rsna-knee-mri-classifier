@@ -18,6 +18,13 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_gold_rank_lam2",
+            "hypothesis": "If the 0.40/0.60 and 0.50/0.50 blends both score 0.518, the 13-d interact head is over-regularized (λ=3.5) and nearly collinear with the 7-d ranks; lowering λI to 2.0 at the frozen 0.50 blend will make plane×protocol ranks distinctive and beat 0.518.",
+            "mechanism": "Same 7-d (λ=2) + 13-d interact heads as gold_rank_w50; keep 0.50·rank(7-d)+0.50·rank(interact); fit the interact head with λ=2.0 instead of 3.5. Fallback to 7-d if interact fit fails. No test reports, no pixels, no Gaussian noise.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50 / tied gold_rank_w40).",
+            "expected_targets": ["Effusion", "Synovitis", "Contusion", "ACL", "PF OA"],
+        },
+        {
             "id": "H_gold_rank_w40",
             "hypothesis": "Giving the 13-d interact head majority weight (0.40/0.60) will beat 0.518 because public LB has risen monotonically as interact weight went 0.00→0.30→0.40→0.50.",
             "mechanism": "Same two learned heads as gold_rank_w50; blend 0.40·rank(7-d)+0.60·rank(interact). Fallback to 7-d if interact fit fails. No test reports, no pixels, no Gaussian noise.",
@@ -86,12 +93,12 @@ def run_hypothesize(
         "",
         "## Why this hypothesis now",
         "",
-        "gold_rank_w50 (0.50·7-d + 0.50·13-d plane×protocol) is the frozen public baseline at",
-        "**0.518** (submission 56322623). gold_rank_w70 (0.70/0.30) scored 0.516 and is falsified;",
-        "gold_rank_interact (0.60/0.40) scored 0.517; 7-d alone scored 0.514. Interact weight has",
-        "been monotonically helpful. The next testable change is **0.40/0.60** (more interact),",
-        "not a resubmit of 0.50/0.50 or 0.70/0.30. Visual MRI encoders stay out of scope until",
-        "this metadata ablation beats 0.518 or is clearly falsified.",
+        "gold_rank_w50 (0.50·7-d + 0.50·13-d plane×protocol, λI=3.5) is the frozen public baseline at",
+        "**0.518** (submission 56322623). gold_rank_w40 (0.40/0.60) **tied 0.518** (56382621) and is",
+        "falsified as an improvement; gold_rank_w70 scored 0.516. The weight curve has plateaued, so",
+        "the two heads are likely too similar under λI=3.5. The next testable change is **λI=2.0**",
+        "at the frozen 0.50 blend (`gold_rank_lam2`), not another blend weight. Visual MRI encoders",
+        "stay out of scope until this metadata ablation beats 0.518 or is clearly falsified.",
         "",
         "## Primary hypothesis this cycle",
         "",

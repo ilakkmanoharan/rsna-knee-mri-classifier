@@ -124,7 +124,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -240,12 +240,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -296,18 +296,20 @@ def learned_scores(interact=False, lam=2.0):
 
 used_learned = False
 n7 = nI = 0
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40}}
-LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40"}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0}}
+LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}
 if STRATEGY in LEARNED and train_series is not None:
     scores7, n7 = learned_scores(False, 2.0)
     ranked = None
     if STRATEGY in BLEND_W7:
         w7 = float(BLEND_W7[STRATEGY])
-        scoresI, nI = learned_scores(True, 3.5)
+        lamI = float(INTERACT_LAM.get(STRATEGY, 3.5))
+        scoresI, nI = learned_scores(True, lamI)
         if scores7 is not None and scoresI is not None:
-            # Frozen gold_rank_interact is 0.60/0.40 at public 0.517. This cycle ablates w7.
+            # Frozen gold_rank_w50 is 0.50/0.50 at λI=3.5, public 0.518. lam2 keeps that blend, λI=2.0.
             ranked = w7 * rank_cols(scores7) + (1.0 - w7) * rank_cols(scoresI)
-            print(STRATEGY, "blend", w7, "*7d +", 1.0 - w7, "*plane-protocol", "n7", n7, "nI", nI)
+            print(STRATEGY, "blend", w7, "*7d +", 1.0 - w7, "*plane-protocol", "lamI", lamI, "n7", n7, "nI", nI)
         elif scores7 is not None:
             ranked = rank_cols(scores7)
             print(STRATEGY, "fallback to 7d", "n7", n7, "nI", nI)

@@ -17,7 +17,7 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "gold_rank_w40",
+        "gold_rank_lam2",
         "gold_rank_w50",
         "gold_rank_interact",
         "gold_meta_logit",
@@ -65,6 +65,15 @@ def run_plan(
             "- If interact fit fails, fall back to 7-d ranks alone (the 0.514 path).",
             "- If gold+series < 20, fall back to hand-tuned metadata offsets.",
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
+            "",
+        ]
+    elif strategy == "gold_rank_lam2":
+        lines += [
+            "- Same 0.50/0.50 rank-blend as frozen `gold_rank_w50` (public 0.518).",
+            "- Keep 7-d ridge at λ=2.0. Fit the 13-d interact head at **λ=2.0** (was 3.5).",
+            "- Map blended ranks through gold prevalence. No Gaussian noise. No test reports.",
+            "- If interact fit fails, fall back to 7-d ranks alone.",
+            "- Do **not** resubmit blend-weight ablations (w40/w50/w70) as this cycle.",
             "",
         ]
     elif strategy == "gold_rank_w40":
