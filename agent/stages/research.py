@@ -123,7 +123,7 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Plane × protocol interaction ranks",
             "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). gold_rank_w50 (0.50·7-d + 0.50·interact) is the frozen public floor at 0.518.",
-            "how": "Keep the 13-d sag/cor/ax × fluid and × fat ridge (λ=3.5). Next ablation is blend weight, not a new architecture.",
+            "how": "Keep the 13-d sag/cor/ax × fluid and × fat ridge. Next ablation is λI=2.0 at the frozen 0.50 blend, not another blend weight.",
         },
         {
             "name": "Rank-blend weight ablation (0.40/0.60) — done, tied",
@@ -132,8 +132,13 @@ def _curated_techniques() -> list[dict[str, str]]:
         },
         {
             "name": "Interact-head λ ablation (λI=2.0 at 0.50 blend)",
-            "why": "A tie between 0.40/0.60 and 0.50/0.50 means rank(interact) ≈ rank(7-d) under λI=3.5. Lowering λI to 2.0 (same as the 7-d head) should make plane×protocol ranks distinctive without changing the accepted blend.",
+            "why": "A tie between 0.40/0.60 and 0.50/0.50 means rank(interact) ≈ rank(7-d) under λI=3.5. van de Wiel et al. 2021 (BMC Med Res Methodol) warn that CV-tuning ridge λ on small/sparse n is unstable and recommend a pre-specified penalty. λI=2.0 (same as the 7-d head) is that pre-specified neighbor.",
             "how": "Reuse both heads; fit 13-d with λ=2.0; blend 0.50·rank(7-d)+0.50·rank(interact); map through prevalence; no Gaussian noise.",
+        },
+        {
+            "name": "Drop redundant fat-interact dims; use plane counts",
+            "why": "Kaggle discussion 737312 and Afshar 2026: Fluid_Sensitive == Fat_Suppression on all 24,371 train series, and every study has all three planes. Binary plane presence and separate fat vs fluid flags cannot rank. The 13-d interact head therefore carries three exact duplicate columns (plane×fat == plane×fluid).",
+            "how": "If gold_rank_lam2 still ≤0.518, drop the three fat-interact columns and replace binary presence with log plane counts. Then move to train-report weak labels. Do not invent DICOM-header paths.",
         },
         {
             "name": "Train-report weak labels on all 4,407 (gold for calibration only)",
@@ -237,7 +242,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "",
         "1. **Keep gold_rank_w50 (0.518) frozen** and ablate interact λ next (λI=2.0 at 0.50/0.50) — blend weights 0.40 and 0.50 both scored 0.518.",
         "2. Keep **gold_rank_w50** as the fallback notebook if the λ ablation does not beat 0.518. Do not resubmit gold_rank_w40 (tied 0.518), gold_rank_w70 (0.516), or 0.50/0.50 as cycle 0.",
-        "3. After λ stalls, add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
+        "3. If λ still ties, drop redundant fat-interact columns (Fluid_Sensitive==Fat_Suppression on train) and/or add **report weak-supervision** only on train; inference must stay MRI/metadata-only.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata ablations stall.",
         "",
         "## Literature / arXiv notes",
@@ -250,10 +255,13 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Bien, Rajpurkar et al. MRNet (PLOS Medicine, 2018).** Plane-wise CNNs then logistic stack of sagittal/coronal/axial logits. Our metadata analogue is plane×fluid×fat counts until pixels are trained. URL: https://doi.org/10.1371/journal.pmed.1002699",
         "- **Kaggle discussion 733517 (2026).** Full DICOM-header HistGBM reaches 0.6516 macro AUC on report-derived labels under random folds but only 0.5981 under scanner-grouped folds; series composition alone (`train_series.csv` four columns) is 0.5954. The 0.05 gap is site memorization and should not be the public-LB target. URL: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733517",
         "- **Kaggle discussion 733876 (2026).** Paired sigma of a macro-AUC comparison on the 58 gold studies is ~0.0125; a true +0.01 wins CV only ~78% of the time. The 58 are prevalence-enriched vs the 4,407 reports. Practical rule: rank on weak labels over all train reports; keep the 58 for calibration. URL: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733876",
-        "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
+        "- **Kaggle discussion 737312 (2026).** Fluid_Sensitive and Fat_Suppression are identical on all 24,371 train series. Hosts confirm the columns are conceptually distinct in MRI but equal in this release. Implication: plane×fat features are exact copies of plane×fluid; a 13-d interact head is closer to 10-d. URL: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/737312",
+        "- **van de Wiel / van Calster et al., 2021. To tune or not to tune: ridge logistic regression in small or sparse datasets.** BMC Medical Research Methodology. CV-chosen λ is negatively correlated with the oracle λ on small n and yields unstable coefficients; pre-specify shrinkage instead. Supports a one-shot λI=2.0 vs 3.5 ablation rather than a λ grid. URL: https://doi.org/10.1186/s12874-021-01374-y",
+        "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Every study has Sagittal+Coronal+Axial; Fluid_Sensitive count == Fat_Suppression count on every row. Binary plane presence is not a ranking feature; counts may be. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
+        "- **Dual-grouped folds (2026).** 5-fold split that also drops 134 studies sharing byte-identical reports (49 duplicate groups) and groups the rest by scanner key (manufacturer/model/software/coil). Use after we leave gold-only n=58. URL: https://www.kaggle.com/datasets/flight0234/rsna-knee-dual-grouped-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and even grouped-fold metadata ~0.60 are the medium-run targets, but blend-weight search on n=58 has plateaued at 0.518. The only *currently executable* ranking lever that does not invent DICOM-header paths is lowering interact λ (2.0 vs 3.5) at the frozen 0.50 blend. After that stall, fit ranks on train-report weak labels (n≈4407) and use gold only for calibration — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and even grouped-fold metadata ~0.60 are the medium-run targets, but blend-weight search on n=58 has plateaued at 0.518. The only *currently executable* ranking lever that does not invent DICOM-header paths is lowering interact λ (2.0 vs 3.5) at the frozen 0.50 blend. Discussion 737312 says Fluid_Sensitive==Fat_Suppression on every train series, so λI=2.0 may still tie if the extra dims are copies; that result would then unlock dropping fat-interact columns / using plane counts, then train-report weak labels (n≈4407) with gold only for calibration — still no test reports.",
         "",
         "### arXiv query hits",
         "",

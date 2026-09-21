@@ -111,7 +111,7 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Ablate interact λ next: gold_rank_lam2 keeps the frozen 0.50/0.50 blend but fits the 13-d head at λ=2.0 (was 3.5). gold_rank_w40 tied 0.518; gold_rank_w70 scored 0.516. Drop scrambling noise.",
+            "Ablate interact λ next: gold_rank_lam2 keeps the frozen 0.50/0.50 blend but fits the 13-d head at λ=2.0 (was 3.5). gold_rank_w40 tied 0.518; gold_rank_w70 scored 0.516. Drop scrambling noise. If this still ties, treat Fluid_Sensitive==Fat_Suppression (discussion 737312) as the reason the extra 3 interact dims are copies, and drop them next.",
             "Do not resubmit gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.518 public score is still below that series-flag ceiling, but gold-only n=58 is noisy (σ≈0.0125, discussion 733876).",
             "After the λ ablation, fit ranks on train-report weak labels (n≈4407) and keep gold for calibration only. Infer without reports.",
