@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_calibrate",
+            "hypothesis": "Fitting the frozen 7-d/13-d series-metadata heads on multilingual train-report soft labels (n≈4407) and using the 58 gold studies only to map ranks through prevalence will beat 0.518, because gold-only ranking has stalled (w50=0.518, w40=0.518, lam2=0.515) and series composition already reaches ~0.595 on report-derived labels.",
+            "mechanism": "Parse train.csv Report only (never test reports). Soft-label each of 12 targets with a multilingual keyword matcher plus left+right negation (Turkish izlenmedi/görülmedi). Fit 7-d (λ=2) and 13-d interact (λ=3.5) ridge logits on those soft labels; blend 0.50·rank(7-d)+0.50·rank(interact); map through gold prevalence. If n_weak<100, fall back to gold_rank_w50. No pixels, no Gaussian noise.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50) or a notebook error falls back to gold-only ranks.",
+            "expected_targets": ["ACL", "Effusion", "Baker's", "Medial Meniscus", "Synovitis"],
+        },
+        {
             "id": "H_gold_rank_lam2",
             "hypothesis": "If the 0.40/0.60 and 0.50/0.50 blends both score 0.518, the 13-d interact head is over-regularized (λ=3.5) and nearly collinear with the 7-d ranks; lowering λI to 2.0 at the frozen 0.50 blend will make plane×protocol ranks distinctive and beat 0.518.",
             "mechanism": "Same 7-d (λ=2) + 13-d interact heads as gold_rank_w50; keep 0.50·rank(7-d)+0.50·rank(interact); fit the interact head with λ=2.0 instead of 3.5. Fallback to 7-d if interact fit fails. No test reports, no pixels, no Gaussian noise.",
-            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50 / tied gold_rank_w40).",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50 / tied gold_rank_w40). Already falsified at 0.515 (56418615).",
             "expected_targets": ["Effusion", "Synovitis", "Contusion", "ACL", "PF OA"],
         },
         {
@@ -94,11 +101,12 @@ def run_hypothesize(
         "## Why this hypothesis now",
         "",
         "gold_rank_w50 (0.50·7-d + 0.50·13-d plane×protocol, λI=3.5) is the frozen public baseline at",
-        "**0.518** (submission 56322623). gold_rank_w40 (0.40/0.60) **tied 0.518** (56382621) and is",
-        "falsified as an improvement; gold_rank_w70 scored 0.516. The weight curve has plateaued, so",
-        "the two heads are likely too similar under λI=3.5. The next testable change is **λI=2.0**",
-        "at the frozen 0.50 blend (`gold_rank_lam2`), not another blend weight. Visual MRI encoders",
-        "stay out of scope until this metadata ablation beats 0.518 or is clearly falsified.",
+        "**0.518** (submission 56322623). gold_rank_w40 tied 0.518; gold_rank_lam2 scored **0.515**",
+        "(56418615) and is falsified — lower λ overfit n=58. Gold-only ranking has no remaining",
+        "blend/λ lever. The next testable change is **train-report weak labels on n≈4407**",
+        "(`weak_rank_calibrate`), keeping gold for calibration only (discussions 733876, 734106).",
+        "Visual MRI encoders stay out of scope until this metadata+report ablation beats 0.518",
+        "or is clearly falsified.",
         "",
         "## Primary hypothesis this cycle",
         "",

@@ -17,7 +17,7 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "gold_rank_lam2",
+        "weak_rank_calibrate",
         "gold_rank_w50",
         "gold_rank_interact",
         "gold_meta_logit",
@@ -67,6 +67,18 @@ def run_plan(
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
             "",
         ]
+    elif strategy == "weak_rank_calibrate":
+        lines += [
+            "- Same two series-metadata heads as frozen `gold_rank_w50` (public 0.518), but **fit on train-report soft labels** (n≈4407) instead of the 58 gold rows.",
+            "- Discover `train.csv` Report column only. **Never open test reports** (test.csv Report is absent at scoring).",
+            "- Multilingual keyword matcher + left/right negation window (Turkish `izlenmedi` / `görülmedi`).",
+            "- Soft labels: pos=0.85, neg=0.12, uncertain=0.50, historical=0.40, unmentioned=0.38.",
+            "- Fit 7-d (λ=2.0) and 13-d interact (λ=3.5); blend `0.50 * rank(7-d) + 0.50 * rank(interact)`.",
+            "- Map blended ranks through gold prevalence (monotone; AUC-invariant). No Gaussian noise.",
+            "- If n_weak < 100 or Report is missing, fall back to gold_rank_w50 (gold-only 7-d/13-d).",
+            "- Do **not** resubmit gold_rank_lam2 (0.515), w40/w50/w70 as this cycle.",
+            "",
+        ]
     elif strategy == "gold_rank_lam2":
         lines += [
             "- Same 0.50/0.50 rank-blend as frozen `gold_rank_w50` (public 0.518).",
@@ -74,6 +86,7 @@ def run_plan(
             "- Map blended ranks through gold prevalence. No Gaussian noise. No test reports.",
             "- If interact fit fails, fall back to 7-d ranks alone.",
             "- Do **not** resubmit blend-weight ablations (w40/w50/w70) as this cycle.",
+            "- Already falsified at public 0.515 (submission 56418615); keep only as a documented fallback.",
             "",
         ]
     elif strategy == "gold_rank_w40":

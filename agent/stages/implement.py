@@ -32,6 +32,7 @@ def _source_for_strategy(strategy: str, cycle_id: str) -> str:
     # Shared preamble discovers competition root without walking DICOMs.
     return f'''
 from pathlib import Path
+import re
 import numpy as np
 import pandas as pd
 
@@ -124,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -240,12 +241,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -294,12 +295,123 @@ def learned_scores(interact=False, lam=2.0):
         scores[:, j] = Xte @ w
     return scores, n_gold
 
+# Train-report soft labels only. Never read test.csv / test reports.
+SYN = {{
+    "ACL": (r"\\bacl\\b", r"anterior\\s+cruciate", r"\\blca\\b", r"vorderes?\\s+kreuzband", r"ligament\\s+crois"),
+    "MCL": (r"\\bmcl\\b", r"medial\\s+collateral", r"innenband", r"ligament\\s+collat"),
+    "Medial Meniscus": (r"medial\\s+meniscus", r"m[eé]nisque\\s+m[eé]dial", r"innenmeniskus"),
+    "Lateral Meniscus": (r"lateral\\s+meniscus", r"m[eé]nisque\\s+lat", r"aussenmeniskus|außenmeniskus"),
+    "Medial OA": (r"medial.{{0,24}}(?:oa|osteoarthrit|arthros)", r"(?:oa|osteoarthrit|arthros).{{0,24}}medial"),
+    "Lateral OA": (r"lateral.{{0,24}}(?:oa|osteoarthrit|arthros)", r"(?:oa|osteoarthrit|arthros).{{0,24}}lateral"),
+    "PF OA": (r"patello-?femoral.{{0,20}}(?:oa|osteoarthrit|arthros)", r"(?:pf\\s+oa|\\bpf\\b.{{0,12}}oa)"),
+    "Effusion": (r"\\beffusion\\b", r"[eé]panchement", r"gelenkerguss", r"ef[uü]zyon"),
+    "Synovitis": (r"\\bsynovitis\\b", r"synovite", r"sinovit"),
+    "Baker's": (r"baker'?s?\\s+(?:cyst|zyste)", r"popliteal\\s+cyst", r"kyste\\s+poplit"),
+    "Contusion": (r"\\bcontusion\\b", r"bone\\s+bruise", r"bone\\s+marrow\\s+edema", r"knochenmark"),
+    "Fracture": (r"\\bfracture\\b", r"\\bfractura\\b", r"\\bbruch\\b", r"fractur"),
+}}
+NEG = (
+    r"\\bno\\b", r"\\bwithout\\b", r"\\bintact\\b", r"\\babsent\\b", r"\\bnormal\\b", r"\\bnegative\\b",
+    r"\\bunremarkable\\b", r"\\bsans\\b", r"\\bpas\\s+de\\b", r"\\bkein", r"\\bohne\\b",
+    r"izlenmedi", r"görülmedi", r"gorulmedi", r"saptanmad", r"tespit edilmedi", r"\\byok\\b",
+    r"mevcut de[gğ]il", r"negatif",
+)
+UNC = (r"possible", r"probable", r"suggestive", r"cannot\\s+exclude", r"equivocal", r"questionable")
+HIST = (r"status\\s+post", r"\\bs/p\\b", r"\\bprior\\b", r"\\bprevious\\b", r"history\\s+of")
+SOFT_MAP = {{"pos": 0.85, "neg": 0.12, "unc": 0.50, "hist": 0.40, "unmentioned": 0.38}}
+
+def parse_report_soft(text, tcols):
+    """Soft labels from a train report. Right-side window catches Turkish post-negation."""
+    norm = re.sub(r"\\s+", " ", str(text or "").lower())
+    out = {{}}
+    for t in tcols:
+        state = "unmentioned"
+        for pat in SYN.get(t, (re.escape(t.lower()),)):
+            for m in re.finditer(pat, norm, flags=re.IGNORECASE):
+                lo = max(0, m.start() - 50)
+                hi = min(len(norm), m.end() + 50)
+                win = norm[lo:hi]
+                right = norm[m.end(): min(len(norm), m.end() + 40)]
+                if any(re.search(p, win) for p in NEG) or any(re.search(p, right) for p in NEG):
+                    state = "neg"
+                elif state != "neg" and any(re.search(p, win) for p in HIST):
+                    state = "hist" if state == "unmentioned" else state
+                elif state not in ("neg", "pos") and any(re.search(p, win) for p in UNC):
+                    state = "unc"
+                elif state != "neg":
+                    state = "pos"
+        out[t] = float(SOFT_MAP[state])
+    return out
+
+def learned_scores_weak(interact=False, lam=2.0):
+    """Ridge logits on train-report soft labels. Returns (scores, n_weak) or (None, n)."""
+    if train_series is None or "Report" not in train.columns:
+        return None, 0
+    tr_map, default_x = feat_map(train_series, interact=interact)
+    te_map, _ = feat_map(test_series, interact=interact)
+    X_rows, y_cols = [], {{t: [] for t in targets}}
+    for _, row in train.iterrows():
+        sid = str(row[study_col])
+        x = tr_map.get(sid)
+        if x is None:
+            continue
+        raw = row.get("Report")
+        if raw is None or (isinstance(raw, float) and not np.isfinite(raw)):
+            continue
+        # Guard: never treat a test UID report as supervision (test reports are forbidden).
+        if sid in set(uids):
+            continue
+        soft = parse_report_soft(raw, targets)
+        X_rows.append(x)
+        for t in targets:
+            y_cols[t].append(soft[t])
+    n_weak = len(X_rows)
+    if n_weak < 20:
+        return None, n_weak
+    X = np.vstack(X_rows)
+    mu = X.mean(axis=0)
+    sd = np.clip(X.std(axis=0), 1e-6, None)
+    mu[0], sd[0] = 0.0, 1.0
+    Xs = (X - mu) / sd
+    Xte = np.vstack([(te_map.get(uid, default_x) - mu) / sd for uid in uids])
+    scores = np.zeros((len(uids), len(targets)), dtype=float)
+    for j, t in enumerate(targets):
+        y = np.array(y_cols[t], dtype=float)
+        mask = np.isfinite(y)
+        if mask.sum() < 20 or y[mask].min() == y[mask].max():
+            scores[:, j] = logit(prev[t])
+            continue
+        w = fit_ridge_logit(Xs[mask], y[mask], lam=lam, steps=40)
+        scores[:, j] = Xte @ w
+    return scores, n_weak
+
 used_learned = False
 n7 = nI = 0
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5}}
 LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}
-if STRATEGY in LEARNED and train_series is not None:
+if STRATEGY == "weak_rank_calibrate" and train_series is not None:
+    w7 = float(BLEND_W7["weak_rank_calibrate"])
+    lamI = float(INTERACT_LAM["weak_rank_calibrate"])
+    scores7, n7 = learned_scores_weak(False, 2.0)
+    scoresI, nI = learned_scores_weak(True, lamI)
+    ranked = None
+    if scores7 is not None and scoresI is not None:
+        ranked = w7 * rank_cols(scores7) + (1.0 - w7) * rank_cols(scoresI)
+        print("weak_rank_calibrate blend", w7, "*7d +", 1.0 - w7, "*plane-protocol", "lamI", lamI, "n7", n7, "nI", nI)
+    elif scores7 is not None:
+        ranked = rank_cols(scores7)
+        print("weak_rank_calibrate fallback to 7d weak", "n7", n7, "nI", nI)
+    if ranked is not None:
+        out = sample[[study_col]].copy()
+        for j, t in enumerate(targets):
+            out[t] = np.clip(prev[t] + 0.25 * (ranked[:, j] - 0.5), EPS, 1 - EPS)
+        out = out[sample.columns]
+        used_learned = True
+    else:
+        print("weak_rank_calibrate skipped; falling back to gold_rank_w50. n7", n7, "nI", nI)
+
+if (STRATEGY in LEARNED or (STRATEGY == "weak_rank_calibrate" and not used_learned)) and train_series is not None and not used_learned:
     scores7, n7 = learned_scores(False, 2.0)
     ranked = None
     if STRATEGY in BLEND_W7:
