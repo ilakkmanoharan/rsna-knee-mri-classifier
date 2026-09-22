@@ -1,0 +1,222 @@
+{
+  "audit": {
+    "generated_at": "2026-09-22T00:21:33.765527-05:00",
+    "day_id": "2026-09-21",
+    "day_start": "2026-09-21T01:00:00-05:00",
+    "competition": "rsna-knee-abnormality-detection",
+    "pace": {
+      "quota": 5,
+      "used": null,
+      "expected_by_now": 5,
+      "deficit": 5,
+      "quota_left": 5,
+      "behind": true,
+      "min_interval_minutes": 30.0,
+      "max_interval_minutes": 60.0,
+      "grace_minutes": 20.0,
+      "next_gap_minutes": 30.0,
+      "deadline": "2026-09-22T00:00:00-05:00",
+      "minutes_to_deadline": -21.6,
+      "quota_at_risk": true
+    },
+    "stages": {
+      "research": {
+        "folders": [
+          "Research"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [],
+        "count_today": 0,
+        "latest": null,
+        "quality_issues": [],
+        "min_chars": 1200
+      },
+      "analysis": {
+        "folders": [
+          "Analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [],
+        "count_today": 0,
+        "latest": null,
+        "quality_issues": [],
+        "min_chars": 700
+      },
+      "hypothesis": {
+        "folders": [
+          "Hypothesis",
+          "Hypothesis analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [],
+        "count_today": 0,
+        "latest": null,
+        "quality_issues": [],
+        "min_chars": 500
+      }
+    },
+    "cycles_with_full_pipeline": [],
+    "kaggle": {
+      "available": false,
+      "error": "RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n",
+      "count_today": null,
+      "rows": []
+    },
+    "github_actions": {
+      "workflow_file": "agent1-cloud.yml",
+      "token_present": true,
+      "can_dispatch": false,
+      "runs_today": [
+        {
+          "id": 35688283736,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-22T04:48:33Z",
+          "updated_at": "2026-09-22T04:48:54Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35688283736"
+        },
+        {
+          "id": 35666710695,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T23:15:20Z",
+          "updated_at": "2026-09-21T23:15:42Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35666710695"
+        },
+        {
+          "id": 35644717051,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T19:25:28Z",
+          "updated_at": "2026-09-21T19:25:46Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35644717051"
+        },
+        {
+          "id": 35637382045,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T18:16:57Z",
+          "updated_at": "2026-09-21T18:17:20Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35637382045"
+        },
+        {
+          "id": 35598944124,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T12:20:10Z",
+          "updated_at": "2026-09-21T12:20:33Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35598944124"
+        },
+        {
+          "id": 35589861315,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T10:38:59Z",
+          "updated_at": "2026-09-21T10:39:17Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35589861315"
+        }
+      ],
+      "failed_today": [
+        {
+          "id": 35688283736,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-22T04:48:33Z",
+          "updated_at": "2026-09-22T04:48:54Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35688283736"
+        },
+        {
+          "id": 35666710695,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T23:15:20Z",
+          "updated_at": "2026-09-21T23:15:42Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35666710695"
+        },
+        {
+          "id": 35644717051,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T19:25:28Z",
+          "updated_at": "2026-09-21T19:25:46Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35644717051"
+        },
+        {
+          "id": 35637382045,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T18:16:57Z",
+          "updated_at": "2026-09-21T18:17:20Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35637382045"
+        },
+        {
+          "id": 35598944124,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T12:20:10Z",
+          "updated_at": "2026-09-21T12:20:33Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35598944124"
+        },
+        {
+          "id": 35589861315,
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "schedule",
+          "created_at": "2026-09-21T10:38:59Z",
+          "updated_at": "2026-09-21T10:39:17Z",
+          "url": "https://github.com/ilakkmanoharan/rsna-knee-mri-classifier/actions/runs/35589861315"
+        }
+      ],
+      "in_progress": []
+    },
+    "deficits": {
+      "artifact_deficit": 5,
+      "submission_deficit": 0,
+      "quota_left": 5
+    },
+    "violations": [
+      "Research/ has 0 write-up(s) for day 2026-09-21 but 5 were due by now",
+      "Analysis/ has 0 write-up(s) for day 2026-09-21 but 5 were due by now",
+      "Hypothesis/ has 0 write-up(s) for day 2026-09-21 but 5 were due by now",
+      "Quota at risk: 5 submission(s) left but only -22 min until 2026-09-22T00:00:00-05:00 at a 30-min floor",
+      "6 agent workflow run(s) failed today"
+    ],
+    "remediation_needed": true
+  },
+  "verdict": {
+    "verdict": "failing",
+    "source": "rules",
+    "violations": [
+      "Research/ has 0 write-up(s) for day 2026-09-21 but 5 were due by now",
+      "Analysis/ has 0 write-up(s) for day 2026-09-21 but 5 were due by now",
+      "Hypothesis/ has 0 write-up(s) for day 2026-09-21 but 5 were due by now",
+      "Quota at risk: 5 submission(s) left but only -22 min until 2026-09-22T00:00:00-05:00 at a 30-min floor",
+      "6 agent workflow run(s) failed today"
+    ],
+    "recommended_actions": [
+      "Re-run the agent cycle to fill the missing slot"
+    ],
+    "rerun_cycle": true,
+    "questions_for_human": [
+      "Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.",
+      "I cannot read Kaggle submission history (RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.",
+      "XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision."
+    ],
+    "confidence": 0.5
+  },
+  "actions": [
+    "dispatch disabled by flag; leaving remediation to the caller",
+    "requested inline remediation (supervisor workflow runs the cycle itself)"
+  ]
+}
