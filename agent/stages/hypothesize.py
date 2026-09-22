@@ -18,6 +18,13 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_goldfill",
+            "hypothesis": "Keeping expert 0/1 labels on the 58 gold studies and using parser soft labels only for unlabeled train reports will beat 0.518, because parser-only weak_rank_calibrate scored 0.499 after overwriting gold.",
+            "mechanism": "Same 7-d/13-d series-metadata heads and 0.50/0.50 blend as gold_rank_w50. For each target, use gold 0/1 when finite; otherwise parse train.csv Report (never test reports). Fit on the mixed labels; map ranks through gold prevalence. Fallback to gold_rank_w50 if n_weak<20.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "expected_targets": ["ACL", "Effusion", "Baker's", "Medial Meniscus", "Synovitis"],
+        },
+        {
             "id": "H_weak_rank_calibrate",
             "hypothesis": "Fitting the frozen 7-d/13-d series-metadata heads on multilingual train-report soft labels (n≈4407) and using the 58 gold studies only to map ranks through prevalence will beat 0.518, because gold-only ranking has stalled (w50=0.518, w40=0.518, lam2=0.515) and series composition already reaches ~0.595 on report-derived labels.",
             "mechanism": "Parse train.csv Report only (never test reports). Soft-label each of 12 targets with a multilingual keyword matcher plus left+right negation (Turkish izlenmedi/görülmedi). Fit 7-d (λ=2) and 13-d interact (λ=3.5) ridge logits on those soft labels; blend 0.50·rank(7-d)+0.50·rank(interact); map through gold prevalence. If n_weak<100, fall back to gold_rank_w50. No pixels, no Gaussian noise.",
@@ -100,13 +107,11 @@ def run_hypothesize(
         "",
         "## Why this hypothesis now",
         "",
-        "gold_rank_w50 (0.50·7-d + 0.50·13-d plane×protocol, λI=3.5) is the frozen public baseline at",
-        "**0.518** (submission 56322623). gold_rank_w40 tied 0.518; gold_rank_lam2 scored **0.515**",
-        "(56418615) and is falsified — lower λ overfit n=58. Gold-only ranking has no remaining",
-        "blend/λ lever. The next testable change is **train-report weak labels on n≈4407**",
-        "(`weak_rank_calibrate`), keeping gold for calibration only (discussions 733876, 734106).",
-        "Visual MRI encoders stay out of scope until this metadata+report ablation beats 0.518",
-        "or is clearly falsified.",
+        "gold_rank_w50 remains the frozen public baseline at **0.518**. Parser-only",
+        "`weak_rank_calibrate` scored **0.499** (56455239) and is falsified — overwriting the 58",
+        "gold rows with keyword soft labels destroyed ranking. gold_rank_lam2 scored 0.515.",
+        "The next testable change is **`weak_rank_goldfill`**: keep gold 0/1 on the 58 and use",
+        "the parser only on unlabeled train reports. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",

@@ -125,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -241,12 +241,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -343,8 +343,10 @@ def parse_report_soft(text, tcols):
         out[t] = float(SOFT_MAP[state])
     return out
 
-def learned_scores_weak(interact=False, lam=2.0):
-    """Ridge logits on train-report soft labels. Returns (scores, n_weak) or (None, n)."""
+def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False):
+    """Ridge logits on train-report soft labels. Returns (scores, n_weak) or (None, n).
+    prefer_gold=True keeps expert 0/1 on the 58 and uses the parser only for unlabeled rows.
+    """
     if train_series is None or "Report" not in train.columns:
         return None, 0
     tr_map, default_x = feat_map(train_series, interact=interact)
@@ -364,7 +366,15 @@ def learned_scores_weak(interact=False, lam=2.0):
         soft = parse_report_soft(raw, targets)
         X_rows.append(x)
         for t in targets:
-            y_cols[t].append(soft[t])
+            y_use = soft[t]
+            if prefer_gold and t in train.columns:
+                try:
+                    gv = float(row[t])
+                except (TypeError, ValueError):
+                    gv = float("nan")
+                if np.isfinite(gv):
+                    y_use = float(gv)
+            y_cols[t].append(y_use)
     n_weak = len(X_rows)
     if n_weak < 20:
         return None, n_weak
@@ -387,21 +397,22 @@ def learned_scores_weak(interact=False, lam=2.0):
 
 used_learned = False
 n7 = nI = 0
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5}}
 LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}
-if STRATEGY == "weak_rank_calibrate" and train_series is not None:
-    w7 = float(BLEND_W7["weak_rank_calibrate"])
-    lamI = float(INTERACT_LAM["weak_rank_calibrate"])
-    scores7, n7 = learned_scores_weak(False, 2.0)
-    scoresI, nI = learned_scores_weak(True, lamI)
+if STRATEGY in {{"weak_rank_calibrate", "weak_rank_goldfill"}} and train_series is not None:
+    w7 = float(BLEND_W7[STRATEGY])
+    lamI = float(INTERACT_LAM[STRATEGY])
+    prefer_gold = STRATEGY == "weak_rank_goldfill"
+    scores7, n7 = learned_scores_weak(False, 2.0, prefer_gold=prefer_gold)
+    scoresI, nI = learned_scores_weak(True, lamI, prefer_gold=prefer_gold)
     ranked = None
     if scores7 is not None and scoresI is not None:
         ranked = w7 * rank_cols(scores7) + (1.0 - w7) * rank_cols(scoresI)
-        print("weak_rank_calibrate blend", w7, "*7d +", 1.0 - w7, "*plane-protocol", "lamI", lamI, "n7", n7, "nI", nI)
+        print(STRATEGY, "blend", w7, "*7d +", 1.0 - w7, "*plane-protocol", "lamI", lamI, "prefer_gold", prefer_gold, "n7", n7, "nI", nI)
     elif scores7 is not None:
         ranked = rank_cols(scores7)
-        print("weak_rank_calibrate fallback to 7d weak", "n7", n7, "nI", nI)
+        print(STRATEGY, "fallback to 7d weak", "prefer_gold", prefer_gold, "n7", n7, "nI", nI)
     if ranked is not None:
         out = sample[[study_col]].copy()
         for j, t in enumerate(targets):
@@ -409,9 +420,9 @@ if STRATEGY == "weak_rank_calibrate" and train_series is not None:
         out = out[sample.columns]
         used_learned = True
     else:
-        print("weak_rank_calibrate skipped; falling back to gold_rank_w50. n7", n7, "nI", nI)
+        print(STRATEGY, "skipped; falling back to gold_rank_w50. n7", n7, "nI", nI)
 
-if (STRATEGY in LEARNED or (STRATEGY == "weak_rank_calibrate" and not used_learned)) and train_series is not None and not used_learned:
+if (STRATEGY in LEARNED or (STRATEGY in {{"weak_rank_calibrate", "weak_rank_goldfill"}} and not used_learned)) and train_series is not None and not used_learned:
     scores7, n7 = learned_scores(False, 2.0)
     ranked = None
     if STRATEGY in BLEND_W7:
