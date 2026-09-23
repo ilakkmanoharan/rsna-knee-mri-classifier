@@ -1,0 +1,165 @@
+{
+  "papers": [
+    {
+      "title": "DeepKneeXR: YOLOv8\u00a0multi-label X-rays detection of knee abnormalities from sports injury with clinical explainability.",
+      "summary": "Ding L, Li H.",
+      "url": "https://doi.org/10.1515/bmt-2026-0206",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "knee MRI multi-label abnormality detection deep learning"
+    },
+    {
+      "title": "Forensic-oriented injury and abnormality assessment in sports medicine via a biomechanically-informed predictive framework.",
+      "summary": "Wang X, Zheng L, Li Z.",
+      "url": "https://doi.org/10.3389/fmed.2026.1759763",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "knee MRI multi-label abnormality detection deep learning"
+    },
+    {
+      "title": "A large-scale vision foundation model for musculoskeletal radiographs.",
+      "summary": "Kim S, Lee S, Shin K, Kim HS, Kim Y, Kim M, Nam J, Ko S, Kwon D, Huh W, Han I, Kwon S.",
+      "url": "https://doi.org/10.1038/s41746-026-02826-9",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "RSNA knee abnormality detection"
+    },
+    {
+      "title": "Learning like a radiologist: a medical vision-language model for radiological image analysis via curriculum learning.",
+      "summary": "Tan M, Wu Q, Zhang B, Ren G, Nie J, Xue Z, Zhan Y, Zhou S, Cao X, Shen D.",
+      "url": "https://doi.org/10.1038/s41746-026-02713-3",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "RSNA knee abnormality detection"
+    },
+    {
+      "title": "Deep Learning Based Computer-Aided Detection of Prostate Cancer Metastases in Bone Scintigraphy: An Experimental Analysis.",
+      "summary": "Jabali E, Almomani O, Qatawneh L, Badwan S, Almomani Y, Al-Soreeky M, Ibrahim A, Khalil N.",
+      "url": "https://doi.org/10.3390/jimaging12030121",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "multi-planar MRI aggregation CNN EfficientNet"
+    },
+    {
+      "title": "Capturing fine-grained spatial details in brain tumor MRI via multi-module feature enhancement.",
+      "summary": "Chen J, Zhou Y, Cao H, Lin Y, Zhu J, Liao H.",
+      "url": "https://doi.org/10.3389/fonc.2026.1875644",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "multi-planar MRI aggregation CNN EfficientNet"
+    },
+    {
+      "title": "A framework for extraction of clinical information from radiological mammography reports using large language models and retrieval augmented generation.",
+      "summary": "Godoy E, Ferrari J, Lazo S, Pacheco C, Mellado D, Saez A, Chabert S, Salas R.",
+      "url": "https://doi.org/10.1186/s12911-026-03633-8",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "radiology report weak supervision negation"
+    },
+    {
+      "title": "A Systematic Review of Contrastive Learning in Medical AI: Foundations, Biomedical Modalities, and Future Directions.",
+      "summary": "Obaido G, Mienye ID, Aruleba K, Chukwu CW, Esenogho E, Modisane C.",
+      "url": "https://doi.org/10.3390/bioengineering13020176",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "radiology report weak supervision negation"
+    },
+    {
+      "title": "An explainable ResNet50-BiLSTM-attention framework with spatial token modeling and imbalance-aware learning for multi-class knee osteoarthritis severity grading.",
+      "summary": "Raza A, Abbas A, Hanif F.",
+      "url": "https://doi.org/10.3389/fmed.2026.1925244",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "macro ROC-AUC multi-label medical imaging"
+    },
+    {
+      "title": "BCMM: gated bidirectional cross-attention fusion of breast MRI and clinical features for predicting RCB response in the I-SPY1 cohort.",
+      "summary": "Yang M, Hu J.",
+      "url": "https://doi.org/10.3389/frai.2026.1846986",
+      "published": "2026",
+      "source": "europepmc",
+      "query": "macro ROC-AUC multi-label medical imaging"
+    }
+  ],
+  "techniques": [
+    {
+      "name": "Plane-aware multi-series aggregation",
+      "why": "Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.",
+      "how": "Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative."
+    },
+    {
+      "name": "Weak supervision from multilingual reports",
+      "why": "Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseudo-labels from negation mistakes invert targets.",
+      "how": "Negation/uncertainty/temporality-aware parser \u2192 soft labels + confidence weights; calibrate on gold folds only; never use test reports."
+    },
+    {
+      "name": "Small-n gold-set metadata logistic",
+      "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494\u21920.499. The 58 gold labels fitted a 7-d ridge logistic that reached 0.514. That is a fallback, not the day's first cycle.",
+      "how": "Keep gold_meta_logit as a deep fallback. Do not resubmit it as cycle 0; ablate ranking changes on top of gold_rank_w50 (0.518)."
+    },
+    {
+      "name": "Plane \u00d7 protocol interaction ranks",
+      "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). gold_rank_w50 (0.50\u00b77-d + 0.50\u00b7interact) is the frozen public floor at 0.518.",
+      "how": "Keep the 13-d sag/cor/ax \u00d7 fluid and \u00d7 fat ridge (\u03bb=3.5). Next ablation is blend weight, not a new architecture."
+    },
+    {
+      "name": "Rank-blend weight ablation (0.40/0.60) \u2014 done, tied",
+      "why": "Public LB rose as interact weight went 0.00 (0.514) \u2192 0.30 (0.516) \u2192 0.40 (0.517) \u2192 0.50 (0.518), then 0.40/0.60 tied 0.518 (gold_rank_w40, 56382621). Weight ablation has stalled; do not resubmit w40/w50/w70.",
+      "how": "Keep gold_rank_w50 as the frozen fallback. Do not spend quota on another blend weight."
+    },
+    {
+      "name": "Interact-head \u03bb ablation (\u03bbI=2.0) \u2014 done, falsified",
+      "why": "gold_rank_lam2 (0.50/0.50, \u03bbI=2.0) scored 0.515 on 2026-09-21 (submission 56418615), below frozen gold_rank_w50 (0.518). Lower \u03bb overfit the 13-d head on n=58. Do not resubmit.",
+      "how": "Keep gold_rank_w50 as the fallback. Do not spend quota on another \u03bb or blend-weight ablation."
+    },
+    {
+      "name": "Train-report weak labels on all 4,407 (gold for calibration only)",
+      "why": "Fitting 7-d/13-d heads on 58 gold studies is high-variance (\u03c3\u22480.0125) and the gold set is prevalence-enriched (~1.5\u00d7). Discussion 733876: rank on weak labels over all 4,407 train reports; keep the 58 for calibration only. Series composition already reaches ~0.595 macro AUC on report-derived labels (discussion 733517).",
+      "how": "Parse train.csv Report only (multilingual + right-side Turkish negation). Fit the frozen 7-d/13-d series-metadata heads on those soft labels. Rank-transform test_series scores; map through gold prevalence. Never open test reports."
+    },
+    {
+      "name": "Gold-fill weak ranks (keep expert 0/1; parse only unlabeled reports)",
+      "why": "Parser-only weak_rank_calibrate scored 0.499 (56455239) after overwriting the 58 gold rows. Discussion 734117: a keyword extractor recovers named objects (Baker's ~0.82 balanced acc) but fails graded severities (effusion) and unstated inferences (fracture); it also returns nothing for ~23% of reports \u2014 those should stay unlabeled, not all-negative. Overwriting gold with that noisy extractor destroyed ranking.",
+      "how": "weak_rank_goldfill: for each target, use gold 0/1 when finite; otherwise parser soft labels on train reports only. Same 0.50/0.50 7-d/13-d blend as gold_rank_w50. Do not resubmit parser-only overwrite."
+    },
+    {
+      "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
+      "why": "Xie et al. 2025 (eClinicalMedicine) trained KAMRNet on 13,419 patients / 14,962 exams for nine knee abnormalities and reported internal primary AUCs ~0.90; a 2026 23-condition slice-transformer (European Radiology) reached median external AUC ~0.78. Those numbers are the visual-model ceiling, not a metadata ceiling. We cannot spend quota on them until real train DICOMs/JPEGs + GPU time are mounted.",
+      "how": "When pixels are available: plane-slot encoder, anatomy-oriented localization, then rank-ensemble with gold_rank_interact rather than replacing it."
+    },
+    {
+      "name": "Per-target calibrated prevalence prior blend",
+      "why": "Macro AUC cares about ranking per target. Pure constant prevalence (~0.49 public) is a floor; blending study-level model logits with target prevalence stabilizes rare labels (MCL, Baker's).",
+      "how": "p = clip((1-\u03b1)\u00b7\u03c3(logit) + \u03b1\u00b7prev_t); tune \u03b1 on OOF; larger \u03b1 for rare/unstable heads."
+    },
+    {
+      "name": "Fluid-sensitive / fat-suppression series routing",
+      "why": "train_series.csv exposes Fluid_Sensitive and Fat_Suppression. Contusion/effusion/synovitis benefit from fluid-sensitive series; bone findings may prefer others.",
+      "how": "Weight series embeddings by sequence flags before plane pooling; ablate via ASRA H-routing."
+    },
+    {
+      "name": "Frozen encoder then last-block unfreeze",
+      "why": "Tiny gold set overfits if the full backbone trains early. Frozen ImageNet/RadImageNet encoder + heads first is the reliable baseline.",
+      "how": "Train heads only until OOF beats prevalence; then unfreeze last block at low LR."
+    },
+    {
+      "name": "Target-specific view preference soft regularizer",
+      "why": "Hard rules (no sagittal \u21d2 ACL=0) destroy recall. Soft preferred-plane coverage features improve ranking without forcing zeros.",
+      "how": "Concatenate preferred-plane coverage; small consistency loss only after ablation accepts it."
+    },
+    {
+      "name": "Ensemble fold checkpoints + rank average",
+      "why": "Single fold on 58 labels is noisy. Probability or rank ensembling across folds lifts macro AUC more than architecture churn.",
+      "how": "Save fold*.pt; at inference mean probs or average ranks then rescale to [eps,1-eps]."
+    }
+  ],
+  "errors": [
+    "knee MRI multi-label abnormality detection deep learning: RuntimeError: HTTP Error 406: Not Acceptable",
+    "RSNA knee abnormality detection: RuntimeError: HTTP Error 406: Not Acceptable",
+    "multi-planar MRI aggregation CNN EfficientNet: RuntimeError: HTTP Error 406: Not Acceptable",
+    "radiology report weak supervision negation: RuntimeError: HTTP Error 406: Not Acceptable",
+    "macro ROC-AUC multi-label medical imaging: RuntimeError: HTTP Error 406: Not Acceptable",
+    "plane-aware MRI classification sagittal coronal axial: RuntimeError: HTTP Error 406: Not Acceptable"
+  ],
+  "path": "/workspace/Research/2026-09-23_cycle00_20260923T010418-0500_research.md"
+}
