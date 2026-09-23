@@ -1,0 +1,110 @@
+{
+  "audit": {
+    "generated_at": "2026-09-23T01:37:59.977571-05:00",
+    "day_id": "2026-09-23",
+    "day_start": "2026-09-23T01:00:00-05:00",
+    "competition": "rsna-knee-abnormality-detection",
+    "pace": {
+      "quota": 5,
+      "used": null,
+      "expected_by_now": 1,
+      "deficit": 1,
+      "quota_left": 5,
+      "behind": true,
+      "min_interval_minutes": 30.0,
+      "max_interval_minutes": 60.0,
+      "grace_minutes": 20.0,
+      "next_gap_minutes": 40.400074763333336,
+      "deadline": "2026-09-23T05:00:00-05:00",
+      "minutes_to_deadline": 202.0,
+      "quota_at_risk": false
+    },
+    "stages": {
+      "research": {
+        "folders": [
+          "Research"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [],
+        "count_today": 0,
+        "latest": null,
+        "quality_issues": [],
+        "min_chars": 1200
+      },
+      "analysis": {
+        "folders": [
+          "Analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [],
+        "count_today": 0,
+        "latest": null,
+        "quality_issues": [],
+        "min_chars": 700
+      },
+      "hypothesis": {
+        "folders": [
+          "Hypothesis",
+          "Hypothesis analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [],
+        "count_today": 0,
+        "latest": null,
+        "quality_issues": [],
+        "min_chars": 500
+      }
+    },
+    "cycles_with_full_pipeline": [],
+    "kaggle": {
+      "available": false,
+      "error": "RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n",
+      "count_today": null,
+      "rows": []
+    },
+    "github_actions": {
+      "workflow_file": "agent1-cloud.yml",
+      "token_present": true,
+      "can_dispatch": false,
+      "runs_today": [],
+      "failed_today": [],
+      "in_progress": []
+    },
+    "deficits": {
+      "artifact_deficit": 1,
+      "submission_deficit": 0,
+      "quota_left": 5
+    },
+    "violations": [
+      "Research/ has 0 write-up(s) for day 2026-09-23 but 1 were due by now",
+      "Analysis/ has 0 write-up(s) for day 2026-09-23 but 1 were due by now",
+      "Hypothesis/ has 0 write-up(s) for day 2026-09-23 but 1 were due by now"
+    ],
+    "remediation_needed": true
+  },
+  "verdict": {
+    "verdict": "degraded",
+    "source": "rules",
+    "violations": [
+      "Research/ has 0 write-up(s) for day 2026-09-23 but 1 were due by now",
+      "Analysis/ has 0 write-up(s) for day 2026-09-23 but 1 were due by now",
+      "Hypothesis/ has 0 write-up(s) for day 2026-09-23 but 1 were due by now"
+    ],
+    "recommended_actions": [
+      "Re-run the agent cycle to fill the missing slot"
+    ],
+    "rerun_cycle": true,
+    "questions_for_human": [
+      "Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.",
+      "I cannot read Kaggle submission history (RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.",
+      "XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision."
+    ],
+    "confidence": 0.5
+  },
+  "actions": [
+    "cannot dispatch agent1-cloud.yml without an AGENT1_GH_PAT secret; falling back to inline remediation",
+    "requested inline remediation (supervisor workflow runs the cycle itself)",
+    "opened issue #11 with 3 question(s)",
+    "emailed ilakkmanoharan@gmail.com (sent=False)"
+  ]
+}
