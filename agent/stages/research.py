@@ -143,7 +143,12 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Gold-fill weak ranks (keep expert 0/1; parse only unlabeled reports)",
             "why": "Parser-only weak_rank_calibrate scored 0.499 (56455239) after overwriting the 58 gold rows. Discussion 734117: a keyword extractor recovers named objects (Baker's ~0.82 balanced acc) but fails graded severities (effusion) and unstated inferences (fracture); it also returns nothing for ~23% of reports — those should stay unlabeled, not all-negative. Overwriting gold with that noisy extractor destroyed ranking.",
-            "how": "weak_rank_goldfill: for each target, use gold 0/1 when finite; otherwise parser soft labels on train reports only. Same 0.50/0.50 7-d/13-d blend as gold_rank_w50. Do not resubmit parser-only overwrite.",
+            "how": "weak_rank_goldfill scored 0.504 (56484736) and is falsified. Do not resubmit. Next: weak_rank_confident (gold 0/1 + parser pos/neg only; mask unmentioned).",
+        },
+        {
+            "name": "Confident-only weak ranks (mask unmentioned parser states)",
+            "why": "goldfill used unmentioned=0.38 on every silent target. Discussion 734117: the extractor returns nothing for ~23% of reports and under-calls (2.6 vs 4.1 findings). Treating silence as a soft negative drowned the 58 gold rows and scored 0.504.",
+            "how": "weak_rank_confident: gold 0/1 when finite; parser pos/neg only otherwise; NaN for unmentioned/unc/hist. Same 0.50/0.50 7-d/13-d blend. Never open test reports.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -240,8 +245,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep gold_rank_w50 (0.518) frozen** and next test `weak_rank_goldfill` (gold 0/1 on the 58 + parser only on unlabeled reports). Parser-only `weak_rank_calibrate` scored 0.499 and is falsified.",
-        "2. Keep **gold_rank_w50** as the fallback notebook. Do not resubmit weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or 0.50/0.50 as cycle 0.",
+        "1. **Keep gold_rank_w50 (0.518) frozen** and next test `weak_rank_confident` (gold 0/1 on the 58 + parser pos/neg only; mask unmentioned). `weak_rank_goldfill` scored 0.504 and `weak_rank_calibrate` scored 0.499; both falsified.",
+        "2. Keep **gold_rank_w50** as the fallback notebook. Do not resubmit goldfill (0.504), calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or 0.50/0.50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -260,7 +265,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518) and parser-only weak labels regressed to 0.499. The next executable lever is `weak_rank_goldfill`: keep expert 0/1 on the 58 and parse unlabeled train reports only — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Parser-only weak labels scored 0.499; gold-fill scored 0.504. The next executable lever is `weak_rank_confident`: keep expert 0/1 on the 58 and use only high-confidence parser pos/neg on unlabeled reports — still no test reports.",
         "",
         "### arXiv query hits",
         "",

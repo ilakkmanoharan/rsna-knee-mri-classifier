@@ -97,8 +97,10 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "report_shrinkage_priors 0.498; fluid_gate_metadata 0.499–0.505; gold_meta_logit 0.514; "
                 "gold_rank_interact 0.517; gold_rank_w50 0.518 (accepted, submission 56322623); "
                 "gold_rank_w40 tied 0.518; gold_rank_lam2 scored 0.515 (falsified, 56418615). "
-                "Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
-                "Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
+                "weak_rank_calibrate scored 0.499 (56455239); weak_rank_goldfill scored 0.504 "
+                "(56484736) — both regressions. Replacing learned ranks with shrinkage priors "
+                "scored 0.504. Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 "
+                "noise can scramble weak ranks."
             )
             why_low.append(
                 "The 7-d/13-d heads were fit on only 58 gold studies. That set is prevalence-enriched "
@@ -112,8 +114,8 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Next: `weak_rank_goldfill` — keep gold 0/1 on the 58 and use parser soft labels only on unlabeled reports. Parser-only `weak_rank_calibrate` scored 0.499 (56455239) and is falsified.",
-            "Do not resubmit weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
+            "Next: `weak_rank_confident` — gold 0/1 on the 58 + parser pos/neg only (mask unmentioned). `weak_rank_goldfill` scored 0.504 (56484736) and `weak_rank_calibrate` scored 0.499 (56455239); both falsified.",
+            "Do not resubmit weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.518 public score is still below that series-flag ceiling because we fit on 58 gold rows instead of 4,407 reports (discussion 733876).",
             "Parse train.csv Report only, with a right-side Turkish negation window (discussion 734106). Never open test reports. Infer from test_series.csv metadata only.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",
