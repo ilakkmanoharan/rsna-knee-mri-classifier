@@ -146,9 +146,14 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Do not resubmit goldfill. Discussion 734117: empty extractions (~23%) should stay unlabeled, not all-negative. Named objects recover; graded/unstated fail.",
         },
         {
-            "name": "Confident-only weak labels (gold 0/1 + parser pos/neg; mask the rest)",
-            "why": "Goldfill's unmentioned=0.38 prior on most report cells pulled ranks toward a near-constant. Discussion 734117: treat empty extractions as unlabeled. Named objects (ACL, Baker's) have usable pos/neg mentions; unmentioned/unc/hist cells should be NaN so IRLS uses the finite mask. This is the next one-factor ranking ablation.",
-            "how": "Parse train.csv Report only (multilingual + right-side Turkish negation). Keep gold 0/1 when finite. Else keep pos=0.85 / neg=0.12 and drop unmentioned/unc/hist. Fit the frozen 7-d/13-d heads; rank-transform test_series; map through gold prevalence. Never open test reports.",
+            "name": "Confident-only weak labels (gold 0/1 + parser pos/neg; mask the rest) — done, falsified",
+            "why": "`weak_rank_confident` scored 0.511 (56513588): +0.007 vs goldfill, −0.007 vs gold_rank_w50. All-target pos/neg mentions help versus unmentioned=0.38 but do not beat gold-only ranks. Do not resubmit.",
+            "how": "Keep as a documented failure. Next lever is *which targets* receive parser labels.",
+        },
+        {
+            "name": "Named-object parser labels only (ACL / Baker's / MCL)",
+            "why": "Discussion 734117: named objects recover (Baker's balanced acc 0.82, ACL usable); graded severities (effusion) and unstated inferences (fracture) fail. After 0.511 on all-target confident labels, restrict parser pos/neg to ACL / Baker's / MCL and leave other unlabeled cells as NaN.",
+            "how": "Parse train.csv Report only. Gold 0/1 when finite. Parser pos/neg only for ACL / Baker's / MCL. Fit the frozen 7-d/13-d heads; rank-transform test_series; map through gold prevalence. Never open test reports.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -245,8 +250,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep gold_rank_w50 (0.518) frozen** and next test `weak_rank_confident` (gold 0/1 on the 58 + parser pos/neg only; mask unmentioned/unc/hist). `weak_rank_goldfill` scored 0.504 and is falsified; parser-only `weak_rank_calibrate` scored 0.499.",
-        "2. Keep **gold_rank_w50** as the fallback notebook. Do not resubmit weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or 0.50/0.50 as cycle 0.",
+        "1. **Keep gold_rank_w50 (0.518) frozen** and next test `weak_rank_named` (gold 0/1 on the 58; parser pos/neg only on ACL / Baker's / MCL). `weak_rank_confident` scored 0.511 and is falsified; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **gold_rank_w50** as the fallback notebook. Do not resubmit weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or 0.50/0.50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -265,7 +270,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Parser-only weak labels regressed to 0.499. Gold-fill plus unmentioned=0.38 scored 0.504. The next executable lever is `weak_rank_confident`: keep expert 0/1 on the 58 and use parser pos/neg only — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511, all below 0.518. The next executable lever is `weak_rank_named`: parser pos/neg only on ACL / Baker's / MCL — still no test reports.",
         "",
         "### arXiv query hits",
         "",

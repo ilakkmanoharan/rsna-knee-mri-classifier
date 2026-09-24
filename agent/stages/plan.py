@@ -17,11 +17,11 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_confident",
+        "weak_rank_named",
+        "weak_rank_named",
         "gold_rank_w50",
         "gold_rank_interact",
         "gold_meta_logit",
-        "rank_ensemble_safe",
     ][cycle_num % 5]
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -65,6 +65,19 @@ def run_plan(
             "- If interact fit fails, fall back to 7-d ranks alone (the 0.514 path).",
             "- If gold+series < 20, fall back to hand-tuned metadata offsets.",
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
+            "",
+        ]
+    elif strategy == "weak_rank_named":
+        lines += [
+            "- Same two series-metadata heads as frozen `gold_rank_w50` (public 0.518).",
+            "- **Keep gold 0/1 on the 58 labeled studies.**",
+            "- Parser pos/neg only for **named objects** ACL / Baker's / MCL (discussion 734117).",
+            "- Mask unmentioned/unc/hist and all unlabeled graded/unstated targets as NaN.",
+            "- Discover `train.csv` Report column only. **Never open test reports.**",
+            "- Fit 7-d (λ=2.0) and 13-d interact (λ=3.5); blend `0.50 * rank(7-d) + 0.50 * rank(interact)`.",
+            "- Map blended ranks through gold prevalence. No Gaussian noise.",
+            "- If n_weak < 20 or Report is missing, fall back to gold_rank_w50.",
+            "- Do **not** resubmit `weak_rank_confident` (0.511, 56513588), `weak_rank_goldfill` (0.504), or `weak_rank_calibrate` (0.499).",
             "",
         ]
     elif strategy == "weak_rank_confident":

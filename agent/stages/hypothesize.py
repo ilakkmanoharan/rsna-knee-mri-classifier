@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_named",
+            "hypothesis": "Restricting parser pos/neg labels to named objects (ACL, Baker's, MCL) will beat 0.518, because all-target confident labels scored 0.511 and discussion 734117 says only named objects recover while graded/unstated fail.",
+            "mechanism": "Same 7-d/13-d heads and 0.50/0.50 blend. Gold 0/1 when finite. Parser pos/neg only for ACL / Baker's / MCL; other unlabeled targets stay NaN. Never open test reports. Fallback to gold_rank_w50 if n_weak<20.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "expected_targets": ["ACL", "Baker's", "MCL"],
+        },
+        {
             "id": "H_weak_rank_confident",
             "hypothesis": "Keeping expert 0/1 on the 58 and using only parser pos/neg mentions (masking unmentioned/uncertain/historical) will beat 0.518, because goldfill's unmentioned=0.38 mass on ~4,349 reports scored 0.504 and empty extractions should stay unlabeled (discussion 734117).",
             "mechanism": "Same 7-d/13-d series-metadata heads and 0.50/0.50 blend as gold_rank_w50. Gold 0/1 when finite. Else parse train.csv Report only (never test reports); keep pos=0.85 / neg=0.12; drop unmentioned/unc/hist as NaN so IRLS uses the finite mask. Map ranks through gold prevalence. Fallback to gold_rank_w50 if n_weak<20.",
-            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50). Already falsified at 0.511 (56513588).",
             "expected_targets": ["ACL", "Baker's", "Effusion", "Medial Meniscus", "MCL"],
         },
         {
@@ -102,7 +109,9 @@ def run_hypothesize(
             "expected_targets": ["*"],
         },
     ]
-    primary = catalog[cycle_num % len(catalog)]
+    # Always lead with the next untested ablation. Cycle-index rotation was
+    # resubmitting falsified goldfill/calibrate write-ups on later daily slots.
+    primary = catalog[0]
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     md_path = out_dir / f"{day_id}_cycle{cycle_id}_hypotheses.md"
     lines = [
@@ -116,10 +125,10 @@ def run_hypothesize(
         "",
         "gold_rank_w50 remains the frozen public baseline at **0.518**. Parser-only",
         "`weak_rank_calibrate` scored **0.499** (56455239). `weak_rank_goldfill` scored **0.504**",
-        "(56484736) — gold 0/1 on the 58 plus unmentioned=0.38 on ~4,349 reports still failed.",
-        "Discussion 734117: empty extractions (~23%) should stay unlabeled, not all-negative.",
-        "The next testable change is **`weak_rank_confident`**: keep gold 0/1 on the 58 and use",
-        "parser pos/neg only (mask unmentioned/unc/hist). Visual MRI encoders stay out of scope.",
+        "(56484736). `weak_rank_confident` scored **0.511** (56513588) — best weak-label so far,",
+        "still below 0.518. Discussion 734117: named objects recover; graded/unstated fail.",
+        "The next testable change is **`weak_rank_named`**: keep gold 0/1 on the 58 and use",
+        "parser pos/neg only on ACL / Baker's / MCL. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",

@@ -14,31 +14,31 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_confident(tmp_path):
+def test_cycle0_plan_selects_weak_rank_named(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_confident" in md.read_text()
+    assert "weak_rank_named" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_confident"
+    assert sidecar["strategy"] == "weak_rank_named"
 
 
-def test_cycle1_plan_keeps_gold_rank_w50_fallback(tmp_path):
+def test_cycle1_plan_selects_weak_rank_named(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
-    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-18", cycle_num=1)
-    sidecar = json.loads((tmp_path / "2026-09-18_cycle01_test_plan.json").read_text())
+    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
+    sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
+    assert sidecar["strategy"] == "weak_rank_named"
+    assert "named" in md.read_text().lower()
+
+
+def test_cycle2_plan_keeps_gold_rank_w50_fallback(tmp_path):
+    dummy = tmp_path / "dummy.md"
+    dummy.write_text("x")
+    sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-24", cycle_num=2)
+    sidecar = json.loads((tmp_path / "2026-09-24_cycle02_test_plan.json").read_text())
     assert sidecar["strategy"] == "gold_rank_w50"
-    assert "0.50" in md.read_text()
-
-
-def test_cycle2_plan_keeps_gold_rank_interact_fallback(tmp_path):
-    dummy = tmp_path / "dummy.md"
-    dummy.write_text("x")
-    sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-18", cycle_num=2)
-    sidecar = json.loads((tmp_path / "2026-09-18_cycle02_test_plan.json").read_text())
-    assert sidecar["strategy"] == "gold_rank_interact"
-    assert "0.60" in sidecar_md.read_text()
+    assert "0.50" in sidecar_md.read_text()
 
 
 def test_notebook_contains_learned_metadata_path(tmp_path):
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_confident(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_named(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,10 +287,10 @@ def test_hypothesize_cycle0_is_weak_rank_confident(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_confident" in text
+    assert "H_weak_rank_named" in text
     assert "0.518" in text
     assert "gold_rank_w50" in text
-    assert "0.504" in text or "weak_rank_goldfill" in text
+    assert "0.511" in text or "weak_rank_confident" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -357,3 +357,25 @@ def test_weak_rank_confident_notebook_and_synthetic_acl(tmp_path):
     assert states["ACL"] == "unmentioned"
     soft = ns["parse_report_soft"]("Complete ACL tear with joint effusion.", ["ACL"])
     assert soft["ACL"] == 0.85
+
+
+def test_weak_rank_named_notebook_and_synthetic_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_nm", "weak_rank_named", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_named'" in src
+    assert "named_only" in src
+    assert "NAMED_PARSER" in src
+    assert "enable_internet" not in src
+    meta = json.loads((tmp_path / "nb_nm" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+
+    ns, out, sample = _run_strategy(tmp_path, "weak_rank_named")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["n7"] >= 20
+    assert "ACL" in ns["NAMED_PARSER"]
+    assert "Effusion" not in ns["NAMED_PARSER"]

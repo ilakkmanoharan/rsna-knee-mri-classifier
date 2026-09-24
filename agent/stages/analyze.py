@@ -114,8 +114,8 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Next: `weak_rank_confident` — keep gold 0/1 on the 58 and use parser pos/neg only; mask unmentioned/unc/hist (discussion 734117). `weak_rank_goldfill` scored 0.504 (56484736) and is falsified; parser-only `weak_rank_calibrate` scored 0.499 (56455239).",
-            "Do not resubmit weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
+            "Next: `weak_rank_named` — gold 0/1 on the 58; parser pos/neg only on ACL / Baker's / MCL (discussion 734117). `weak_rank_confident` scored 0.511 (56513588) and is falsified; goldfill 0.504; parser-only 0.499.",
+            "Do not resubmit weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.518 public score is still below that series-flag ceiling because we fit on 58 gold rows instead of 4,407 reports (discussion 733876).",
             "Parse train.csv Report only, with a right-side Turkish negation window (discussion 734106). Never open test reports. Infer from test_series.csv metadata only.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",
