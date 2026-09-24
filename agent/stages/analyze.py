@@ -96,24 +96,26 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "Score ladder: Stage-B prevalence+noise 0.494; hand-tuned metadata_prior_blend / "
                 "report_shrinkage_priors 0.498; fluid_gate_metadata 0.499–0.505; gold_meta_logit 0.514; "
                 "gold_rank_interact 0.517; gold_rank_w50 0.518 (accepted, submission 56322623); "
-                "gold_rank_w40 tied 0.518; gold_rank_lam2 scored 0.515 (falsified, 56418615). "
-                "Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
+                "gold_rank_w40 tied 0.518; gold_rank_lam2 scored 0.515 (falsified, 56418615); "
+                "weak_rank_calibrate scored 0.499 (56455239); weak_rank_goldfill scored 0.504 "
+                "(56484736). Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
                 "Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
             )
             why_low.append(
                 "The 7-d/13-d heads were fit on only 58 gold studies. That set is prevalence-enriched "
                 "and cannot resolve ~0.01 macro-AUC gaps (σ≈0.0125, discussion 733876). gold_rank_w50 "
                 "(0.50·7-d + 0.50·interact, λI=3.5) is the frozen floor at 0.518. gold_rank_w40 tied; "
-                "gold_rank_lam2 dropped to 0.515. Remaining metadata lift must change the *training "
-                "labels* (train-report weak labels on n≈4407), not another blend weight or λ."
+                "gold_rank_lam2 dropped to 0.515. Parser-only overwrite scored 0.499; gold-fill plus "
+                "unmentioned=0.38 on ~4,349 reports scored 0.504. Remaining lift must change *which* "
+                "report cells are used as labels (confident pos/neg only), not another blend weight or λ."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Next: `weak_rank_goldfill` — keep gold 0/1 on the 58 and use parser soft labels only on unlabeled reports. Parser-only `weak_rank_calibrate` scored 0.499 (56455239) and is falsified.",
-            "Do not resubmit weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
+            "Next: `weak_rank_confident` — keep gold 0/1 on the 58 and use parser pos/neg only; mask unmentioned/unc/hist (discussion 734117). `weak_rank_goldfill` scored 0.504 (56484736) and is falsified; parser-only `weak_rank_calibrate` scored 0.499 (56455239).",
+            "Do not resubmit weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.518 public score is still below that series-flag ceiling because we fit on 58 gold rows instead of 4,407 reports (discussion 733876).",
             "Parse train.csv Report only, with a right-side Turkish negation window (discussion 734106). Never open test reports. Infer from test_series.csv metadata only.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",

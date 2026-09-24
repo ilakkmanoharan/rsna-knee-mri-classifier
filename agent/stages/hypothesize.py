@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_confident",
+            "hypothesis": "Keeping expert 0/1 on the 58 and using only parser pos/neg mentions (masking unmentioned/uncertain/historical) will beat 0.518, because goldfill's unmentioned=0.38 mass on ~4,349 reports scored 0.504 and empty extractions should stay unlabeled (discussion 734117).",
+            "mechanism": "Same 7-d/13-d series-metadata heads and 0.50/0.50 blend as gold_rank_w50. Gold 0/1 when finite. Else parse train.csv Report only (never test reports); keep pos=0.85 / neg=0.12; drop unmentioned/unc/hist as NaN so IRLS uses the finite mask. Map ranks through gold prevalence. Fallback to gold_rank_w50 if n_weak<20.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "expected_targets": ["ACL", "Baker's", "Effusion", "Medial Meniscus", "MCL"],
+        },
+        {
             "id": "H_weak_rank_goldfill",
             "hypothesis": "Keeping expert 0/1 labels on the 58 gold studies and using parser soft labels only for unlabeled train reports will beat 0.518, because parser-only weak_rank_calibrate scored 0.499 after overwriting gold.",
             "mechanism": "Same 7-d/13-d series-metadata heads and 0.50/0.50 blend as gold_rank_w50. For each target, use gold 0/1 when finite; otherwise parse train.csv Report (never test reports). Fit on the mixed labels; map ranks through gold prevalence. Fallback to gold_rank_w50 if n_weak<20.",
-            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50). Already falsified at 0.504 (56484736).",
             "expected_targets": ["ACL", "Effusion", "Baker's", "Medial Meniscus", "Synovitis"],
         },
         {
@@ -108,10 +115,11 @@ def run_hypothesize(
         "## Why this hypothesis now",
         "",
         "gold_rank_w50 remains the frozen public baseline at **0.518**. Parser-only",
-        "`weak_rank_calibrate` scored **0.499** (56455239) and is falsified — overwriting the 58",
-        "gold rows with keyword soft labels destroyed ranking. gold_rank_lam2 scored 0.515.",
-        "The next testable change is **`weak_rank_goldfill`**: keep gold 0/1 on the 58 and use",
-        "the parser only on unlabeled train reports. Visual MRI encoders stay out of scope.",
+        "`weak_rank_calibrate` scored **0.499** (56455239). `weak_rank_goldfill` scored **0.504**",
+        "(56484736) — gold 0/1 on the 58 plus unmentioned=0.38 on ~4,349 reports still failed.",
+        "Discussion 734117: empty extractions (~23%) should stay unlabeled, not all-negative.",
+        "The next testable change is **`weak_rank_confident`**: keep gold 0/1 on the 58 and use",
+        "parser pos/neg only (mask unmentioned/unc/hist). Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",

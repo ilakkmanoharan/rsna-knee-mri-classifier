@@ -17,7 +17,7 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_goldfill",
+        "weak_rank_confident",
         "gold_rank_w50",
         "gold_rank_interact",
         "gold_meta_logit",
@@ -67,6 +67,19 @@ def run_plan(
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
             "",
         ]
+    elif strategy == "weak_rank_confident":
+        lines += [
+            "- Same two series-metadata heads as frozen `gold_rank_w50` (public 0.518).",
+            "- **Keep gold 0/1 on the 58 labeled studies.**",
+            "- On unlabeled reports, keep only parser **pos/neg**. Mask unmentioned / uncertain / historical as NaN",
+            "  (discussion 734117: empty extractions stay unlabeled, not all-negative).",
+            "- Discover `train.csv` Report column only. **Never open test reports.**",
+            "- Fit 7-d (λ=2.0) and 13-d interact (λ=3.5); blend `0.50 * rank(7-d) + 0.50 * rank(interact)`.",
+            "- Map blended ranks through gold prevalence. No Gaussian noise.",
+            "- If n_weak < 20 or Report is missing, fall back to gold_rank_w50.",
+            "- Do **not** resubmit `weak_rank_goldfill` (0.504, 56484736) or parser-only `weak_rank_calibrate` (0.499).",
+            "",
+        ]
     elif strategy == "weak_rank_goldfill":
         lines += [
             "- Same two series-metadata heads as frozen `gold_rank_w50` (public 0.518).",
@@ -75,7 +88,7 @@ def run_plan(
             "- Fit 7-d (λ=2.0) and 13-d interact (λ=3.5); blend `0.50 * rank(7-d) + 0.50 * rank(interact)`.",
             "- Map blended ranks through gold prevalence. No Gaussian noise.",
             "- If n_weak < 20 or Report is missing, fall back to gold_rank_w50.",
-            "- Do **not** resubmit parser-only `weak_rank_calibrate` (0.499, falsified).",
+            "- Already falsified at public 0.504 (submission 56484736); keep only as a documented fallback.",
             "",
         ]
     elif strategy == "weak_rank_calibrate":

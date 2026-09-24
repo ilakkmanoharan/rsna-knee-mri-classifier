@@ -14,13 +14,13 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_goldfill(tmp_path):
+def test_cycle0_plan_selects_weak_rank_confident(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
-    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-22", cycle_num=0)
-    assert "weak_rank_goldfill" in md.read_text()
-    sidecar = json.loads((tmp_path / "2026-09-22_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_goldfill"
+    md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
+    assert "weak_rank_confident" in md.read_text()
+    sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
+    assert sidecar["strategy"] == "weak_rank_confident"
 
 
 def test_cycle1_plan_keeps_gold_rank_w50_fallback(tmp_path):
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_goldfill(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_confident(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -283,14 +283,14 @@ def test_hypothesize_cycle0_is_weak_rank_goldfill(tmp_path):
         dummy,
         dummy,
         cycle_id="00_test",
-        day_id="2026-09-22",
+        day_id="2026-09-24",
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_goldfill" in text
+    assert "H_weak_rank_confident" in text
     assert "0.518" in text
     assert "gold_rank_w50" in text
-    assert "0.499" in text or "weak_rank_calibrate" in text
+    assert "0.504" in text or "weak_rank_goldfill" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -331,3 +331,29 @@ def test_weak_rank_goldfill_notebook_and_synthetic_acl(tmp_path):
     assert high > low, (high, low)
     assert ns["used_learned"] is True
     assert ns["n7"] >= 20
+
+
+def test_weak_rank_confident_notebook_and_synthetic_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_cf", "weak_rank_confident", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_confident'" in src
+    assert "confident_only" in src
+    assert "parse_report_states" in src
+    assert "prefer_gold" in src
+    assert "enable_internet" not in src
+    meta = json.loads((tmp_path / "nb_cf" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert meta["id"] == "kaggle-user/slug"
+
+    ns, out, sample = _run_strategy(tmp_path, "weak_rank_confident")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["n7"] >= 20
+    states = ns["parse_report_states"]("Routine knee MRI without additional comment.", ["ACL"])
+    assert states["ACL"] == "unmentioned"
+    soft = ns["parse_report_soft"]("Complete ACL tear with joint effusion.", ["ACL"])
+    assert soft["ACL"] == 0.85
