@@ -1,0 +1,95 @@
+{
+  "papers": [],
+  "techniques": [
+    {
+      "name": "Plane-aware multi-series aggregation",
+      "why": "Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.",
+      "how": "Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative."
+    },
+    {
+      "name": "Weak supervision from multilingual reports",
+      "why": "Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseudo-labels from negation mistakes invert targets.",
+      "how": "Negation/uncertainty/temporality-aware parser \u2192 soft labels + confidence weights; calibrate on gold folds only; never use test reports."
+    },
+    {
+      "name": "Small-n gold-set metadata logistic",
+      "why": "Hand-tuned plane/fluid offsets only moved public macro AUC 0.494\u21920.499. The 58 gold labels fitted a 7-d ridge logistic that reached 0.514. That is a fallback, not the day's first cycle.",
+      "how": "Keep gold_meta_logit as a deep fallback. Do not resubmit it as cycle 0; ablate ranking changes on top of gold_rank_w50 (0.518)."
+    },
+    {
+      "name": "Plane \u00d7 protocol interaction ranks",
+      "why": "Additive sag/cor/ax fractions plus a global fluid fraction cannot represent 'sagittal fluid-sensitive' (ACL/meniscus/effusion) vs 'axial fluid-sensitive' (PF OA, Baker's). gold_rank_w50 (0.50\u00b77-d + 0.50\u00b7interact) is the frozen public floor at 0.518.",
+      "how": "Keep the 13-d sag/cor/ax \u00d7 fluid and \u00d7 fat ridge (\u03bb=3.5). Next ablation is blend weight, not a new architecture."
+    },
+    {
+      "name": "Rank-blend weight ablation (0.40/0.60) \u2014 done, tied",
+      "why": "Public LB rose as interact weight went 0.00 (0.514) \u2192 0.30 (0.516) \u2192 0.40 (0.517) \u2192 0.50 (0.518), then 0.40/0.60 tied 0.518 (gold_rank_w40, 56382621). Weight ablation has stalled; do not resubmit w40/w50/w70.",
+      "how": "Keep gold_rank_w50 as the frozen fallback. Do not spend quota on another blend weight."
+    },
+    {
+      "name": "Interact-head \u03bb ablation (\u03bbI=2.0) \u2014 done, falsified",
+      "why": "gold_rank_lam2 (0.50/0.50, \u03bbI=2.0) scored 0.515 on 2026-09-21 (submission 56418615), below frozen gold_rank_w50 (0.518). Lower \u03bb overfit the 13-d head on n=58. Do not resubmit.",
+      "how": "Keep gold_rank_w50 as the fallback. Do not spend quota on another \u03bb or blend-weight ablation."
+    },
+    {
+      "name": "Train-report weak labels on all 4,407 (gold for calibration only) \u2014 done, falsified",
+      "why": "Fitting 7-d/13-d heads on 58 gold studies is high-variance (\u03c3\u22480.0125) and the gold set is prevalence-enriched (~1.5\u00d7). Parser-only `weak_rank_calibrate` scored 0.499 (56455239) after overwriting the 58 gold rows. Do not resubmit.",
+      "how": "Keep as a documented failure. Next lever is which parser cells are used, not another overwrite of gold 0/1."
+    },
+    {
+      "name": "Gold-fill weak labels (expert 0/1 + parser on unlabeled) \u2014 done, falsified",
+      "why": "`weak_rank_goldfill` kept gold 0/1 on the 58 and assigned parser soft labels (including unmentioned=0.38) to ~4,349 reports. Public score 0.504 (56484736): +0.005 vs overwrite, \u22120.014 vs gold_rank_w50. Keyword mass on unmentioned cells does not transfer to the expert-labeled public LB.",
+      "how": "Do not resubmit goldfill. Discussion 734117: empty extractions (~23%) should stay unlabeled, not all-negative. Named objects recover; graded/unstated fail."
+    },
+    {
+      "name": "Confident-only weak labels (gold 0/1 + parser pos/neg; mask the rest)",
+      "why": "Goldfill's unmentioned=0.38 prior on most report cells pulled ranks toward a near-constant. Discussion 734117: treat empty extractions as unlabeled. Named objects (ACL, Baker's) have usable pos/neg mentions; unmentioned/unc/hist cells should be NaN so IRLS uses the finite mask. This is the next one-factor ranking ablation.",
+      "how": "Parse train.csv Report only (multilingual + right-side Turkish negation). Keep gold 0/1 when finite. Else keep pos=0.85 / neg=0.12 and drop unmentioned/unc/hist. Fit the frozen 7-d/13-d heads; rank-transform test_series; map through gold prevalence. Never open test reports."
+    },
+    {
+      "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
+      "why": "Xie et al. 2025 (eClinicalMedicine) trained KAMRNet on 13,419 patients / 14,962 exams for nine knee abnormalities and reported internal primary AUCs ~0.90; a 2026 23-condition slice-transformer (European Radiology) reached median external AUC ~0.78. Those numbers are the visual-model ceiling, not a metadata ceiling. We cannot spend quota on them until real train DICOMs/JPEGs + GPU time are mounted.",
+      "how": "When pixels are available: plane-slot encoder, anatomy-oriented localization, then rank-ensemble with gold_rank_interact rather than replacing it."
+    },
+    {
+      "name": "Per-target calibrated prevalence prior blend",
+      "why": "Macro AUC cares about ranking per target. Pure constant prevalence (~0.49 public) is a floor; blending study-level model logits with target prevalence stabilizes rare labels (MCL, Baker's).",
+      "how": "p = clip((1-\u03b1)\u00b7\u03c3(logit) + \u03b1\u00b7prev_t); tune \u03b1 on OOF; larger \u03b1 for rare/unstable heads."
+    },
+    {
+      "name": "Fluid-sensitive / fat-suppression series routing",
+      "why": "train_series.csv exposes Fluid_Sensitive and Fat_Suppression. Contusion/effusion/synovitis benefit from fluid-sensitive series; bone findings may prefer others.",
+      "how": "Weight series embeddings by sequence flags before plane pooling; ablate via ASRA H-routing."
+    },
+    {
+      "name": "Frozen encoder then last-block unfreeze",
+      "why": "Tiny gold set overfits if the full backbone trains early. Frozen ImageNet/RadImageNet encoder + heads first is the reliable baseline.",
+      "how": "Train heads only until OOF beats prevalence; then unfreeze last block at low LR."
+    },
+    {
+      "name": "Target-specific view preference soft regularizer",
+      "why": "Hard rules (no sagittal \u21d2 ACL=0) destroy recall. Soft preferred-plane coverage features improve ranking without forcing zeros.",
+      "how": "Concatenate preferred-plane coverage; small consistency loss only after ablation accepts it."
+    },
+    {
+      "name": "Ensemble fold checkpoints + rank average",
+      "why": "Single fold on 58 labels is noisy. Probability or rank ensembling across folds lifts macro AUC more than architecture churn.",
+      "how": "Save fold*.pt; at inference mean probs or average ranks then rescale to [eps,1-eps]."
+    }
+  ],
+  "errors": [
+    "knee MRI multi-label abnormality detection deep learning: RuntimeError: HTTP Error 406: Not Acceptable",
+    "knee MRI multi-label abnormality detection deep learning (europepmc): HTTPError: HTTP Error 503: Service Temporarily Unavailable",
+    "RSNA knee abnormality detection: RuntimeError: HTTP Error 406: Not Acceptable",
+    "RSNA knee abnormality detection (europepmc): HTTPError: HTTP Error 503: Service Temporarily Unavailable",
+    "multi-planar MRI aggregation CNN EfficientNet: RuntimeError: HTTP Error 406: Not Acceptable",
+    "multi-planar MRI aggregation CNN EfficientNet (europepmc): HTTPError: HTTP Error 503: Service Temporarily Unavailable",
+    "radiology report weak supervision negation: RuntimeError: HTTP Error 406: Not Acceptable",
+    "radiology report weak supervision negation (europepmc): HTTPError: HTTP Error 503: Service Temporarily Unavailable",
+    "macro ROC-AUC multi-label medical imaging: RuntimeError: HTTP Error 406: Not Acceptable",
+    "macro ROC-AUC multi-label medical imaging (europepmc): TimeoutError: The read operation timed out",
+    "plane-aware MRI classification sagittal coronal axial: RuntimeError: HTTP Error 406: Not Acceptable",
+    "plane-aware MRI classification sagittal coronal axial (europepmc): TimeoutError: The read operation timed out"
+  ],
+  "path": "/workspace/Research/2026-09-24_cycle00_20260924T010830-0500_research.md"
+}
