@@ -98,16 +98,18 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "gold_rank_interact 0.517; gold_rank_w50 0.518 (accepted, submission 56322623); "
                 "gold_rank_w40 tied 0.518; gold_rank_lam2 scored 0.515 (falsified, 56418615); "
                 "weak_rank_calibrate scored 0.499 (56455239); weak_rank_goldfill scored 0.504 "
-                "(56484736). Replacing learned ranks with shrinkage priors scored 0.504 — a regression. "
-                "Per-target constant shrinkage is AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
+                "(56484736); weak_rank_confident scored 0.511 (56513588). Replacing learned ranks "
+                "with shrinkage priors scored 0.504 — a regression. Per-target constant shrinkage is "
+                "AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
             )
             why_low.append(
                 "The 7-d/13-d heads were fit on only 58 gold studies. That set is prevalence-enriched "
                 "and cannot resolve ~0.01 macro-AUC gaps (σ≈0.0125, discussion 733876). gold_rank_w50 "
                 "(0.50·7-d + 0.50·interact, λI=3.5) is the frozen floor at 0.518. gold_rank_w40 tied; "
                 "gold_rank_lam2 dropped to 0.515. Parser-only overwrite scored 0.499; gold-fill plus "
-                "unmentioned=0.38 on ~4,349 reports scored 0.504. Remaining lift must change *which* "
-                "report cells are used as labels (confident pos/neg only), not another blend weight or λ."
+                "unmentioned=0.38 scored 0.504; all-target confident pos/neg scored 0.511. Remaining "
+                "lift must restrict parser labels to named objects (ACL / Baker's / MCL), not another "
+                "blend weight or λ."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "

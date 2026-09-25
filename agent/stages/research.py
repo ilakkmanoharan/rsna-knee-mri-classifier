@@ -102,6 +102,44 @@ def _europepmc_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
     return papers
 
 
+def _curated_seed_papers() -> list[dict[str, str]]:
+    """Seed research.json when arXiv 406s and EuropePMC times out (Cursor Cloud egress)."""
+    return [
+        {
+            "title": "Development of a multi-task deep learning system for classification of nine common knee abnormalities on MRI (KAMRNet)",
+            "summary": "Xie et al. 2025. 13,419 patients / 14,962 exams. Internal primary AUCs 0.898; external ~0.81-0.85. Anatomy-oriented localization mattered.",
+            "url": "https://doi.org/10.1016/j.eclinm.2025.103534",
+            "published": "2025",
+            "source": "curated",
+            "query": "knee MRI multi-label abnormality detection deep learning",
+        },
+        {
+            "title": "MRNet: Deep-learning-assisted diagnosis for knee magnetic resonance imaging",
+            "summary": "Bien, Rajpurkar et al. PLOS Medicine 2018. Plane-wise CNNs then logistic stack of sagittal/coronal/axial logits.",
+            "url": "https://doi.org/10.1371/journal.pmed.1002699",
+            "published": "2018",
+            "source": "curated",
+            "query": "plane-aware MRI classification sagittal coronal axial",
+        },
+        {
+            "title": "MRI deep learning models for assisted diagnosis of knee pathologies: a systematic review",
+            "summary": "Mead et al. European Radiology. 54 studies; mean AUC-ROC ~0.921 overall.",
+            "url": "https://doi.org/10.1007/s00330-024-11105-8",
+            "published": "2024",
+            "source": "curated",
+            "query": "macro ROC-AUC multi-label medical imaging",
+        },
+        {
+            "title": "Weak labels for all 12 findings + how recoverable each one actually is",
+            "summary": "Kaggle discussion 734117. Empty extractions (~23%) should stay unlabeled. Named objects recover; graded/unstated fail.",
+            "url": "https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/734117",
+            "published": "2026",
+            "source": "curated",
+            "query": "radiology report weak supervision negation",
+        },
+    ]
+
+
 def _curated_techniques() -> list[dict[str, str]]:
     """Competition-specific methods grounded in prior RSNA / multi-label MRI practice."""
     return [
@@ -221,6 +259,15 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
             continue
         seen.add(key)
         uniq.append(p)
+
+    if len(uniq) < 3:
+        for seed in _curated_seed_papers():
+            key = seed["title"].lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            uniq.append(seed)
+        logger.info("Seeded curated DOIs into research.json (%d papers)", len(uniq))
 
     techniques = _curated_techniques()
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")

@@ -58,3 +58,25 @@ def test_run_research_falls_back_to_europepmc(tmp_path, monkeypatch):
     meta = json.loads((tmp_path / "2026-09-20_cycle00_test_research.json").read_text())
     assert len(meta["papers"]) >= 3
     assert any("406" in e for e in meta["errors"])
+
+
+def test_run_research_seeds_curated_dois_when_both_apis_fail(tmp_path, monkeypatch):
+    def boom(*_a, **_k):
+        raise RuntimeError("HTTP Error 406: Not Acceptable")
+
+    def epmc_down(*_a, **_k):
+        raise RuntimeError("HTTP Error 503: Service Unavailable")
+
+    monkeypatch.setattr(research_mod, "_arxiv_search", boom)
+    monkeypatch.setattr(research_mod, "_europepmc_search", epmc_down)
+    md = research_mod.run_research(
+        tmp_path,
+        queries=["knee MRI"],
+        max_arxiv=2,
+        cycle_id="00_test",
+        day_id="2026-09-25",
+    )
+    meta = json.loads((tmp_path / "2026-09-25_cycle00_test_research.json").read_text())
+    assert len(meta["papers"]) >= 3
+    assert all(p.get("source") == "curated" for p in meta["papers"])
+    assert "doi.org" in md.read_text()
