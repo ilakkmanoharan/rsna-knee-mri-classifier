@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_named",
-        "weak_rank_named",
+        "weak_rank_named_mix",
+        "weak_rank_named_mix",
         "gold_rank_w50",
         "gold_rank_interact",
         "gold_meta_logit",
@@ -65,6 +65,18 @@ def run_plan(
             "- If interact fit fails, fall back to 7-d ranks alone (the 0.514 path).",
             "- If gold+series < 20, fall back to hand-tuned metadata offsets.",
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
+            "",
+        ]
+    elif strategy == "weak_rank_named_mix":
+        lines += [
+            "- Start from frozen `gold_rank_w50` ranks (public 0.518): 7-d λ=2 + 13-d λI=3.5, 0.50/0.50,",
+            "  standardized on the 58 gold studies only.",
+            "- Separately fit named-only weak heads (gold 0/1 + parser pos/neg on ACL / Baker's / MCL).",
+            "- **Mix only those three columns:** `0.50 * gold_rank + 0.50 * named_weak_rank`.",
+            "- Leave the other nine targets as pure gold_rank_w50.",
+            "- Discover `train.csv` Report column only. **Never open test reports.**",
+            "- If n_weak < 20 or Report is missing, fall back to gold_rank_w50.",
+            "- Do **not** resubmit `weak_rank_named` (0.502, 56541791), `weak_rank_confident` (0.511), `weak_rank_goldfill` (0.504), or `weak_rank_calibrate` (0.499).",
             "",
         ]
     elif strategy == "weak_rank_named":

@@ -125,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -241,12 +241,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -414,9 +414,9 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
 used_learned = False
 n7 = nI = 0
 WEAK_STRATS = {{"weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5}}
-LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2"}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5}}
+LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix"}}
 if STRATEGY in WEAK_STRATS and train_series is not None:
     w7 = float(BLEND_W7[STRATEGY])
     lamI = float(INTERACT_LAM[STRATEGY])
@@ -466,6 +466,33 @@ if (STRATEGY in LEARNED or (STRATEGY in WEAK_STRATS and not used_learned)) and t
         used_learned = True
     else:
         print("learned metadata path skipped; n7", n7, "nI", nI)
+
+if STRATEGY == "weak_rank_named_mix" and used_learned and train_series is not None:
+    # Keep frozen gold ranks for all 12; mix named-weak ranks onto ACL / Baker's / MCL only.
+    gold_arr = out[targets].to_numpy(dtype=float)
+    scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True)
+    scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True)
+    ranked_w = None
+    if scores7w is not None and scoresIw is not None:
+        ranked_w = 0.5 * rank_cols(scores7w) + 0.5 * rank_cols(scoresIw)
+        print("weak_rank_named_mix named-weak blend 0.50/0.50 n7w", n7w, "nIw", nIw)
+    elif scores7w is not None:
+        ranked_w = rank_cols(scores7w)
+        print("weak_rank_named_mix named-weak 7d only n7w", n7w, "nIw", nIw)
+    if ranked_w is not None:
+        mixed = gold_arr.copy()
+        for j, t in enumerate(targets):
+            if t in NAMED_PARSER:
+                # gold_arr is already prevalence-mapped; convert named ranks the same way
+                weak_col = np.clip(prev[t] + 0.25 * (ranked_w[:, j] - 0.5), EPS, 1 - EPS)
+                mixed[:, j] = 0.5 * gold_arr[:, j] + 0.5 * weak_col
+        out = sample[[study_col]].copy()
+        for j, t in enumerate(targets):
+            out[t] = mixed[:, j]
+        out = out[sample.columns]
+        print("weak_rank_named_mix mixed named targets", sorted(NAMED_PARSER))
+    else:
+        print("weak_rank_named_mix skipped named mix; keeping gold_rank_w50. n7w", n7w, "nIw", nIw)
 
 if STRATEGY == "rank_ensemble_safe":
     prev_arr = np.array(prev_mat)

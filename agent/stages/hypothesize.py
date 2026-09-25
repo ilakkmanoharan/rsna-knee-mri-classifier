@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_named_mix",
+            "hypothesis": "Keeping frozen gold_rank_w50 ranks for all 12 targets and 50/50 mixing named-object weak ranks onto ACL / Baker's / MCL only will beat 0.518, because all-head named-only fit scored 0.502 after shifting the 4,407-row standardizer.",
+            "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads (gold 0/1 + parser pos/neg on ACL / Baker's / MCL). Average ranks on those three columns only. Never open test reports. Fallback to gold_rank_w50 if n_weak<20.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "expected_targets": ["ACL", "Baker's", "MCL"],
+        },
+        {
             "id": "H_weak_rank_named",
             "hypothesis": "Restricting parser pos/neg labels to named objects (ACL, Baker's, MCL) will beat 0.518, because all-target confident labels scored 0.511 and discussion 734117 says only named objects recover while graded/unstated fail.",
             "mechanism": "Same 7-d/13-d heads and 0.50/0.50 blend. Gold 0/1 when finite. Parser pos/neg only for ACL / Baker's / MCL; other unlabeled targets stay NaN. Never open test reports. Fallback to gold_rank_w50 if n_weak<20.",
-            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50). Already falsified at 0.502 (56541791).",
             "expected_targets": ["ACL", "Baker's", "MCL"],
         },
         {
@@ -125,10 +132,11 @@ def run_hypothesize(
         "",
         "gold_rank_w50 remains the frozen public baseline at **0.518**. Parser-only",
         "`weak_rank_calibrate` scored **0.499** (56455239). `weak_rank_goldfill` scored **0.504**",
-        "(56484736). `weak_rank_confident` scored **0.511** (56513588) — best weak-label so far,",
-        "still below 0.518. Discussion 734117: named objects recover; graded/unstated fail.",
-        "The next testable change is **`weak_rank_named`**: keep gold 0/1 on the 58 and use",
-        "parser pos/neg only on ACL / Baker's / MCL. Visual MRI encoders stay out of scope.",
+        "(56484736). `weak_rank_confident` scored **0.511** (56513588). `weak_rank_named`",
+        "scored **0.502** (56541791) — a regression vs all-target confident. Discussion 734117:",
+        "named objects recover; graded/unstated fail. The next testable change is",
+        "**`weak_rank_named_mix`**: keep gold_rank_w50 ranks for all 12 and mix named-weak",
+        "ranks onto ACL / Baker's / MCL only. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",

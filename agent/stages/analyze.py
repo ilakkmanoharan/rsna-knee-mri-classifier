@@ -98,7 +98,8 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "gold_rank_interact 0.517; gold_rank_w50 0.518 (accepted, submission 56322623); "
                 "gold_rank_w40 tied 0.518; gold_rank_lam2 scored 0.515 (falsified, 56418615); "
                 "weak_rank_calibrate scored 0.499 (56455239); weak_rank_goldfill scored 0.504 "
-                "(56484736); weak_rank_confident scored 0.511 (56513588). Replacing learned ranks "
+                "(56484736); weak_rank_confident scored 0.511 (56513588); weak_rank_named scored "
+                "0.502 (56541791). Replacing learned ranks "
                 "with shrinkage priors scored 0.504 — a regression. Per-target constant shrinkage is "
                 "AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
             )
@@ -107,17 +108,17 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "and cannot resolve ~0.01 macro-AUC gaps (σ≈0.0125, discussion 733876). gold_rank_w50 "
                 "(0.50·7-d + 0.50·interact, λI=3.5) is the frozen floor at 0.518. gold_rank_w40 tied; "
                 "gold_rank_lam2 dropped to 0.515. Parser-only overwrite scored 0.499; gold-fill plus "
-                "unmentioned=0.38 scored 0.504; all-target confident pos/neg scored 0.511. Remaining "
-                "lift must restrict parser labels to named objects (ACL / Baker's / MCL), not another "
-                "blend weight or λ."
+                "unmentioned=0.38 scored 0.504; all-target confident pos/neg scored 0.511; named-only "
+                "scored 0.502. Remaining lift must mix named-object ranks onto frozen gold ranks, not "
+                "refit all 12 heads on the 4,407-row standardizer."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Next: `weak_rank_named` — gold 0/1 on the 58; parser pos/neg only on ACL / Baker's / MCL (discussion 734117). `weak_rank_confident` scored 0.511 (56513588) and is falsified; goldfill 0.504; parser-only 0.499.",
-            "Do not resubmit weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
+            "Next: `weak_rank_named_mix` — keep gold_rank_w50 ranks for all 12; 50/50 mix named-parser ranks onto ACL / Baker's / MCL only. `weak_rank_named` scored 0.502 (56541791) and is falsified; confident 0.511; goldfill 0.504; parser-only 0.499.",
+            "Do not resubmit weak_rank_named, weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0; keep gold_rank_w50 (0.518) as fallback.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.518 public score is still below that series-flag ceiling because we fit on 58 gold rows instead of 4,407 reports (discussion 733876).",
             "Parse train.csv Report only, with a right-side Turkish negation window (discussion 734106). Never open test reports. Infer from test_series.csv metadata only.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",
