@@ -1,25 +1,20 @@
 {
-  "day_id": "2026-09-25",
+  "day_id": "2026-09-26",
   "submissions_used": 1,
   "cycles_completed": 1,
-  "last_cycle_at": "2026-09-25T01:13:56.931278-05:00",
-  "last_submission_ref": "56541791",
-  "last_public_score": 0.502,
+  "last_cycle_at": "2026-09-26T01:08:57.778197-05:00",
+  "last_submission_ref": null,
+  "last_public_score": null,
   "history": [
     {
-      "cycle_id": "00_20260925T010958-0500",
-      "strategy": "weak_rank_named",
-      "research": "/workspace/Research/2026-09-25_cycle00_20260925T010958-0500_research.md",
-      "analysis": "/workspace/Analysis/2026-09-25_cycle00_20260925T010958-0500_analysis.md",
-      "hypothesis": "/workspace/Hypothesis/2026-09-25_cycle00_20260925T010958-0500_hypotheses.md",
-      "plan": "/workspace/Plans/2026-09-25_cycle00_20260925T010958-0500_plan.md",
+      "cycle_id": "00_20260926T010844-0500",
+      "strategy": "weak_rank_named_mix",
+      "research": "/workspace/Research/2026-09-26_cycle00_20260926T010844-0500_research.md",
+      "analysis": "/workspace/Analysis/2026-09-26_cycle00_20260926T010844-0500_analysis.md",
+      "hypothesis": "/workspace/Hypothesis/2026-09-26_cycle00_20260926T010844-0500_hypotheses.md",
+      "plan": "/workspace/Plans/2026-09-26_cycle00_20260926T010844-0500_plan.md",
       "submit": {
-        "kernel": "kaggle-user/rsna-knee-asra-agent-20260925-c00",
-        "kernel_version": 1,
-        "submission_ref": 56541791,
-        "status": "SubmissionStatus.COMPLETE",
-        "public_score": 0.502,
-        "message": "agent1 2026-09-25 cycle 0 strategy=weak_rank_named | 2026-09-25_cycle00_20260925T010958-0500_hypotheses.md"
+        "skipped": true
       }
     }
   ]
