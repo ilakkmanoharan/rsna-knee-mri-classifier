@@ -1,0 +1,182 @@
+[
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-26 06:01:33.427000",
+    "description": "agent1 2026-09-26 cycle 0 strategy=gold_meta_logit | 2026-09-26_cycle00_20260926T010005-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.514,
+    "privateScore": null,
+    "ref": 56570798
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-25 06:12:55.147000",
+    "description": "agent1 2026-09-25 cycle 0 strategy=weak_rank_named | 2026-09-25_cycle00_20260925T010958-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.502,
+    "privateScore": null,
+    "ref": 56541791
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-24 06:13:20.270000",
+    "description": "agent1 2026-09-24 cycle 0 strategy=weak_rank_confident | 2026-09-24_cycle00_20260924T010830-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.511,
+    "privateScore": null,
+    "ref": 56513588
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-23 06:07:08.543000",
+    "description": "agent1 2026-09-23 cycle 0 strategy=weak_rank_goldfill | 2026-09-23_cycle00_20260923T010418-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56484736
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-22 06:11:03.257000",
+    "description": "agent1 2026-09-22 cycle 0 strategy=weak_rank_calibrate | 2026-09-22_cycle00_20260922T010805-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.499,
+    "privateScore": null,
+    "ref": 56455239
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-21 20:28:19.400000",
+    "description": "agent1 2026-09-21 cycle 3 strategy=fluid_gate_metadata | 2026-09-21_cycle03_20260921T152449-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.505,
+    "privateScore": null,
+    "ref": 56442971
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-21 19:14:21.083000",
+    "description": "agent1 2026-09-21 cycle 2 strategy=metadata_prior_blend | 2026-09-21_cycle02_20260921T141313-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56441848
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-21 17:53:48.613000",
+    "description": "agent1 2026-09-21 cycle 1 strategy=report_shrinkage_priors | 2026-09-21_cycle01_20260921T125248-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56440424
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-21 14:46:24.350000",
+    "description": "agent1 2026-09-21 cycle 0 strategy=gold_meta_logit | 2026-09-21_cycle00_20260921T094524-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.514,
+    "privateScore": null,
+    "ref": 56433999
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-21 06:09:43.927000",
+    "description": "agent1 2026-09-21 cycle 0 strategy=gold_rank_lam2 | 2026-09-21_cycle00_20260921T010643-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.515,
+    "privateScore": null,
+    "ref": 56418615
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-20 10:01:00.797000",
+    "description": "agent1 2026-09-20 cycle 3 strategy=fluid_gate_metadata | 2026-09-20_cycle03_20260920T050000-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.505,
+    "privateScore": null,
+    "ref": 56390101
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-20 09:13:04.800000",
+    "description": "agent1 2026-09-20 cycle 2 strategy=metadata_prior_blend | 2026-09-20_cycle02_20260920T041207-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56388646
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-20 08:23:25.523000",
+    "description": "agent1 2026-09-20 cycle 1 strategy=report_shrinkage_priors | 2026-09-20_cycle01_20260920T032210-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56386788
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-20 07:03:48.867000",
+    "description": "agent1 2026-09-20 cycle 0 strategy=gold_meta_logit | 2026-09-20_cycle00_20260920T020243-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.514,
+    "privateScore": null,
+    "ref": 56384313
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-20 06:08:55.110000",
+    "description": "agent1 2026-09-20 cycle 0 strategy=gold_rank_w40 | 2026-09-20_cycle00_20260920T010606-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.518,
+    "privateScore": null,
+    "ref": 56382621
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-19 06:16:00.557000",
+    "description": "agent1 2026-09-19 cycle 0 strategy=gold_rank_w70 | 2026-09-19_cycle00_20260919T010628-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.516,
+    "privateScore": null,
+    "ref": 56350384
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-18 06:14:49.823000",
+    "description": "agent1 2026-09-18 cycle 0 strategy=gold_rank_w50 | 2026-09-18_cycle00_20260918T010905-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.518,
+    "privateScore": null,
+    "ref": 56322623
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-17 14:28:20.453000",
+    "description": "agent1 2026-09-17 cycle 3 strategy=fluid_gate_metadata | 2026-09-17_cycle03_20260917T092720-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.505,
+    "privateScore": null,
+    "ref": 56306945
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-17 12:56:13.967000",
+    "description": "agent1 2026-09-17 cycle 2 strategy=metadata_prior_blend | 2026-09-17_cycle02_20260917T075516-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56305053
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-09-17 11:30:36.417000",
+    "description": "agent1 2026-09-17 cycle 1 strategy=report_shrinkage_priors | 2026-09-17_cycle01_20260917T062922-0500_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.504,
+    "privateScore": null,
+    "ref": 56303324
+  }
+]
