@@ -194,9 +194,14 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Keep as a documented failure. Next lever is mixing named-weak ranks onto frozen gold ranks for only those three targets.",
         },
         {
-            "name": "Named-object mix on frozen gold ranks (ACL / Baker's / MCL only)",
-            "why": "All-head named-only fit scored 0.502. Discussion 734117 still says named objects recover. Mixing named-weak ranks onto the frozen gold_rank_w50 columns for ACL / Baker's / MCL keeps the other nine heads untouched.",
-            "how": "Fit gold_rank_w50 on the 58 gold studies. Separately fit named-only weak heads. Average ranks on ACL / Baker's / MCL only. Never open test reports.",
+            "name": "Named-object mix on frozen gold ranks (ACL / Baker's / MCL) — done, falsified",
+            "why": "`weak_rank_named_mix` scored 0.514 (56571590): ties gold_meta_logit and is −0.004 vs gold_rank_w50. Mixing ACL/MCL parser noise onto the frozen interact ranks erased the lift. Do not resubmit.",
+            "how": "Keep as a documented failure. Next lever is mixing only the strongest named object (Baker's, discussion 734117 balanced acc 0.82).",
+        },
+        {
+            "name": "Baker's-only mix on frozen gold ranks",
+            "why": "named_mix on ACL/Baker's/MCL scored 0.514. Discussion 734117: Baker's is the strongest named object. Mixing named-weak ranks onto Baker's only leaves ACL/MCL as frozen gold_rank_w50.",
+            "how": "Fit gold_rank_w50 on the 58 gold studies. Separately fit named-only weak heads. Average ranks on Baker's only. Never open test reports.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -302,8 +307,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep gold_rank_w50 (0.518) frozen** and next test `weak_rank_named_mix` (gold ranks for all 12; 50/50 named-weak mix on ACL / Baker's / MCL). `weak_rank_named` scored 0.502 and is falsified; confident 0.511; goldfill 0.504; parser-only 0.499.",
-        "2. Keep **gold_rank_w50** as the fallback notebook. Do not resubmit weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or 0.50/0.50 as cycle 0.",
+        "1. **Keep gold_rank_w50 (0.518) frozen** and next test `weak_rank_bakers_mix` (gold ranks for all 12; 50/50 named-weak mix on Baker's only). `weak_rank_named_mix` scored 0.514 and is falsified; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **gold_rank_w50** as the fallback notebook. Do not resubmit weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or 0.50/0.50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -322,7 +327,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named, falsified). The next executable lever is `weak_rank_named_mix`: keep frozen gold ranks and mix named-object weak ranks onto ACL / Baker's / MCL only — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified). The next executable lever is `weak_rank_bakers_mix`: keep frozen gold ranks and mix named-object weak ranks onto Baker's only — still no test reports.",
         "",
         "### arXiv query hits",
         "",

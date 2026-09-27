@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_mix",
+            "hypothesis": "Keeping frozen gold_rank_w50 ranks for all 12 targets and 50/50 mixing named-object weak ranks onto Baker's only will beat 0.518, because mixing ACL/MCL/Baker's together scored 0.514 and discussion 734117 says Baker's is the strongest named object (balanced acc 0.82).",
+            "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads (gold 0/1 + parser pos/neg on ACL / Baker's / MCL). Average ranks on the Baker's column only. Never open test reports. Fallback to gold_rank_w50 if n_weak<20.",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "expected_targets": ["Baker's"],
+        },
+        {
             "id": "H_weak_rank_named_mix",
             "hypothesis": "Keeping frozen gold_rank_w50 ranks for all 12 targets and 50/50 mixing named-object weak ranks onto ACL / Baker's / MCL only will beat 0.518, because all-head named-only fit scored 0.502 after shifting the 4,407-row standardizer.",
             "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads (gold 0/1 + parser pos/neg on ACL / Baker's / MCL). Average ranks on those three columns only. Never open test reports. Fallback to gold_rank_w50 if n_weak<20.",
-            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50).",
+            "falsify": "Public score ≤ 0.518 (frozen gold_rank_w50). Already falsified at 0.514 (56571590).",
             "expected_targets": ["ACL", "Baker's", "MCL"],
         },
         {
@@ -133,10 +140,11 @@ def run_hypothesize(
         "gold_rank_w50 remains the frozen public baseline at **0.518**. Parser-only",
         "`weak_rank_calibrate` scored **0.499** (56455239). `weak_rank_goldfill` scored **0.504**",
         "(56484736). `weak_rank_confident` scored **0.511** (56513588). `weak_rank_named`",
-        "scored **0.502** (56541791) — a regression vs all-target confident. Discussion 734117:",
-        "named objects recover; graded/unstated fail. The next testable change is",
-        "**`weak_rank_named_mix`**: keep gold_rank_w50 ranks for all 12 and mix named-weak",
-        "ranks onto ACL / Baker's / MCL only. Visual MRI encoders stay out of scope.",
+        "scored **0.502** (56541791). `weak_rank_named_mix` scored **0.514** (56571590) —",
+        "ties gold_meta_logit and is a −0.004 regression vs 0.518. Discussion 734117:",
+        "Baker's is the strongest named object. The next testable change is",
+        "**`weak_rank_bakers_mix`**: keep gold_rank_w50 ranks for all 12 and mix named-weak",
+        "ranks onto Baker's only (leave ACL/MCL as frozen gold). Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
