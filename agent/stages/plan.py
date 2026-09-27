@@ -17,10 +17,10 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_mix",
+        "weak_rank_bakers_w60",
+        "weak_rank_bakers_w60",
         "weak_rank_bakers_mix",
         "gold_rank_w50",
-        "gold_rank_interact",
         "gold_meta_logit",
     ][cycle_num % 5]
 
@@ -67,6 +67,17 @@ def run_plan(
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
             "",
         ]
+    elif strategy == "weak_rank_bakers_w60":
+        lines += [
+            "- Start from frozen `gold_rank_w50` ranks, then apply the accepted Baker's mix with more weak weight.",
+            "- Separately fit named-only weak heads (gold 0/1 + parser pos/neg on ACL / Baker's / MCL).",
+            "- **Mix only Baker's:** `0.40 * gold_rank + 0.60 * named_weak_rank`.",
+            "- Leave the other eleven targets as pure gold_rank_w50 (including ACL and MCL).",
+            "- Discover `train.csv` Report column only. **Never open test reports.**",
+            "- If n_weak < 20 or Report is missing, fall back to weak_rank_bakers_mix (0.519).",
+            "- Do **not** resubmit `weak_rank_bakers_mix` (0.519, 56600302), `weak_rank_named_mix` (0.514), or earlier weak-label failures.",
+            "",
+        ]
     elif strategy == "weak_rank_bakers_mix":
         lines += [
             "- Start from frozen `gold_rank_w50` ranks (public 0.518): 7-d λ=2 + 13-d λI=3.5, 0.50/0.50,",
@@ -76,7 +87,7 @@ def run_plan(
             "- Leave the other eleven targets as pure gold_rank_w50 (including ACL and MCL).",
             "- Discover `train.csv` Report column only. **Never open test reports.**",
             "- If n_weak < 20 or Report is missing, fall back to gold_rank_w50.",
-            "- Do **not** resubmit `weak_rank_named_mix` (0.514, 56571590), `weak_rank_named` (0.502), `weak_rank_confident` (0.511), `weak_rank_goldfill` (0.504), or `weak_rank_calibrate` (0.499).",
+            "- Already accepted at public 0.519 (submission 56600302); keep as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_named_mix":
@@ -235,8 +246,8 @@ def run_plan(
         "### Acceptance",
         "",
         "- Notebook completes; submission status COMPLETE.",
-            "- Public score > 0.518 (frozen gold_rank_w50), or document falsification in Analysis next cycle.",
-            "- Keep gold_rank_w50 as the fallback notebook if this ablation does not beat 0.518.",
+            "- Public score > 0.519 (frozen weak_rank_bakers_mix), or document falsification in Analysis next cycle.",
+            "- Keep weak_rank_bakers_mix as the fallback notebook if this ablation does not beat 0.519.",
         "",
     ]
     md_path.write_text("\n".join(lines))
