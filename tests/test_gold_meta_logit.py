@@ -14,21 +14,21 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_w60(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_w40(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_w60" in md.read_text()
+    assert "weak_rank_bakers_w40" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_w60"
+    assert sidecar["strategy"] == "weak_rank_bakers_w40"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_w60(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_w40(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_w60"
+    assert sidecar["strategy"] == "weak_rank_bakers_w40"
     assert "baker" in md.read_text().lower()
 
 
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_w60(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_w40(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,7 +287,7 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_w60(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_w60" in text
+    assert "H_weak_rank_bakers_w40" in text
     assert "0.519" in text
     assert "weak_rank_bakers_mix" in text
     assert "0.40" in text or "0.60" in text
@@ -420,6 +420,26 @@ def test_weak_rank_bakers_mix_notebook_and_synthetic_acl(tmp_path):
     assert ns["used_learned"] is True
     assert ns["MIX_TARGETS"]["weak_rank_bakers_mix"] == {"Baker's"}
     assert "ACL" not in ns["MIX_TARGETS"]["weak_rank_bakers_mix"]
+
+
+def test_weak_rank_bakers_w40_notebook_and_synthetic_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_w40", "weak_rank_bakers_w40", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_w40'" in src
+    assert "MIX_GOLD_W" in src
+    assert "enable_internet" not in src
+    meta = json.loads((tmp_path / "nb_w40" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+
+    ns, out, sample = _run_strategy(tmp_path, "weak_rank_bakers_w40")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["MIX_GOLD_W"]["weak_rank_bakers_w40"] == 0.60
+    assert ns["MIX_TARGETS"]["weak_rank_bakers_w40"] == {"Baker's"}
 
 
 def test_weak_rank_bakers_w60_notebook_and_synthetic_acl(tmp_path):

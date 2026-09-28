@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_w40",
+            "hypothesis": "Giving Baker's named-weak ranks minority weight (0.60 gold / 0.40 weak) will beat 0.519, because 50/50 scored 0.519 and majority-weak 0.40/0.60 scored 0.518.",
+            "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads. On Baker's only, blend 0.60·gold_rank + 0.40·named_weak_rank. Leave the other 11 targets as gold_rank_w50. Never open test reports. Fallback to weak_rank_bakers_mix if n_weak<20.",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "expected_targets": ["Baker's"],
+        },
+        {
             "id": "H_weak_rank_bakers_w60",
             "hypothesis": "Giving the Baker's named-weak ranks majority weight (0.40 gold / 0.60 weak) will beat 0.519, because the 50/50 Baker's-only mix already lifted public macro AUC from 0.518 to 0.519.",
             "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads. On Baker's only, blend 0.40·gold_rank + 0.60·named_weak_rank. Leave the other 11 targets as gold_rank_w50. Never open test reports. Fallback to weak_rank_bakers_mix if n_weak<20.",
-            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix). Already falsified at 0.518 (56631726).",
             "expected_targets": ["Baker's"],
         },
         {
@@ -144,13 +151,14 @@ def run_hypothesize(
         "",
         "## Why this hypothesis now",
         "",
-        "`weak_rank_bakers_mix` is the new frozen public baseline at **0.519** (56600302).",
+        "`weak_rank_bakers_mix` is the frozen public baseline at **0.519** (56600302).",
+        "`weak_rank_bakers_w60` scored **0.518** (56631726) and is falsified.",
         "Parser-only `weak_rank_calibrate` scored **0.499**. `weak_rank_goldfill` scored **0.504**.",
         "`weak_rank_confident` scored **0.511**. `weak_rank_named` scored **0.502**.",
         "`weak_rank_named_mix` scored **0.514**. gold_rank_w50 remains the prior floor at **0.518**.",
         "Discussion 734117: Baker's is the strongest named object. The next testable change is",
-        "**`weak_rank_bakers_w60`**: keep gold_rank_w50 ranks for 11 targets and mix",
-        "`0.40 * gold + 0.60 * named_weak` onto Baker's only. Visual MRI encoders stay out of scope.",
+        "**`weak_rank_bakers_w40`**: keep gold_rank_w50 ranks for 11 targets and mix",
+        "`0.60 * gold + 0.40 * named_weak` onto Baker's only. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
