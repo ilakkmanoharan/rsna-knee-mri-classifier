@@ -201,7 +201,7 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Baker's-only mix on frozen gold ranks — done, accepted",
             "why": "`weak_rank_bakers_mix` scored 0.519 (56600302): +0.001 vs gold_rank_w50. Mixing named-weak ranks onto Baker's only beat the previous floor; ACL/MCL mix had failed at 0.514.",
-            "how": "Keep as the frozen fallback notebook. Next lever is a second named object (ACL) on top of the accepted Baker's mix.",
+            "how": "Keep as the frozen fallback notebook. ACL mix tied; next lever is Medial Meniscus on top of the accepted Baker's mix.",
         },
         {
             "name": "Baker's mix-weight 0.40/0.60 on frozen gold ranks — done, falsified",
@@ -211,12 +211,17 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Baker's mix-weight 0.60/0.40 on frozen gold ranks — done, tied",
             "why": "`weak_rank_bakers_w40` scored 0.519 (56664719): ties bakers_mix. 0.60/0.40, 0.50/0.50, and 0.40/0.60 are a plateau. Do not resubmit.",
-            "how": "Keep as a documented failure. Next lever is mixing ACL on top of the accepted Baker's 50/50 column.",
+            "how": "Keep as a documented failure. Baker's mix-weight and ACL mix have both plateaued at 0.519.",
         },
         {
-            "name": "Baker's + ACL mix on frozen gold ranks",
-            "why": "Baker's-only 50/50 mix is the frozen 0.519 floor. ACL+Baker's+MCL mix scored 0.514; MCL is the likely poison. Adding ACL (the other named object that recovers, discussion 734117) while leaving MCL on gold is the next one-change ablation.",
-            "how": "Fit gold_rank_w50 on the 58 gold studies. Separately fit named-only weak heads. Mix 0.50·gold + 0.50·named_weak on Baker's and ACL only. Leave MCL on gold. Never open test reports.",
+            "name": "Baker's + ACL mix on frozen gold ranks — done, tied",
+            "why": "`weak_rank_bakers_acl_mix` scored 0.519 (56698950): ties bakers_mix. ACL named-weak ranks are public-LB neutral, not poison like MCL (named_mix 0.514). Do not resubmit.",
+            "how": "Keep as a documented failure. Next lever is mixing Medial Meniscus on top of the accepted Baker's 50/50 column.",
+        },
+        {
+            "name": "Baker's + Medial Meniscus mix on frozen gold ranks",
+            "why": "Baker's-only 50/50 mix is the frozen 0.519 floor. Adding ACL was a 0.519 tie; adding MCL with ACL dropped to 0.514. Medial Meniscus is the next named object (not a ligament already tested).",
+            "how": "Fit gold_rank_w50 on the 58 gold studies. Separately fit named-only weak heads with Medial Meniscus in the parser set. Mix 0.50·gold + 0.50·named_weak on Baker's and Medial Meniscus only. Leave ACL and MCL on gold. Never open test reports.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -322,8 +327,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_acl_mix` (50/50 named-weak on Baker's and ACL; leave MCL on gold). `weak_rank_bakers_w40` scored 0.519 (tie) and is falsified; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
-        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
+        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_mm_mix` (50/50 named-weak on Baker's and Medial Meniscus; leave ACL/MCL on gold). `weak_rank_bakers_acl_mix` scored 0.519 (tie, 56698950) and is falsified; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -342,7 +347,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie). The next executable lever is `weak_rank_bakers_acl_mix`: keep the accepted Baker's 50/50 mix and add ACL 50/50; leave MCL on gold — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie). The next executable lever is `weak_rank_bakers_mm_mix`: keep the accepted Baker's 50/50 mix and add Medial Meniscus 50/50; leave ACL and MCL on gold — still no test reports.",
         "",
         "### arXiv query hits",
         "",

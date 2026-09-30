@@ -102,7 +102,8 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "0.502 (56541791); weak_rank_named_mix scored 0.514 (56571590); "
                 "weak_rank_bakers_mix scored 0.519 (56600302, accepted); "
                 "weak_rank_bakers_w60 scored 0.518 (56631726, falsified); "
-                "weak_rank_bakers_w40 scored 0.519 (56664719, tie). Replacing learned ranks "
+                "weak_rank_bakers_w40 scored 0.519 (56664719, tie); "
+                "weak_rank_bakers_acl_mix scored 0.519 (56698950, tie). Replacing learned ranks "
                 "with shrinkage priors scored 0.504 — a regression. Per-target constant shrinkage is "
                 "AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
             )
@@ -114,16 +115,16 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "unmentioned=0.38 scored 0.504; all-target confident pos/neg scored 0.511; named-only "
                 "scored 0.502; named-mix on ACL/Baker's/MCL scored 0.514; Baker's-only 50/50 mix "
                 "scored 0.519 and is the frozen floor; Baker's 0.40/0.60 mix scored 0.518; Baker's "
-                "0.60/0.40 mix tied 0.519. Remaining lift is a second named object (ACL) on top of "
-                "the accepted Baker's mix, not another Baker's weight."
+                "0.60/0.40 mix tied 0.519; Baker's+ACL 50/50 mix tied 0.519. Remaining lift is a "
+                "new named object (Medial Meniscus) on top of the accepted Baker's mix, not ACL."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Next: `weak_rank_bakers_acl_mix` — keep the accepted 50/50 Baker's mix and also 50/50 mix ACL named-weak ranks; leave MCL on gold_rank_w50. `weak_rank_bakers_w40` scored 0.519 (56664719, tie) and is falsified; `weak_rank_bakers_w60` scored 0.518 (56631726); `weak_rank_bakers_mix` scored 0.519 (56600302) and remains the frozen fallback.",
-            "Do not resubmit weak_rank_bakers_w40, weak_rank_bakers_w60, weak_rank_bakers_mix, weak_rank_named_mix, weak_rank_named, weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0.",
+            "Next: `weak_rank_bakers_mm_mix` — keep the accepted 50/50 Baker's mix and also 50/50 mix Medial Meniscus named-weak ranks; leave ACL and MCL on gold_rank_w50. `weak_rank_bakers_acl_mix` scored 0.519 (56698950, tie) and is falsified; `weak_rank_bakers_w40` scored 0.519 (56664719); `weak_rank_bakers_w60` scored 0.518 (56631726); `weak_rank_bakers_mix` scored 0.519 (56600302) and remains the frozen fallback.",
+            "Do not resubmit weak_rank_bakers_acl_mix, weak_rank_bakers_w40, weak_rank_bakers_w60, weak_rank_bakers_mix, weak_rank_named_mix, weak_rank_named, weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.519 public score is still below that series-flag ceiling because we fit on 58 gold rows instead of 4,407 reports (discussion 733876).",
             "Parse train.csv Report only, with a right-side Turkish negation window (discussion 734106). Never open test reports. Infer from test_series.csv metadata only.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",

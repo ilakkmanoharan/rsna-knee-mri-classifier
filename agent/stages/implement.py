@@ -125,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -241,12 +241,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -348,14 +348,17 @@ def parse_report_soft(text, tcols):
     return {{t: float(SOFT_MAP[s]) for t, s in parse_report_states(text, tcols).items()}}
 
 NAMED_PARSER = {{"ACL", "Baker's", "MCL"}}
+NAMED_PLUS_MM = {{"ACL", "Baker's", "MCL", "Medial Meniscus"}}
 BAKERS_ONLY = {{"Baker's"}}
 BAKERS_ACL = {{"Baker's", "ACL"}}
+BAKERS_MM = {{"Baker's", "Medial Meniscus"}}
 MIX_TARGETS = {{
     "weak_rank_named_mix": NAMED_PARSER,
     "weak_rank_bakers_mix": BAKERS_ONLY,
     "weak_rank_bakers_w60": BAKERS_ONLY,
     "weak_rank_bakers_w40": BAKERS_ONLY,
     "weak_rank_bakers_acl_mix": BAKERS_ACL,
+    "weak_rank_bakers_mm_mix": BAKERS_MM,
 }}
 MIX_GOLD_W = {{
     "weak_rank_named_mix": 0.50,
@@ -363,9 +366,13 @@ MIX_GOLD_W = {{
     "weak_rank_bakers_w60": 0.40,
     "weak_rank_bakers_w40": 0.60,
     "weak_rank_bakers_acl_mix": 0.50,
+    "weak_rank_bakers_mm_mix": 0.50,
+}}
+MIX_NAMED_SET = {{
+    "weak_rank_bakers_mm_mix": NAMED_PLUS_MM,
 }}
 
-def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_only=False, named_only=False):
+def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_only=False, named_only=False, named_targets=None):
     """Ridge logits on train-report soft labels. Returns (scores, n_weak) or (None, n).
     prefer_gold=True keeps expert 0/1 on the 58 and uses the parser only for unlabeled rows.
     confident_only=True keeps only parser pos/neg; masks unmentioned/unc/hist (discussion 734117).
@@ -399,7 +406,8 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
                 if np.isfinite(gv):
                     y_cols[t].append(float(gv))
                     continue
-            if named_only and t not in NAMED_PARSER:
+            named_set = set(named_targets) if named_targets else NAMED_PARSER
+            if named_only and t not in named_set:
                 y_cols[t].append(float("nan"))
                 continue
             state = states[t]
@@ -430,9 +438,9 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
 used_learned = False
 n7 = nI = 0
 WEAK_STRATS = {{"weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5}}
-LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix"}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5}}
+LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix"}}
 if STRATEGY in WEAK_STRATS and train_series is not None:
     w7 = float(BLEND_W7[STRATEGY])
     lamI = float(INTERACT_LAM[STRATEGY])
@@ -486,9 +494,10 @@ if (STRATEGY in LEARNED or (STRATEGY in WEAK_STRATS and not used_learned)) and t
 if STRATEGY in MIX_TARGETS and used_learned and train_series is not None:
     # Keep frozen gold ranks for all 12; mix named-weak ranks onto MIX_TARGETS[STRATEGY] only.
     mix_set = MIX_TARGETS[STRATEGY]
+    named_for_mix = MIX_NAMED_SET.get(STRATEGY, NAMED_PARSER)
     gold_arr = out[targets].to_numpy(dtype=float)
-    scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True)
-    scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True)
+    scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix)
+    scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix)
     ranked_w = None
     if scores7w is not None and scoresIw is not None:
         ranked_w = 0.5 * rank_cols(scores7w) + 0.5 * rank_cols(scoresIw)
