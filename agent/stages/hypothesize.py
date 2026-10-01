@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_goldstd",
+            "hypothesis": "Keeping the accepted Baker's-only 50/50 mix but standardizing the named-weak head on the 58 gold feature moments will beat 0.519, because named-only (0.502) and Baker's+MM (0.517) both used the 4,407-row standardizer that shifts ranks away from gold_rank_w50 space.",
+            "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads (gold 0/1 + parser pos/neg on ACL / Baker's / MCL) but compute μ/σ from gold-row series features, not the 4,407 weak rows. Mix 0.50·gold + 0.50·named_weak on Baker's only. Leave the other 11 targets as gold_rank_w50. Never open test reports. Fallback to weak_rank_bakers_mix if n_weak<20.",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "expected_targets": ["Baker's"],
+        },
+        {
             "id": "H_weak_rank_bakers_mm_mix",
             "hypothesis": "Keeping the accepted 50/50 Baker's mix and also 50/50 mixing Medial Meniscus named-weak ranks will beat 0.519, because ACL mix was public-LB neutral (0.519 tie) while MCL poisoned the trio (0.514) — meniscus is the next named object that can recover.",
             "mechanism": "Fit gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Separately fit named-only weak heads with Medial Meniscus added to the parser set. Mix 0.50·gold + 0.50·named_weak on Baker's and Medial Meniscus only. Leave ACL, MCL, and the other 9 targets as gold_rank_w50. Never open test reports. Fallback to weak_rank_bakers_mix if n_weak<20.",
-            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix). Already falsified at 0.517 (56745095).",
             "expected_targets": ["Baker's", "Medial Meniscus"],
         },
         {
@@ -166,15 +173,16 @@ def run_hypothesize(
         "## Why this hypothesis now",
         "",
         "`weak_rank_bakers_mix` is the frozen public baseline at **0.519** (56600302).",
+        "`weak_rank_bakers_mm_mix` scored **0.517** (56745095) and is falsified.",
         "`weak_rank_bakers_acl_mix` scored **0.519** (56698950) and is a falsified tie.",
         "`weak_rank_bakers_w40` scored **0.519** (56664719) and is a falsified tie.",
         "`weak_rank_bakers_w60` scored **0.518** (56631726) and is falsified.",
         "Parser-only `weak_rank_calibrate` scored **0.499**. `weak_rank_goldfill` scored **0.504**.",
         "`weak_rank_confident` scored **0.511**. `weak_rank_named` scored **0.502**.",
         "`weak_rank_named_mix` scored **0.514**. gold_rank_w50 remains the prior floor at **0.518**.",
-        "ACL mix was public-LB neutral; MCL poisoned the named trio. The next testable",
-        "change is **`weak_rank_bakers_mm_mix`**: keep the accepted 50/50 Baker's mix and also",
-        "50/50 mix Medial Meniscus; leave ACL and MCL on gold. Visual MRI encoders stay out of scope.",
+        "Second-target mixes stalled: ACL tied, MM dropped to 0.517, MCL poisoned the trio.",
+        "The next testable change is **`weak_rank_bakers_goldstd`**: keep Baker's-only 50/50 and",
+        "standardize the named-weak head on gold μ/σ. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
