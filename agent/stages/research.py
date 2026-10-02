@@ -224,9 +224,14 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Keep as a documented failure. Second-target named mixes have stalled (ACL tie, MM drop, MCL poison).",
         },
         {
-            "name": "Baker's-only mix with gold-set weak-head standardizer",
-            "why": "named-only scored 0.502 after fitting through the 4,407-row standardizer. Baker's+MM (0.517) used that same shifted space. Aligning the Baker's weak head to gold μ/σ may mix more cleanly with gold_rank_w50.",
-            "how": "Keep gold_rank_w50 + Baker's-only 50/50 mix. When fitting named-weak heads, compute feature μ/σ on the 58 gold studies. Never open test reports.",
+            "name": "Baker's-only mix with gold-set weak-head standardizer — done, tied",
+            "why": "`weak_rank_bakers_goldstd` scored 0.519 (56767585): ties bakers_mix. Gold μ/σ on the named-weak head is public-LB neutral. Do not resubmit.",
+            "how": "Keep as a documented failure. Next lever is Baker's silence→neg (discussion 733932), not another standardizer.",
+        },
+        {
+            "name": "Baker's-only mix with unmentioned mapped to negative",
+            "why": "Discussion 733932: when Baker's is not mentioned, gold+ is 3% vs 44% when the report speaks. The accepted bakers_mix masks unmentioned cells. Treating Baker's silence as neg may add ranking signal without touching ACL/MCL.",
+            "how": "Keep gold_rank_w50 + Baker's-only 50/50 mix. On the named-weak head, map Baker's unmentioned → 0.12; keep ACL/MCL unmentioned masked. Never open test reports.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -332,8 +337,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_goldstd` (Baker's-only 50/50; gold μ/σ on the named-weak head). `weak_rank_bakers_mm_mix` scored 0.517 (56745095) and is falsified; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
-        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
+        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_silence` (Baker's-only 50/50; unmentioned Baker's → neg). `weak_rank_bakers_goldstd` scored 0.519 (56767585, tie); mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -352,7 +357,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified). The next executable lever is `weak_rank_bakers_goldstd`: keep Baker's-only 50/50 and standardize the named-weak head on gold feature moments — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.9 and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie). The next executable lever is `weak_rank_bakers_silence`: keep Baker's-only 50/50 and map unmentioned Baker's to neg (discussion 733932) — still no test reports.",
         "",
         "### arXiv query hits",
         "",
