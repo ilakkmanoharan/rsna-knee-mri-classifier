@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_silence",
-        "weak_rank_bakers_silence",
+        "weak_rank_bakers_dropfat",
+        "weak_rank_bakers_dropfat",
         "weak_rank_bakers_mix",
         "gold_rank_w50",
         "gold_meta_logit",
@@ -67,6 +67,19 @@ def run_plan(
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
             "",
         ]
+    elif strategy == "weak_rank_bakers_dropfat":
+        lines += [
+            "- Start from frozen `gold_rank_w50` ranks, then apply the accepted Baker's-only 50/50 mix.",
+            "- **Drop fat-suppression and plane×fat features.** Afshar grouped-CV notes Fluid_Sensitive ≡ Fat_Suppression on all 24,371 series, so fat is a duplicate on n=58.",
+            "- Fit a 6-d additive head (intercept, log1p(n), sag/cor/ax, fluid) at λ=2 and a 9-d interact head (plus sag/cor/ax × fluid) at λI=3.5; blend 0.50/0.50.",
+            "- Separately fit named-only weak heads on the same no-fat features (gold 0/1 + parser pos/neg on ACL / Baker's / MCL; unmentioned masked).",
+            "- **Mix only Baker's:** `0.50 * gold_rank + 0.50 * named_weak_rank`.",
+            "- Leave the other eleven targets as the no-fat gold ranks.",
+            "- Discover `train.csv` Report column only. **Never open test reports.**",
+            "- If n_gold < 20, fall back to weak_rank_bakers_mix (0.519).",
+            "- Do **not** resubmit `weak_rank_bakers_silence` (0.516, 56790917), `weak_rank_bakers_goldstd` (0.519 tie, 56767585), `weak_rank_bakers_mm_mix` (0.517, 56745095), `weak_rank_bakers_acl_mix` (0.519 tie, 56698950), `weak_rank_bakers_w40` (0.519 tie, 56664719), `weak_rank_bakers_w60` (0.518, 56631726), `weak_rank_bakers_mix` (0.519, 56600302), or earlier weak-label failures.",
+            "",
+        ]
     elif strategy == "weak_rank_bakers_silence":
         lines += [
             "- Start from frozen `gold_rank_w50` ranks, then apply the accepted Baker's-only 50/50 mix.",
@@ -75,8 +88,7 @@ def run_plan(
             "- **Mix only Baker's:** `0.50 * gold_rank + 0.50 * named_weak_rank`.",
             "- Leave the other eleven targets as pure gold_rank_w50 (including ACL, MCL, and both menisci).",
             "- Discover `train.csv` Report column only. **Never open test reports.**",
-            "- If n_weak < 20 or Report is missing, fall back to weak_rank_bakers_mix (0.519).",
-            "- Do **not** resubmit `weak_rank_bakers_goldstd` (0.519 tie, 56767585), `weak_rank_bakers_mm_mix` (0.517, 56745095), `weak_rank_bakers_acl_mix` (0.519 tie, 56698950), `weak_rank_bakers_w40` (0.519 tie, 56664719), `weak_rank_bakers_w60` (0.518, 56631726), `weak_rank_bakers_mix` (0.519, 56600302), or earlier weak-label failures.",
+            "- Already falsified at public 0.516 (submission 56790917); keep weak_rank_bakers_mix as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_goldstd":

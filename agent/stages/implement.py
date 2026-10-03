@@ -125,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -133,11 +133,15 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
         off += FAT_BOOST.get(t, 0.0) * (feats.get("fat", 0.0) - 0.5)
     return float(off)
 
-def feat_map(series_df, interact=False):
+def feat_map(series_df, interact=False, drop_fat=False):
     """Per-study vector: intercept, log1p(n), sag/cor/ax fractions, fluid frac, fat frac.
     If interact, also sag/cor/ax × fluid and sag/cor/ax × fat fractions (13-d).
+    drop_fat=True drops fat and plane×fat (Fluid_Sensitive ≡ Fat_Suppression): 6-d / 9-d.
     """
-    dim = 13 if interact else 7
+    if drop_fat:
+        dim = 9 if interact else 6
+    else:
+        dim = 13 if interact else 7
     empty = np.zeros(dim, dtype=float)
     empty[0] = 1.0
     if series_df is None or series_df.empty:
@@ -180,17 +184,21 @@ def feat_map(series_df, interact=False):
             float(row["cor"] / n),
             float(row["ax"] / n),
             float(row["fluid"] / n),
-            float(row["fat"] / n),
         ]
+        if not drop_fat:
+            vec.append(float(row["fat"] / n))
         if interact:
             vec += [
                 float(row["sag_fl"] / n),
                 float(row["cor_fl"] / n),
                 float(row["ax_fl"] / n),
-                float(row["sag_ft"] / n),
-                float(row["cor_ft"] / n),
-                float(row["ax_ft"] / n),
             ]
+            if not drop_fat:
+                vec += [
+                    float(row["sag_ft"] / n),
+                    float(row["cor_ft"] / n),
+                    float(row["ax_ft"] / n),
+                ]
         out[str(sid)] = np.array(vec, dtype=float)
     return out, empty
 
@@ -241,12 +249,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -261,8 +269,9 @@ def learned_scores(interact=False, lam=2.0):
     """Ridge logits on gold studies. Returns (scores, n_gold) or (None, n)."""
     if train_series is None:
         return None, 0
-    tr_map, default_x = feat_map(train_series, interact=interact)
-    te_map, _ = feat_map(test_series, interact=interact)
+    drop_fat = STRATEGY == "weak_rank_bakers_dropfat"
+    tr_map, default_x = feat_map(train_series, interact=interact, drop_fat=drop_fat)
+    te_map, _ = feat_map(test_series, interact=interact, drop_fat=drop_fat)
     gold = train.copy()
     gold[study_col] = gold[study_col].astype(str)
     labeled = gold.dropna(subset=[t for t in targets if t in gold.columns], how="all")
@@ -361,6 +370,7 @@ MIX_TARGETS = {{
     "weak_rank_bakers_mm_mix": BAKERS_MM,
     "weak_rank_bakers_goldstd": BAKERS_ONLY,
     "weak_rank_bakers_silence": BAKERS_ONLY,
+    "weak_rank_bakers_dropfat": BAKERS_ONLY,
 }}
 MIX_GOLD_W = {{
     "weak_rank_named_mix": 0.50,
@@ -371,6 +381,7 @@ MIX_GOLD_W = {{
     "weak_rank_bakers_mm_mix": 0.50,
     "weak_rank_bakers_goldstd": 0.50,
     "weak_rank_bakers_silence": 0.50,
+    "weak_rank_bakers_dropfat": 0.50,
 }}
 MIX_NAMED_SET = {{
     "weak_rank_bakers_mm_mix": NAMED_PLUS_MM,
@@ -386,8 +397,9 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
     """
     if train_series is None or "Report" not in train.columns:
         return None, 0
-    tr_map, default_x = feat_map(train_series, interact=interact)
-    te_map, _ = feat_map(test_series, interact=interact)
+    drop_fat = STRATEGY == "weak_rank_bakers_dropfat"
+    tr_map, default_x = feat_map(train_series, interact=interact, drop_fat=drop_fat)
+    te_map, _ = feat_map(test_series, interact=interact, drop_fat=drop_fat)
     X_rows, y_cols = [], {{t: [] for t in targets}}
     for _, row in train.iterrows():
         sid = str(row[study_col])
@@ -476,9 +488,9 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
 used_learned = False
 n7 = nI = 0
 WEAK_STRATS = {{"weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50, "weak_rank_bakers_goldstd": 0.50, "weak_rank_bakers_silence": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5, "weak_rank_bakers_goldstd": 3.5, "weak_rank_bakers_silence": 3.5}}
-LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence"}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50, "weak_rank_bakers_goldstd": 0.50, "weak_rank_bakers_silence": 0.50, "weak_rank_bakers_dropfat": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5, "weak_rank_bakers_goldstd": 3.5, "weak_rank_bakers_silence": 3.5, "weak_rank_bakers_dropfat": 3.5}}
+LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}
 if STRATEGY in WEAK_STRATS and train_series is not None:
     w7 = float(BLEND_W7[STRATEGY])
     lamI = float(INTERACT_LAM[STRATEGY])

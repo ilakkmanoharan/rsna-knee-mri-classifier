@@ -229,9 +229,14 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Keep as a documented failure. Next lever is Baker's silence→neg (discussion 733932), not another standardizer.",
         },
         {
-            "name": "Baker's-only mix with unmentioned mapped to negative",
-            "why": "Discussion 733932: when Baker's is not mentioned, gold+ is 3% vs 44% when the report speaks. The accepted bakers_mix masks unmentioned cells. Treating Baker's silence as neg may add ranking signal without touching ACL/MCL.",
-            "how": "Keep gold_rank_w50 + Baker's-only 50/50 mix. On the named-weak head, map Baker's unmentioned → 0.12; keep ACL/MCL unmentioned masked. Never open test reports.",
+            "name": "Baker's-only mix with unmentioned mapped to negative — done, falsified",
+            "why": "`weak_rank_bakers_silence` scored 0.516 (56790917): −0.003 vs bakers_mix 0.519. Mapping Baker's unmentioned → neg poisoned the accepted mix. Discussion 734117 was right: empty extractions stay unlabeled. Do not resubmit.",
+            "how": "Keep as a documented failure. Parser Baker's ablations have stalled. Next lever is dropping collinear fat features, not another parser remap.",
+        },
+        {
+            "name": "Baker's-only mix with fat / plane×fat dropped from gold heads",
+            "why": "Afshar grouped-CV dataset: Fluid_Sensitive ≡ Fat_Suppression on all 24,371 series. The 7-d/13-d heads treat them as independent, so fat and plane×fat are exact duplicates on n=58 and inflate variance. Silence already poisoned the parser path (0.516).",
+            "how": "Keep gold ranks + Baker's-only 50/50 mix. Fit 6-d (no fat) + 9-d plane×fluid only. Never open test reports.",
         },
         {
             "name": "Public LLM report labels as a later weak-head (not this cycle)",
@@ -342,8 +347,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_silence` (Baker's-only 50/50; unmentioned Baker's → neg). `weak_rank_bakers_goldstd` scored 0.519 (56767585, tie); mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
-        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
+        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_dropfat` (Baker's-only 50/50; drop fat / plane×fat). `weak_rank_bakers_silence` scored 0.516 (56790917, poison); goldstd 0.519 tie; mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_silence (0.516), weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -365,7 +370,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.93 (public LB ~0.932 on 2026-10-03) and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie). The next executable lever is `weak_rank_bakers_silence`: keep Baker's-only 50/50 and map unmentioned Baker's to neg (discussion 733932) — still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.93 (public LB ~0.932 on 2026-10-03) and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie) → 0.516 (bakers_silence, poison). The next executable lever is `weak_rank_bakers_dropfat`: keep Baker's-only 50/50 and drop fat / plane×fat (Fluid_Sensitive ≡ Fat_Suppression) — still no test reports.",
         "",
         "### arXiv query hits",
         "",
