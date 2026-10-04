@@ -125,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -249,12 +249,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -371,6 +371,7 @@ MIX_TARGETS = {{
     "weak_rank_bakers_goldstd": BAKERS_ONLY,
     "weak_rank_bakers_silence": BAKERS_ONLY,
     "weak_rank_bakers_dropfat": BAKERS_ONLY,
+    "weak_rank_bakers_llm": BAKERS_ONLY,
 }}
 MIX_GOLD_W = {{
     "weak_rank_named_mix": 0.50,
@@ -382,6 +383,7 @@ MIX_GOLD_W = {{
     "weak_rank_bakers_goldstd": 0.50,
     "weak_rank_bakers_silence": 0.50,
     "weak_rank_bakers_dropfat": 0.50,
+    "weak_rank_bakers_llm": 0.50,
 }}
 MIX_NAMED_SET = {{
     "weak_rank_bakers_mm_mix": NAMED_PLUS_MM,
@@ -485,12 +487,94 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
         scores[:, j] = Xte @ w
     return scores, n_weak
 
+def discover_llm_labels():
+    """Find llm_labels_v4_blend.csv without walking DICOM trees."""
+    names = ("llm_labels_v4_blend.csv",)
+    roots = []
+    if inp.exists():
+        roots.append(inp)
+    roots.append(ROOT)
+    parent = ROOT.parent
+    if parent != ROOT:
+        roots.append(parent)
+    seen = set()
+    for base in roots:
+        try:
+            key = str(base.resolve())
+        except OSError:
+            key = str(base)
+        if key in seen or not base.exists() or not base.is_dir():
+            continue
+        seen.add(key)
+        for child in [base, *list(base.iterdir())]:
+            if child.is_file() and child.name in names:
+                return child
+            if child.is_dir():
+                cand = child / "llm_labels_v4_blend.csv"
+                if cand.exists():
+                    return cand
+    return None
+
+def learned_scores_llm(interact=False, lam=2.0, target_name="Baker's"):
+    """Ridge logits on public train-only LLM Baker's labels. Never use test UIDs."""
+    if train_series is None:
+        return None, 0
+    llm_path = discover_llm_labels()
+    if llm_path is None:
+        print(STRATEGY, "llm csv not found")
+        return None, 0
+    llm = pd.read_csv(llm_path)
+    if study_col not in llm.columns or target_name not in llm.columns:
+        print(STRATEGY, "llm csv missing columns", list(llm.columns)[:8])
+        return None, 0
+    test_uids = set(uids)
+    llm[study_col] = llm[study_col].astype(str)
+    llm = llm[~llm[study_col].isin(test_uids)]
+    tr_map, default_x = feat_map(train_series, interact=interact, drop_fat=False)
+    te_map, _ = feat_map(test_series, interact=interact, drop_fat=False)
+    X_rows, y_rows = [], []
+    for _, row in llm.iterrows():
+        sid = str(row[study_col])
+        x = tr_map.get(sid)
+        if x is None:
+            continue
+        try:
+            yv = float(row[target_name])
+        except (TypeError, ValueError):
+            continue
+        if not np.isfinite(yv):
+            continue
+        X_rows.append(x)
+        y_rows.append(float(np.clip(yv, EPS, 1 - EPS)))
+    n_llm = len(X_rows)
+    if n_llm < 20:
+        return None, n_llm
+    X = np.vstack(X_rows)
+    y = np.array(y_rows, dtype=float)
+    mu = X.mean(axis=0)
+    sd = np.clip(X.std(axis=0), 1e-6, None)
+    mu[0], sd[0] = 0.0, 1.0
+    Xs = (X - mu) / sd
+    Xte = np.vstack([(te_map.get(uid, default_x) - mu) / sd for uid in uids])
+    scores = np.zeros((len(uids), len(targets)), dtype=float)
+    for j, t in enumerate(targets):
+        if t != target_name:
+            scores[:, j] = logit(prev[t])
+            continue
+        if y.min() == y.max():
+            scores[:, j] = logit(prev[t])
+            continue
+        w = fit_ridge_logit(Xs, y, lam=lam, steps=40)
+        scores[:, j] = Xte @ w
+    print(STRATEGY, "llm", target_name, "n", n_llm, "path", llm_path.name)
+    return scores, n_llm
+
 used_learned = False
 n7 = nI = 0
 WEAK_STRATS = {{"weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50, "weak_rank_bakers_goldstd": 0.50, "weak_rank_bakers_silence": 0.50, "weak_rank_bakers_dropfat": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5, "weak_rank_bakers_goldstd": 3.5, "weak_rank_bakers_silence": 3.5, "weak_rank_bakers_dropfat": 3.5}}
-LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat"}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50, "weak_rank_bakers_goldstd": 0.50, "weak_rank_bakers_silence": 0.50, "weak_rank_bakers_dropfat": 0.50, "weak_rank_bakers_llm": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5, "weak_rank_bakers_goldstd": 3.5, "weak_rank_bakers_silence": 3.5, "weak_rank_bakers_dropfat": 3.5, "weak_rank_bakers_llm": 3.5}}
+LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm"}}
 if STRATEGY in WEAK_STRATS and train_series is not None:
     w7 = float(BLEND_W7[STRATEGY])
     lamI = float(INTERACT_LAM[STRATEGY])
@@ -548,8 +632,12 @@ if STRATEGY in MIX_TARGETS and used_learned and train_series is not None:
     std_gold = STRATEGY == "weak_rank_bakers_goldstd"
     silence_neg = {{"Baker's"}} if STRATEGY == "weak_rank_bakers_silence" else None
     gold_arr = out[targets].to_numpy(dtype=float)
-    scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix, std_on_gold=std_gold, silence_neg_targets=silence_neg)
-    scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix, std_on_gold=std_gold, silence_neg_targets=silence_neg)
+    if STRATEGY == "weak_rank_bakers_llm":
+        scores7w, n7w = learned_scores_llm(False, 2.0)
+        scoresIw, nIw = learned_scores_llm(True, 3.5)
+    else:
+        scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix, std_on_gold=std_gold, silence_neg_targets=silence_neg)
+        scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix, std_on_gold=std_gold, silence_neg_targets=silence_neg)
     ranked_w = None
     if scores7w is not None and scoresIw is not None:
         ranked_w = 0.5 * rank_cols(scores7w) + 0.5 * rank_cols(scoresIw)
@@ -606,7 +694,11 @@ def implement_notebook(kernel_dir: Path, strategy: str, cycle_id: str, kernel_sl
         "enable_gpu": False,
         "enable_tpu": False,
         "enable_internet": False,
-        "dataset_sources": [],
+        "dataset_sources": (
+            ["stevenleehans/rsna-knee-llm-report-labels"]
+            if strategy == "weak_rank_bakers_llm"
+            else []
+        ),
         "competition_sources": ["rsna-knee-abnormality-detection"],
         "kernel_sources": [],
         "model_sources": [],

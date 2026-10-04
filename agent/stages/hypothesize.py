@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_llm",
+            "hypothesis": "Keeping the accepted Baker's-only 50/50 mix but replacing the keyword-parser weak head with stevenleehans llm_labels_v4_blend Baker's labels will beat 0.519, because the public LLM key scores 0.8927 vs gold while our regex parser is 0.8136 and parser Baker's remaps have stalled.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Discover llm_labels_v4_blend.csv under /kaggle/input without walking DICOM trees. Fit 7-d/13-d ridge heads on train-only LLM Baker's soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Baker's only. Leave the other 11 targets as gold_rank_w50. Fallback to weak_rank_bakers_mix if n_llm<20.",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "expected_targets": ["Baker's"],
+        },
+        {
             "id": "H_weak_rank_bakers_dropfat",
             "hypothesis": "Keeping the accepted Baker's-only 50/50 mix but dropping fat-suppression and plane×fat features will beat 0.519, because Fluid_Sensitive ≡ Fat_Suppression on every train series so those columns are duplicates that inflate the 7-d/13-d gold heads on n=58.",
             "mechanism": "Fit gold ranks with a 6-d additive head (intercept, log1p(n), sag/cor/ax, fluid; no fat) and a 9-d interact head (those plus sag/cor/ax × fluid; no plane×fat), λ=2 / λI=3.5, 0.50/0.50, standardize on the 58 gold studies. Keep the accepted Baker's-only 50/50 named-weak mix (unmentioned masked). Leave the other 11 targets as the no-fat gold ranks. Never open test reports. Fallback to weak_rank_bakers_mix if n_gold<20.",
-            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix). Already falsified at 0.519 tie (56815942).",
             "expected_targets": ["Baker's", "Effusion", "Synovitis", "ACL"],
         },
         {
@@ -187,6 +194,7 @@ def run_hypothesize(
         "## Why this hypothesis now",
         "",
         "`weak_rank_bakers_mix` is the frozen public baseline at **0.519** (56600302).",
+        "`weak_rank_bakers_dropfat` scored **0.519** (56815942) and is a falsified tie.",
         "`weak_rank_bakers_silence` scored **0.516** (56790917) and is falsified (poison).",
         "`weak_rank_bakers_goldstd` scored **0.519** (56767585) and is a falsified tie.",
         "`weak_rank_bakers_mm_mix` scored **0.517** (56745095) and is falsified.",
@@ -196,9 +204,9 @@ def run_hypothesize(
         "Parser-only `weak_rank_calibrate` scored **0.499**. `weak_rank_goldfill` scored **0.504**.",
         "`weak_rank_confident` scored **0.511**. `weak_rank_named` scored **0.502**.",
         "`weak_rank_named_mix` scored **0.514**. gold_rank_w50 remains the prior floor at **0.518**.",
-        "Parser Baker's ablations stalled (silence poisoned). Fluid_Sensitive ≡ Fat_Suppression.",
-        "The next testable change is **`weak_rank_bakers_dropfat`**: keep Baker's-only 50/50 and",
-        "drop fat / plane×fat from the gold heads. Visual MRI encoders stay out of scope.",
+        "Parser Baker's ablations stalled; dropfat tied because fat ≡ fluid. The next testable",
+        "change is **`weak_rank_bakers_llm`**: keep Baker's-only 50/50 and replace the keyword",
+        "weak head with stevenleehans llm_labels_v4_blend. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",

@@ -14,22 +14,22 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_dropfat(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_dropfat" in md.read_text()
+    assert "weak_rank_bakers_llm" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_dropfat"
+    assert sidecar["strategy"] == "weak_rank_bakers_llm"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_dropfat(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_dropfat"
-    assert "fat" in md.read_text().lower()
+    assert sidecar["strategy"] == "weak_rank_bakers_llm"
+    assert "llm" in md.read_text().lower()
 
 
 def test_cycle2_plan_keeps_weak_rank_bakers_mix_fallback(tmp_path):
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_dropfat(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,11 +287,11 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_dropfat(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_dropfat" in text
+    assert "H_weak_rank_bakers_llm" in text
     assert "0.519" in text
     assert "weak_rank_bakers_mix" in text
-    assert "dropfat" in text
-    assert "56790917" in text
+    assert "llm" in text.lower()
+    assert "56815942" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -582,3 +582,50 @@ def test_weak_rank_bakers_dropfat_notebook_and_synthetic_acl(tmp_path):
     any_uid = next(iter(default7))
     assert default7[any_uid].shape[0] == 6
     assert default13[any_uid].shape[0] == 9
+
+
+def test_weak_rank_bakers_llm_notebook_and_synthetic_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_llm", "weak_rank_bakers_llm", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_llm'" in src
+    assert "discover_llm_labels" in src
+    assert "learned_scores_llm" in src
+    assert "llm_labels_v4_blend.csv" in src
+    assert "enable_internet" not in src
+    meta = json.loads((tmp_path / "nb_llm" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work = tmp_path / "work"
+    work.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    sag = series.groupby(STUDY_ID_COL)["Anatomical_Plane"].apply(lambda s: (s == "Sagittal").mean())
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["Baker's"] = sag.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+
+    src = _source_for_strategy("weak_rank_bakers_llm", "00_test")
+    src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+    src = src.replace(
+        'path = Path("/kaggle/working/submission.csv")',
+        f"path = Path({str(work / 'submission.csv')!r})",
+    )
+    ns: dict = {}
+    exec(compile(src, "weak_rank_bakers_llm_nb.py", "exec"), ns, ns)
+    out = pd.read_csv(work / "submission.csv")
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["MIX_GOLD_W"]["weak_rank_bakers_llm"] == 0.50
+    assert ns["MIX_TARGETS"]["weak_rank_bakers_llm"] == {"Baker's"}
+    assert "Medial Meniscus" not in ns["MIX_TARGETS"]["weak_rank_bakers_llm"]
+    assert "ACL" not in ns["MIX_TARGETS"]["weak_rank_bakers_llm"]
