@@ -1,0 +1,141 @@
+{
+  "audit": {
+    "generated_at": "2026-10-05T02:40:16.114206-05:00",
+    "day_id": "2026-10-05",
+    "day_start": "2026-10-05T01:00:00-05:00",
+    "competition": "rsna-knee-abnormality-detection",
+    "pace": {
+      "quota": 5,
+      "used": null,
+      "expected_by_now": 2,
+      "deficit": 2,
+      "quota_left": 5,
+      "behind": true,
+      "min_interval_minutes": 30.0,
+      "max_interval_minutes": 60.0,
+      "grace_minutes": 20.0,
+      "next_gap_minutes": 30.0,
+      "deadline": "2026-10-05T05:00:00-05:00",
+      "minutes_to_deadline": 139.7,
+      "quota_at_risk": true
+    },
+    "stages": {
+      "research": {
+        "folders": [
+          "Research"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0
+        ],
+        "count_today": 1,
+        "latest": {
+          "cycle": 0,
+          "path": "Research/2026-10-05_cycle00_20261005T011906-0500_research.md",
+          "chars": 25663,
+          "papers_retrieved": 12,
+          "issues": [],
+          "excerpt": "# Research write-up \u2014 competition day 2026-10-05, cycle 00_20261005T011906-0500\n\n_Generated 2026-10-05 06:19 UTC by agent1._\n\n## Goal\n\nImprove macro ROC-AUC on RSNA Knee Abnormality Detection (12 independent study-level targets) beyond the frozen gold_rank_w50 public score (0.518).\n\n## Methods to consider\n\n### 1. Plane-aware multi-series aggregation\n\n**Why it should help:** Sagittal/coronal/axial emphasize different structures (ACL sagittal, MCL coronal, PF OA axial). Pooling all series together dilutes plane-specific signal and hurts macro AUC equally across 12 targets.\n\n**How to apply:** Encode slices \u2192 series emb \u2192 fixed plane slots + availability mask; never treat missing plane as clinical negative.\n\n### 2. Weak supervision from multilingual reports\n\n**Why it should help:** Only ~58 gold labels vs thousands of reports. Ignoring reports leaves ranking models undertrained; hard pseudo-"
+        },
+        "quality_issues": [],
+        "min_chars": 1200
+      },
+      "analysis": {
+        "folders": [
+          "Analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0
+        ],
+        "count_today": 1,
+        "latest": {
+          "cycle": 0,
+          "path": "Analysis/2026-10-05_cycle00_20261005T011906-0500_analysis.md",
+          "chars": 8933,
+          "papers_retrieved": null,
+          "issues": [],
+          "excerpt": "# Submission analysis \u2014 competition day 2026-10-05, cycle 00_20261005T011906-0500\n\n_Generated 2026-10-05 06:19 UTC by agent1._\n\nCompetition: `rsna-knee-abnormality-detection`\n\n## Submission log (newest first)\n\n| date | status | publicScore | description |\n|---|---|---|---|\n| 2026-10-04 22:21:56.183000 | SubmissionStatus.COMPLETE | 0.505 | agent1 2026-10-04 cycle 3 strategy=fluid_gate_metadata | 2026-10-04_cycle03_2026 |\n| 2026-10-04 20:32:17.770000 | SubmissionStatus.COMPLETE | 0.504 | agent1 2026-10-04 cycle 2 strategy=metadata_prior_blend | 2026-10-04_cycle02_202 |\n| 2026-10-04 19:05:01.190000 | SubmissionStatus.COMPLETE | 0.504 | agent1 2026-10-04 cycle 1 strategy=report_shrinkage_priors | 2026-10-04_cycle01_ |\n| 2026-10-04 18:02:55.477000 | SubmissionStatus.COMPLETE | 0.514 | agent1 2026-10-04 cycle 0 strategy=gold_meta_logit | 2026-10-04_cycle00_20261004 |\n| 2026-10-04 06:15:13.0630"
+        },
+        "quality_issues": [],
+        "min_chars": 700
+      },
+      "hypothesis": {
+        "folders": [
+          "Hypothesis",
+          "Hypothesis analysis"
+        ],
+        "folder_exists": true,
+        "cycles_with_artifact": [
+          0
+        ],
+        "count_today": 1,
+        "latest": {
+          "cycle": 0,
+          "path": "Hypothesis/2026-10-05_cycle00_20261005T011906-0500_hypotheses.md",
+          "chars": 9074,
+          "papers_retrieved": null,
+          "issues": [],
+          "excerpt": "# Hypothesis analysis \u2014 competition day 2026-10-05, cycle 00_20261005T011906-0500\n\n_Generated 2026-10-05 06:19 UTC by agent1._\n\nInputs: `2026-10-05_cycle00_20261005T011906-0500_research.md`, `2026-10-05_cycle00_20261005T011906-0500_analysis.md`\n\n## Why this hypothesis now\n\n`weak_rank_bakers_mix` is the frozen public baseline at **0.519** (56600302).\n`weak_rank_bakers_dropfat` scored **0.519** (56815942) and is a falsified tie.\n`weak_rank_bakers_silence` scored **0.516** (56790917) and is falsified (poison).\n`weak_rank_bakers_goldstd` scored **0.519** (56767585) and is a falsified tie.\n`weak_rank_bakers_mm_mix` scored **0.517** (56745095) and is falsified.\n`weak_rank_bakers_acl_mix` scored **0.519** (56698950) and is a falsified tie.\n`weak_rank_bakers_w40` scored **0.519** (56664719) and is a falsified tie.\n`weak_rank_bakers_w60` scored **0.518** (56631726) and is falsified.\nParser-only `"
+        },
+        "quality_issues": [],
+        "min_chars": 500
+      }
+    },
+    "cycles_with_full_pipeline": [
+      0
+    ],
+    "kaggle": {
+      "available": false,
+      "error": "RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n",
+      "count_today": null,
+      "rows": []
+    },
+    "github_actions": {
+      "workflow_file": "agent1-cloud.yml",
+      "token_present": true,
+      "can_dispatch": false,
+      "runs_today": [],
+      "failed_today": [],
+      "in_progress": []
+    },
+    "deficits": {
+      "artifact_deficit": 1,
+      "submission_deficit": 0,
+      "quota_left": 5
+    },
+    "violations": [
+      "Research/ has 1 write-up(s) for day 2026-10-05 but 2 were due by now",
+      "Analysis/ has 1 write-up(s) for day 2026-10-05 but 2 were due by now",
+      "Hypothesis/ has 1 write-up(s) for day 2026-10-05 but 2 were due by now",
+      "Quota at risk: 5 submission(s) left but only 140 min until 2026-10-05T05:00:00-05:00 at a 30-min floor"
+    ],
+    "remediation_needed": true
+  },
+  "verdict": {
+    "verdict": "degraded",
+    "source": "rules",
+    "violations": [
+      "Research/ has 1 write-up(s) for day 2026-10-05 but 2 were due by now",
+      "Analysis/ has 1 write-up(s) for day 2026-10-05 but 2 were due by now",
+      "Hypothesis/ has 1 write-up(s) for day 2026-10-05 but 2 were due by now",
+      "Quota at risk: 5 submission(s) left but only 140 min until 2026-10-05T05:00:00-05:00 at a 30-min floor"
+    ],
+    "recommended_actions": [
+      "Re-run the agent cycle to fill the missing slot"
+    ],
+    "rerun_cycle": true,
+    "questions_for_human": [
+      "Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.",
+      "I cannot read Kaggle submission history (RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions\n). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.",
+      "XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision."
+    ],
+    "confidence": 0.5
+  },
+  "actions": [
+    "cannot dispatch agent1-cloud.yml without an AGENT1_GH_PAT secret; falling back to inline remediation",
+    "requested inline remediation (supervisor workflow runs the cycle itself)",
+    "opened issue #23 with 3 question(s)",
+    "emailed ilakkmanoharan@gmail.com (sent=False)"
+  ]
+}
