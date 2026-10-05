@@ -629,3 +629,60 @@ def test_weak_rank_bakers_llm_notebook_and_synthetic_acl(tmp_path):
     assert ns["MIX_TARGETS"]["weak_rank_bakers_llm"] == {"Baker's"}
     assert "Medial Meniscus" not in ns["MIX_TARGETS"]["weak_rank_bakers_llm"]
     assert "ACL" not in ns["MIX_TARGETS"]["weak_rank_bakers_llm"]
+
+
+def test_weak_rank_bakers_llm_finds_kaggle_datasets_layout(tmp_path):
+    """2026-10-05 kernel missed /kaggle/input/datasets/<owner>/<slug>/csv (n7w=0)."""
+    data = tmp_path / "input"
+    work = tmp_path / "work"
+    work.mkdir()
+    _write_synth(data)
+    nested = data / "datasets" / "stevenleehans" / "rsna-knee-llm-report-labels"
+    nested.mkdir(parents=True)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    sag = series.groupby(STUDY_ID_COL)["Anatomical_Plane"].apply(lambda s: (s == "Sagittal").mean())
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["Baker's"] = sag.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm.to_csv(nested / "llm_labels_v4_blend.csv", index=False)
+
+    src = _source_for_strategy("weak_rank_bakers_llm", "00_test")
+    src = src.replace('inp = Path("/kaggle/input")', f"inp = Path({str(data)!r})")
+    src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+    src = src.replace(
+        'path = Path("/kaggle/working/submission.csv")',
+        f"path = Path({str(work / 'submission.csv')!r})",
+    )
+    ns: dict = {}
+    exec(compile(src, "weak_rank_bakers_llm_nested.py", "exec"), ns, ns)
+    found = ns["discover_llm_labels"]()
+    assert found is not None
+    assert found.name == "llm_labels_v4_blend.csv"
+    out = pd.read_csv(work / "submission.csv")
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert ns["used_learned"] is True
+
+
+def test_weak_rank_bakers_llm_missing_csv_falls_back_to_parser_mix(tmp_path):
+    data = tmp_path / "input"
+    work = tmp_path / "work"
+    work.mkdir()
+    _write_synth(data)
+    src = _source_for_strategy("weak_rank_bakers_llm", "00_test")
+    src = src.replace('inp = Path("/kaggle/input")', f"inp = Path({str(data)!r})")
+    src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+    src = src.replace(
+        'path = Path("/kaggle/working/submission.csv")',
+        f"path = Path({str(work / 'submission.csv')!r})",
+    )
+    ns: dict = {}
+    exec(compile(src, "weak_rank_bakers_llm_fallback.py", "exec"), ns, ns)
+    assert ns["discover_llm_labels"]() is None
+    out = pd.read_csv(work / "submission.csv")
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    assert ns["used_learned"] is True

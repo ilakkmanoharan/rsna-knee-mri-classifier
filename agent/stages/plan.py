@@ -72,7 +72,7 @@ def run_plan(
             "- Start from frozen `gold_rank_w50` ranks (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, fat features kept).",
             "- **Replace the keyword-parser Baker's weak head with stevenleehans `llm_labels_v4_blend`.**",
             "- Attach dataset_source `stevenleehans/rsna-knee-llm-report-labels`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` under `/kaggle/input` one/two levels only — do **not** rglob DICOM trees.",
+            "- Discover `llm_labels_v4_blend.csv` with a depth-6 BFS under `/kaggle/input` and `/kaggle/input/datasets/<owner>/<slug>` — skip image/DICOM dirs; do **not** rglob DICOM trees. The 2026-10-05 kernel missed the new datasets/ mount and scored gold_rank_w50 0.518 (56844594).",
             "- Fit 7-d/13-d ridge heads on train-only LLM Baker's soft labels. Drop any test UID.",
             "- **Mix only Baker's:** `0.50 * gold_rank + 0.50 * llm_weak_rank`.",
             "- Leave the other eleven targets as frozen gold_rank_w50.",

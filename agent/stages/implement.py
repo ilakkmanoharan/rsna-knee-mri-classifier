@@ -488,8 +488,17 @@ def learned_scores_weak(interact=False, lam=2.0, prefer_gold=False, confident_on
     return scores, n_weak
 
 def discover_llm_labels():
-    """Find llm_labels_v4_blend.csv without walking DICOM trees."""
-    names = ("llm_labels_v4_blend.csv",)
+    """Find llm_labels_v4_blend.csv without walking DICOM trees.
+
+    Kaggle now mounts extra datasets under /kaggle/input/datasets/<owner>/<slug>/,
+    which is deeper than one/two levels from /kaggle/input. BFS a few levels and
+    skip image/DICOM folders (no rglob of competition trees).
+    """
+    names = {{"llm_labels_v4_blend.csv"}}
+    skip_dirs = {{
+        "train", "test", "train_images", "test_images", "images",
+        "dicom", "dcms", "series",
+    }}
     roots = []
     if inp.exists():
         roots.append(inp)
@@ -498,21 +507,33 @@ def discover_llm_labels():
     if parent != ROOT:
         roots.append(parent)
     seen = set()
-    for base in roots:
+    queue = [(r, 0) for r in roots if r.exists() and r.is_dir()]
+    while queue:
+        base, depth = queue.pop(0)
         try:
             key = str(base.resolve())
         except OSError:
             key = str(base)
-        if key in seen or not base.exists() or not base.is_dir():
+        if key in seen:
             continue
         seen.add(key)
-        for child in [base, *list(base.iterdir())]:
+        try:
+            children = list(base.iterdir())
+        except OSError:
+            continue
+        has_sample = any(c.is_file() and c.name == "sample_submission.csv" for c in children)
+        for child in children:
             if child.is_file() and child.name in names:
                 return child
-            if child.is_dir():
-                cand = child / "llm_labels_v4_blend.csv"
-                if cand.exists():
-                    return cand
+            if not child.is_dir() or depth >= 6:
+                continue
+            cname = child.name.lower()
+            if cname in skip_dirs:
+                continue
+            if has_sample and cname in {{"train", "test", "train_images", "test_images"}}:
+                continue
+            queue.append((child, depth + 1))
+    print(STRATEGY, "llm search visited", len(seen), "dirs; csv missing")
     return None
 
 def learned_scores_llm(interact=False, lam=2.0, target_name="Baker's"):
@@ -635,6 +656,12 @@ if STRATEGY in MIX_TARGETS and used_learned and train_series is not None:
     if STRATEGY == "weak_rank_bakers_llm":
         scores7w, n7w = learned_scores_llm(False, 2.0)
         scoresIw, nIw = learned_scores_llm(True, 3.5)
+        if scores7w is None:
+            # 2026-10-05 kernel missed /kaggle/input/datasets/... and fell back to gold_rank_w50 (0.518).
+            # Plan says missing CSV → parser Baker's mix (0.519), not the prior gold-only ranks.
+            print(STRATEGY, "LLM missing; falling back to parser Baker's mix")
+            scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True, named_targets=NAMED_PARSER)
+            scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True, named_targets=NAMED_PARSER)
     else:
         scores7w, n7w = learned_scores_weak(False, 2.0, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix, std_on_gold=std_gold, silence_neg_targets=silence_neg)
         scoresIw, nIw = learned_scores_weak(True, 3.5, prefer_gold=True, confident_only=True, named_only=True, named_targets=named_for_mix, std_on_gold=std_gold, silence_neg_targets=silence_neg)
