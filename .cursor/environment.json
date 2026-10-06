@@ -1,0 +1,4 @@
+{
+  "name": "RSNA Knee MRI Classifier",
+  "install": "bash .cursor/install.sh"
+}
