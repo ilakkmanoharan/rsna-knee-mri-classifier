@@ -241,7 +241,7 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Public LLM Baker's-only mix on frozen gold ranks",
             "why": "stevenleehans llm_labels_v4_blend scores 0.8927 vs the 58 gold studies (Baker's AUC 0.9457); hybrid v4+Fracture reaches 0.8991. Regex/lexicon extraction is only 0.8136. Newer public keys exist (yunusgmsoy 4-source merged macro 0.8798; Qwen2.5-32B v2 macro 0.8686) but stevenleehans still wins Baker's. Parser remaps stalled (silence 0.516, dropfat 0.519 tie).",
-            "how": "Keep frozen gold_rank_w50 + Baker's-only 50/50 mix. Discover llm_labels_v4_blend.csv under /kaggle/input (no DICOM rglob). Fit 7-d/13-d heads on train-only LLM Baker's; never open test reports. Attach stevenleehans/rsna-knee-llm-report-labels as an offline dataset_source; internet stays disabled. After this scores, consider merging a second Baker's key only if public > 0.519.",
+            "how": "Keep frozen gold_rank_w50 + Baker's-only 50/50 mix. Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets/<owner>/<slug> mounts plus depth-6 BFS (skip DICOM/image dirs; no rglob). The 2026-10-05 kernel missed the datasets/ mount (56844594, 0.518 gold_rank_w50). Fit 7-d/13-d heads on train-only LLM Baker's; never open test reports. Attach stevenleehans/rsna-knee-llm-report-labels as an offline dataset_source; internet stays disabled. After this scores, consider merging a second Baker's key only if public > 0.519.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",

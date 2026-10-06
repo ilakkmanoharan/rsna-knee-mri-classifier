@@ -591,6 +591,8 @@ def test_weak_rank_bakers_llm_notebook_and_synthetic_acl(tmp_path):
     assert "discover_llm_labels" in src
     assert "learned_scores_llm" in src
     assert "llm_labels_v4_blend.csv" in src
+    assert "datasets" in src and "stevenleehans" in src
+    assert "llm csv explicit" in src
     assert "enable_internet" not in src
     meta = json.loads((tmp_path / "nb_llm" / "kernel-metadata.json").read_text())
     assert meta["enable_internet"] is False

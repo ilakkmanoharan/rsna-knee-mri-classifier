@@ -491,14 +491,30 @@ def discover_llm_labels():
     """Find llm_labels_v4_blend.csv without walking DICOM trees.
 
     Kaggle now mounts extra datasets under /kaggle/input/datasets/<owner>/<slug>/,
-    which is deeper than one/two levels from /kaggle/input. BFS a few levels and
-    skip image/DICOM folders (no rglob of competition trees).
+    which is deeper than one/two levels from /kaggle/input. Check known mounts
+    first, then BFS a few levels and skip image/DICOM folders (no rglob).
     """
     names = {{"llm_labels_v4_blend.csv"}}
     skip_dirs = {{
         "train", "test", "train_images", "test_images", "images",
         "dicom", "dcms", "series",
     }}
+    explicit = [
+        inp / "datasets" / "stevenleehans" / "rsna-knee-llm-report-labels" / "llm_labels_v4_blend.csv",
+        inp / "rsna-knee-llm-report-labels" / "llm_labels_v4_blend.csv",
+        inp / "stevenleehans" / "rsna-knee-llm-report-labels" / "llm_labels_v4_blend.csv",
+        ROOT / "llm_labels_v4_blend.csv",
+    ]
+    for p in explicit:
+        if p.is_file():
+            print(STRATEGY, "llm csv explicit", p)
+            return p
+    ds = inp / "datasets"
+    if ds.exists():
+        try:
+            print(STRATEGY, "datasets children", [c.name for c in ds.iterdir()][:24])
+        except OSError:
+            print(STRATEGY, "datasets listing failed")
     roots = []
     if inp.exists():
         roots.append(inp)
@@ -523,8 +539,11 @@ def discover_llm_labels():
             continue
         has_sample = any(c.is_file() and c.name == "sample_submission.csv" for c in children)
         for child in children:
-            if child.is_file() and child.name in names:
-                return child
+            if child.is_file():
+                cname = child.name.lower()
+                if cname in names or (cname.startswith("llm_labels_v4") and cname.endswith(".csv")):
+                    print(STRATEGY, "llm csv bfs", child, "depth", depth)
+                    return child
             if not child.is_dir() or depth >= 6:
                 continue
             cname = child.name.lower()
