@@ -14,21 +14,21 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_llm(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_acl_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_llm" in md.read_text()
+    assert "weak_rank_bakers_acl_llm" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_llm"
+    assert sidecar["strategy"] == "weak_rank_bakers_acl_llm"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_llm(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_acl_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_llm"
+    assert sidecar["strategy"] == "weak_rank_bakers_acl_llm"
     assert "llm" in md.read_text().lower()
 
 
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_llm(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_acl_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,11 +287,12 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_llm(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_llm" in text
+    assert "H_weak_rank_bakers_acl_llm" in text
+    assert "`H_weak_rank_bakers_acl_llm` ← primary" in text
     assert "0.519" in text
     assert "weak_rank_bakers_mix" in text
     assert "llm" in text.lower()
-    assert "56815942" in text
+    assert "56872526" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -688,3 +689,45 @@ def test_weak_rank_bakers_llm_missing_csv_falls_back_to_parser_mix(tmp_path):
     assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
     assert out[DEFAULT_TARGETS].isna().any().any() == False
     assert ns["used_learned"] is True
+
+
+def test_weak_rank_bakers_acl_llm_mixes_parser_bakers_and_llm_acl(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_acl_llm", "weak_rank_bakers_acl_llm", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_acl_llm'" in src
+    assert "mixed LLM ACL" in src
+    assert "skip constant LLM ACL" in src
+    meta = json.loads((tmp_path / "nb_acl_llm" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work = tmp_path / "work"
+    work.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    sag = series.groupby(STUDY_ID_COL)["Anatomical_Plane"].apply(lambda s: (s == "Sagittal").mean())
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["ACL"] = sag.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+
+    src = _source_for_strategy("weak_rank_bakers_acl_llm", "00_test")
+    src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+    src = src.replace(
+        'path = Path("/kaggle/working/submission.csv")',
+        f"path = Path({str(work / 'submission.csv')!r})",
+    )
+    ns: dict = {}
+    exec(compile(src, "weak_rank_bakers_acl_llm_nb.py", "exec"), ns, ns)
+    out = pd.read_csv(work / "submission.csv")
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out[DEFAULT_TARGETS].isna().any().any() == False
+    high = out.iloc[:12]["ACL"].mean()
+    low = out.iloc[12:]["ACL"].mean()
+    assert high > low, (high, low)
+    assert ns["used_learned"] is True
+    assert ns["MIX_TARGETS"]["weak_rank_bakers_acl_llm"] == {"Baker's"}

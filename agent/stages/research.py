@@ -239,9 +239,14 @@ def _curated_techniques() -> list[dict[str, str]]:
             "how": "Keep as a documented failure. Metadata fat-drop is exhausted. Next lever is a better Baker's weak head (public LLM key), not another collinear-feature drop.",
         },
         {
-            "name": "Public LLM Baker's-only mix on frozen gold ranks",
-            "why": "stevenleehans llm_labels_v4_blend scores 0.8927 vs the 58 gold studies (Baker's AUC 0.9457); hybrid v4+Fracture reaches 0.8991. Regex/lexicon extraction is only 0.8136. Newer public keys exist (yunusgmsoy 4-source merged macro 0.8798; Qwen2.5-32B v2 macro 0.8686) but stevenleehans still wins Baker's. Parser remaps stalled (silence 0.516, dropfat 0.519 tie).",
-            "how": "Keep frozen gold_rank_w50 + Baker's-only 50/50 mix. Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets/<owner>/<slug> mounts plus depth-6 BFS (skip DICOM/image dirs; no rglob). The 2026-10-05 kernel missed the datasets/ mount (56844594, 0.518 gold_rank_w50). Fit 7-d/13-d heads on train-only LLM Baker's; never open test reports. Attach stevenleehans/rsna-knee-llm-report-labels as an offline dataset_source; internet stays disabled. After this scores, consider merging a second Baker's key only if public > 0.519.",
+            "name": "Public LLM Baker's-only mix on frozen gold ranks — done, tied",
+            "why": "`weak_rank_bakers_llm` scored 0.519 (56872526) after finding v4_blend (n=4407). Baker's LLM metadata scores were constant on the 3-study public sample, so the 50/50 mix was rank-preserving vs gold. 56844594 was only the discovery miss. Do not resubmit.",
+            "how": "Keep as a documented failure. Next lever is LLM ACL on top of parser Baker's mix, skipping constant LLM heads.",
+        },
+        {
+            "name": "Parser Baker's mix plus public LLM ACL mix",
+            "why": "Parser Baker's 50/50 remains the only +0.001 lift (0.519). Parser ACL mix was LB-neutral (0.519). stevenleehans v4_blend still has the strongest public Baker's/ACL report key (macro 0.8927). ACL already shows sagittal/fluid ranking variance on the public sample, unlike the collapsed Baker's LLM head.",
+            "how": "Keep frozen gold_rank_w50 + parser Baker's-only 50/50. Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d heads on train-only LLM ACL; mix 50/50 only if std>1e-8. Never open test reports. Attach stevenleehans/rsna-knee-llm-report-labels offline.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -347,8 +352,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_llm` (Baker's-only 50/50 from stevenleehans v4_blend). `weak_rank_bakers_dropfat` scored 0.519 (56815942, tie); `weak_rank_bakers_silence` scored 0.516 (56790917, poison); goldstd 0.519 tie; mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
-        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_dropfat (tied 0.519), weak_rank_bakers_silence (0.516), weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
+        "1. **Keep weak_rank_bakers_mix (0.519) frozen** and next test `weak_rank_bakers_acl_llm` (parser Baker's 50/50 + LLM ACL 50/50 if that head has variance). `weak_rank_bakers_llm` scored 0.519 (56872526, tie; Baker's LLM constant). `weak_rank_bakers_dropfat` scored 0.519 (56815942, tie); `weak_rank_bakers_silence` scored 0.516 (56790917, poison); goldstd 0.519 tie; mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **weak_rank_bakers_mix** as the fallback notebook. Do not resubmit weak_rank_bakers_llm (tied 0.519), weak_rank_bakers_dropfat (tied 0.519), weak_rank_bakers_silence (0.516), weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -371,7 +376,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.93 (public LB ~0.932 on 2026-10-03) and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie) → 0.516 (bakers_silence, poison) → 0.519 (bakers_dropfat, tie). `weak_rank_bakers_llm` submission 56844594 scored 0.518 after `llm csv not found` (Kaggle mounts extras under /kaggle/input/datasets/<owner>/<slug>/). That is a discovery miss, not a falsification — retry with deeper BFS, still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.93 (public LB ~0.932 on 2026-10-03) and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie) → 0.516 (bakers_silence, poison) → 0.519 (bakers_dropfat, tie) → 0.519 (bakers_llm, tie; Baker's LLM constant). Next executable lever is `weak_rank_bakers_acl_llm`. Still no test reports.",
         "",
         "### arXiv query hits",
         "",

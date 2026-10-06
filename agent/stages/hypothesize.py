@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_acl_llm",
+            "hypothesis": "Keeping the accepted parser Baker's-only 50/50 mix and adding a 50/50 stevenleehans v4_blend ACL mix will beat 0.519, because the Baker's LLM metadata head was constant on the public 3-study sample (56872526, 0.519 tie) while ACL already has sagittal/fluid ranking variance.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only. Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM ACL soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on ACL only if that head has std>1e-8; otherwise keep parser Baker's mix. Fallback to weak_rank_bakers_mix if the CSV is missing or n_llm<20.",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "expected_targets": ["Baker's", "ACL"],
+        },
+        {
             "id": "H_weak_rank_bakers_llm",
             "hypothesis": "Keeping the accepted Baker's-only 50/50 mix but replacing the keyword-parser weak head with stevenleehans llm_labels_v4_blend Baker's labels will beat 0.519, because the public LLM key scores 0.8927 vs gold while our regex parser is 0.8136 and parser Baker's remaps have stalled.",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50, standardize on the 58 gold studies). Discover llm_labels_v4_blend.csv with a depth-6 BFS under /kaggle/input and /kaggle/input/datasets (skip DICOM/image dirs; no rglob). Fit 7-d/13-d ridge heads on train-only LLM Baker's soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Baker's only. Leave the other 11 targets as gold_rank_w50. Fallback to parser weak_rank_bakers_mix if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix).",
+            "falsify": "Public score ≤ 0.519 (frozen weak_rank_bakers_mix). Already falsified at 0.519 tie (56872526); Baker's LLM head was constant on the public sample.",
             "expected_targets": ["Baker's"],
         },
         {
@@ -205,10 +212,11 @@ def run_hypothesize(
         "`weak_rank_confident` scored **0.511**. `weak_rank_named` scored **0.502**.",
         "`weak_rank_named_mix` scored **0.514**. gold_rank_w50 remains the prior floor at **0.518**.",
         "Parser Baker's ablations stalled; dropfat tied because fat ≡ fluid.",
-        "`weak_rank_bakers_llm` kernel 20261005-c00 printed `llm csv not found` and kept",
-        "gold_rank_w50 (public 0.518, submission 56844594). That is an implementation miss,",
-        "not a falsification. Retry **`weak_rank_bakers_llm`** with deeper dataset discovery.",
-        "Visual MRI encoders stay out of scope.",
+        "`weak_rank_bakers_llm` scored **0.519** (56872526) after finding v4_blend (n=4407);",
+        "the Baker's LLM metadata head was constant on the 3-study public sample, so the mix",
+        "was rank-preserving vs gold. That is a falsified tie, not a discovery miss",
+        "(56844594 was the miss). Next is **`weak_rank_bakers_acl_llm`**: keep parser Baker's",
+        "mix and add LLM ACL only if that head has variance. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
