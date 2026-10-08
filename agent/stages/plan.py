@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_mcl_llm",
-        "weak_rank_bakers_mcl_llm",
+        "weak_rank_bakers_eff_llm",
+        "weak_rank_bakers_eff_llm",
         "weak_rank_bakers_acl_llm",
         "weak_rank_bakers_mix",
         "gold_meta_logit",
@@ -67,6 +67,20 @@ def run_plan(
             "- Do **not** resubmit 0.60/0.40 (`gold_rank_interact`) as this cycle.",
             "",
         ]
+    elif strategy == "weak_rank_bakers_eff_llm":
+        lines += [
+            "- Start from frozen `weak_rank_bakers_acl_llm` (public 0.520): gold_rank_w50 + parser Baker's 50/50 + LLM ACL 50/50 if std>1e-8.",
+            "- **Add stevenleehans `llm_labels_v4_blend` Effusion 50/50 only if that LLM head has std>1e-8.**",
+            "- Attach dataset_source `stevenleehans/rsna-knee-llm-report-labels`; keep `enable_internet` false.",
+            "- Discover `llm_labels_v4_blend.csv` via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only LLM Effusion soft labels. Drop any test UID.",
+            "- Do **not** remix LLM Baker's or LLM MCL: Baker's LLM was constant (56872526); v4_blend MCL scored 0.510 poison (56938248).",
+            "- Leave the other nine targets as the 0.520 stack (gold_rank_w50 + parser Baker's + LLM ACL).",
+            "- **Never open test reports.** No live LLM/API calls.",
+            "- If n_llm < 20, the CSV is missing, or Effusion LLM std is 0, fall back to weak_rank_bakers_acl_llm (0.520).",
+            "- Do **not** resubmit `weak_rank_bakers_mcl_llm` (0.510 poison, 56938248), `weak_rank_bakers_acl_llm` (0.520 accepted, 56902005), `weak_rank_bakers_llm` (0.519 tie, 56872526), `weak_rank_bakers_dropfat` (0.519 tie, 56815942), `weak_rank_bakers_silence` (0.516, 56790917), `weak_rank_bakers_goldstd` (0.519 tie, 56767585), `weak_rank_bakers_mm_mix` (0.517, 56745095), `weak_rank_bakers_acl_mix` (0.519 tie, 56698950), `weak_rank_bakers_w40` (0.519 tie, 56664719), `weak_rank_bakers_w60` (0.518, 56631726), `weak_rank_bakers_mix` (0.519, 56600302), or earlier weak-label failures.",
+            "",
+        ]
     elif strategy == "weak_rank_bakers_mcl_llm":
         lines += [
             "- Start from frozen `weak_rank_bakers_acl_llm` (public 0.520): gold_rank_w50 + parser Baker's 50/50 + LLM ACL 50/50 if std>1e-8.",
@@ -75,11 +89,8 @@ def run_plan(
             "- Discover `llm_labels_v4_blend.csv` via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
             "- Fit 7-d/13-d ridge heads on train-only LLM MCL soft labels. Drop any test UID.",
             "- Do **not** remix LLM Baker's: 2026-10-06 (56872526) Baker's LLM scores were constant on the public 3-study sample.",
-            "- Parser MCL poisoned named_mix (0.514). This cycle uses the LLM MCL head, not the keyword parser.",
-            "- Leave the other nine targets as the 0.520 stack (gold_rank_w50 + parser Baker's + LLM ACL).",
+            "- Already falsified at public 0.510 (submission 56938248); v4_blend MCL is poison. Keep weak_rank_bakers_acl_llm as the frozen fallback.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_llm < 20, the CSV is missing, or MCL LLM std is 0, fall back to weak_rank_bakers_acl_llm (0.520).",
-            "- Do **not** resubmit `weak_rank_bakers_acl_llm` (0.520 accepted, 56902005), `weak_rank_bakers_llm` (0.519 tie, 56872526), `weak_rank_bakers_dropfat` (0.519 tie, 56815942), `weak_rank_bakers_silence` (0.516, 56790917), `weak_rank_bakers_goldstd` (0.519 tie, 56767585), `weak_rank_bakers_mm_mix` (0.517, 56745095), `weak_rank_bakers_acl_mix` (0.519 tie, 56698950), `weak_rank_bakers_w40` (0.519 tie, 56664719), `weak_rank_bakers_w60` (0.518, 56631726), `weak_rank_bakers_mix` (0.519, 56600302), or earlier weak-label failures.",
             "",
         ]
     elif strategy == "weak_rank_bakers_acl_llm":

@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_eff_llm",
+            "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL stack (0.520) and adding a 50/50 stevenleehans v4_blend Effusion mix will beat 0.520, because ligament MCL is exhausted (parser 0.514, v4_blend 0.510) while effusion is a high-prevalence fluid finding whose report labels may complement Fluid_Sensitive ranks.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 if std>1e-8 (the 0.520 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM Effusion soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Effusion only if that head has std>1e-8; otherwise keep the 0.520 stack. Fallback to weak_rank_bakers_acl_llm if the CSV is missing or n_llm<20.",
+            "falsify": "Public score ≤ 0.520 (frozen weak_rank_bakers_acl_llm).",
+            "expected_targets": ["Baker's", "ACL", "Effusion"],
+        },
+        {
             "id": "H_weak_rank_bakers_mcl_llm",
             "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL stack (0.520) and adding a 50/50 stevenleehans v4_blend MCL mix will beat 0.520, because parser MCL poisoned the named trio (0.514) while LLM ACL just transferred (+0.001) and MCL is the remaining named object.",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 if std>1e-8 (the 0.520 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM MCL soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on MCL only if that head has std>1e-8; otherwise keep the 0.520 stack. Fallback to weak_rank_bakers_acl_llm if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.520 (frozen weak_rank_bakers_acl_llm).",
+            "falsify": "Public score ≤ 0.520 (frozen weak_rank_bakers_acl_llm). Already falsified at 0.510 (56938248); v4_blend MCL is poison.",
             "expected_targets": ["Baker's", "ACL", "MCL"],
         },
         {
@@ -223,8 +230,10 @@ def run_hypothesize(
         "the Baker's LLM metadata head was constant on the 3-study public sample, so the mix",
         "was rank-preserving vs gold. That is a falsified tie, not a discovery miss",
         "(56844594 was the miss). `weak_rank_bakers_acl_llm` scored **0.520** (56902005) and is",
-        "the new frozen floor. Next is **`weak_rank_bakers_mcl_llm`**: keep parser Baker's +",
-        "LLM ACL and add LLM MCL only if that head has variance. Visual MRI encoders stay out of scope.",
+        "the frozen floor. `weak_rank_bakers_mcl_llm` scored **0.510** (56938248) and is poison",
+        "(CSV found, n=4407, MCL std=0.408). Next is **`weak_rank_bakers_eff_llm`**: keep parser",
+        "Baker's + LLM ACL and add LLM Effusion only if that head has variance. Do not retry MCL.",
+        "Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
