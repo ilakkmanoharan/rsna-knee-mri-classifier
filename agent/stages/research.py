@@ -246,17 +246,22 @@ def _curated_techniques() -> list[dict[str, str]]:
         {
             "name": "Parser Baker's mix plus public LLM ACL mix — done, accepted",
             "why": "`weak_rank_bakers_acl_llm` scored 0.520 (56902005): +0.001 vs bakers_mix. LLM ACL transferred after Baker's LLM→metadata collapsed. Keep as the frozen fallback.",
-            "how": "Do not resubmit. Ligament MCL is exhausted; next lever is LLM Effusion on this stack.",
+            "how": "Do not resubmit. Superseded by bakers_eff_llm (0.524). Keep as a prior accepted rung.",
         },
         {
             "name": "Accepted ACL-LLM stack plus public LLM MCL mix — done, falsified",
             "why": "`weak_rank_bakers_mcl_llm` scored 0.510 (56938248): −0.010 vs acl_llm 0.520. CSV found (n=4407), MCL std=0.408 — not a miss. v4_blend MCL is worse than parser MCL (0.514). Do not resubmit or retry MCL mix-weights.",
-            "how": "Keep as a documented failure. Next lever is LLM Effusion on the 0.520 stack, not another named ligament.",
+            "how": "Keep as a documented failure. Do not retry MCL. Next lever after effusion is LLM Synovitis, not another named ligament.",
         },
         {
-            "name": "Accepted ACL-LLM stack plus public LLM Effusion mix",
-            "why": "Ligament MCL is exhausted (parser 0.514, v4_blend 0.510). Effusion is high-prevalence and already has Fluid_Sensitive ranking variance on the public sample; v4_blend report labels may add complementary text signal.",
-            "how": "Keep frozen gold_rank_w50 + parser Baker's 50/50 + LLM ACL 50/50 (0.520). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d heads on train-only LLM Effusion; mix 50/50 only if std>1e-8. Never open test reports.",
+            "name": "Accepted ACL-LLM stack plus public LLM Effusion mix — done, accepted",
+            "why": "`weak_rank_bakers_eff_llm` scored 0.524 (56995081): +0.004 vs acl_llm 0.520. CSV found (n=4407), Effusion std=0.408. Largest metadata lift since Baker's-only mix. Keep as the frozen fallback.",
+            "how": "Do not resubmit. Next lever is LLM Synovitis on this 0.524 stack.",
+        },
+        {
+            "name": "Accepted effusion-LLM stack plus public LLM Synovitis mix",
+            "why": "Effusion transferred (+0.004). Synovitis is the other high-prevalence fluid finding and already has Fluid_Sensitive ranking variance on the public 3-study sample (0.341–0.591). v4_blend report labels may add complementary text signal.",
+            "how": "Keep frozen gold_rank_w50 + parser Baker's 50/50 + LLM ACL 50/50 + LLM Effusion 50/50 (0.524). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d heads on train-only LLM Synovitis; mix 50/50 only if std>1e-8. Never open test reports.",
         },
         {
             "name": "Anatomy-oriented multi-task MRI (KAMRNet / slice transformers)",
@@ -362,8 +367,8 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
     lines += [
         "## Priority for next submission (research-driven)",
         "",
-        "1. **Keep weak_rank_bakers_acl_llm (0.520) frozen** and next test `weak_rank_bakers_eff_llm` (parser Baker's + LLM ACL + LLM Effusion 50/50 if that head has variance). `weak_rank_bakers_mcl_llm` scored 0.510 (56938248, poison). `weak_rank_bakers_acl_llm` scored 0.520 (56902005, accepted). `weak_rank_bakers_llm` scored 0.519 (56872526, tie; Baker's LLM constant). `weak_rank_bakers_dropfat` scored 0.519 (56815942, tie); `weak_rank_bakers_silence` scored 0.516 (56790917, poison); goldstd 0.519 tie; mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
-        "2. Keep **weak_rank_bakers_acl_llm** as the fallback notebook. Do not resubmit weak_rank_bakers_mcl_llm (0.510 poison), weak_rank_bakers_acl_llm (accepted 0.520), weak_rank_bakers_llm (tied 0.519), weak_rank_bakers_dropfat (tied 0.519), weak_rank_bakers_silence (0.516), weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
+        "1. **Keep weak_rank_bakers_eff_llm (0.524) frozen** and next test `weak_rank_bakers_syn_llm` (parser Baker's + LLM ACL + LLM Effusion + LLM Synovitis 50/50 if that head has variance). `weak_rank_bakers_eff_llm` scored 0.524 (56995081, accepted). `weak_rank_bakers_mcl_llm` scored 0.510 (56938248, poison). `weak_rank_bakers_acl_llm` scored 0.520 (56902005, accepted). `weak_rank_bakers_llm` scored 0.519 (56872526, tie; Baker's LLM constant). `weak_rank_bakers_dropfat` scored 0.519 (56815942, tie); `weak_rank_bakers_silence` scored 0.516 (56790917, poison); goldstd 0.519 tie; mm_mix 0.517; bakers_acl_mix 0.519 tie; bakers_w40 0.519; bakers_w60 0.518; bakers_mix 0.519; named_mix 0.514; named 0.502; confident 0.511; goldfill 0.504; parser-only 0.499.",
+        "2. Keep **weak_rank_bakers_eff_llm** as the fallback notebook. Do not resubmit weak_rank_bakers_eff_llm (accepted 0.524), weak_rank_bakers_mcl_llm (0.510 poison), weak_rank_bakers_acl_llm (accepted 0.520), weak_rank_bakers_llm (tied 0.519), weak_rank_bakers_dropfat (tied 0.519), weak_rank_bakers_silence (0.516), weak_rank_bakers_goldstd (tied 0.519), weak_rank_bakers_mm_mix (0.517), weak_rank_bakers_acl_mix (tied 0.519), weak_rank_bakers_w40 (tied 0.519), weak_rank_bakers_w60 (0.518), weak_rank_bakers_mix (0.519), weak_rank_named_mix (0.514), weak_rank_named (0.502), weak_rank_confident (0.511), weak_rank_goldfill (0.504), weak_rank_calibrate (0.499), gold_rank_lam2 (0.515), gold_rank_w40 (tied 0.518), or gold_rank_w50 as cycle 0.",
         "3. Parse **train reports only**; inference must stay MRI/metadata-only. Never open test reports.",
         "4. Only then spend quota on heavier visual encoder changes (plane-aware EfficientNet / KAMRNet-style localization) once metadata+weak-label ablations stall.",
         "",
@@ -386,7 +391,7 @@ def run_research(out_dir: Path, queries: list[str], max_arxiv: int, cycle_id: st
         "- **Grouped CV + study metadata (Afshar, 2026).** Canonical study-grouped 5-fold split for 4,407 exams (58 gold, 4,349 report-only). Use gold folds to validate ranking; do not invent DICOM-header paths. URL: https://www.kaggle.com/datasets/dariushafshar/rsna-knee-2026-grouped-cv-folds",
         "- **Public visual notebooks (2026).** CoaTNet + fine-tune blends report public LB ~0.926. That is the pixel-model ceiling, not a metadata ceiling. We cannot spend quota there until real train DICOMs/JPEGs + GPU time are mounted. URL: https://www.kaggle.com/code/paiky1995/rsna-knee-0-926-lb-coatnet-fine-tune-blend",
         "",
-        "Implication for this cycle: visual AUCs of 0.8–0.93 (public LB ~0.932 on 2026-10-03) and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie) → 0.516 (bakers_silence, poison) → 0.519 (bakers_dropfat, tie) → 0.519 (bakers_llm, tie; Baker's LLM constant) → 0.520 (bakers_acl_llm, accepted) → 0.510 (bakers_mcl_llm, poison). Next executable lever is `weak_rank_bakers_eff_llm`. Still no test reports.",
+        "Implication for this cycle: visual AUCs of 0.8–0.93 (public LB ~0.932 on 2026-10-03) and grouped-fold metadata ~0.60 remain medium-run targets. Gold-only ranking stalled (w50=0.518). Report-weak ladder: 0.499 → 0.504 → 0.511 → 0.502 (named) → 0.514 (named_mix, falsified) → 0.519 (bakers_mix, accepted) → 0.518 (bakers_w60, falsified) → 0.519 (bakers_w40, tie) → 0.519 (bakers_acl_mix, tie) → 0.517 (bakers_mm_mix, falsified) → 0.519 (bakers_goldstd, tie) → 0.516 (bakers_silence, poison) → 0.519 (bakers_dropfat, tie) → 0.519 (bakers_llm, tie; Baker's LLM constant) → 0.520 (bakers_acl_llm, accepted) → 0.510 (bakers_mcl_llm, poison) → 0.524 (bakers_eff_llm, accepted). Next executable lever is `weak_rank_bakers_syn_llm`. Still no test reports.",
         "",
         "### arXiv query hits",
         "",
