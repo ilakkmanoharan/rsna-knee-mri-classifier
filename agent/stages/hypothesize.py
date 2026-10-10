@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_syn_from_eff",
+            "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and mixing those LLM Effusion ranks onto Synovitis 50/50 will beat 0.524, because the Synovitis LLM field flattened the public sample (0.522) while stevenleehans reports effusion vs gold synovitis 0.7115 > the synovitis field 0.678.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 and LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Reuse the train-only LLM Effusion 7-d/13-d ranks; mix 0.50·gold + 0.50·effusion_llm onto Synovitis only if the mixed Synovitis column has std>1e-8 (skip flatten). Do not read the Synovitis LLM field. Fallback to weak_rank_bakers_eff_llm if the CSV is missing or n_llm<20.",
+            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm).",
+            "expected_targets": ["Baker's", "ACL", "Effusion", "Synovitis"],
+        },
+        {
             "id": "H_weak_rank_bakers_syn_llm",
             "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and adding a 50/50 stevenleehans v4_blend Synovitis mix will beat 0.524, because effusion just transferred (+0.004) and synovitis is the other high-prevalence fluid finding that shares Fluid_Sensitive ranking variance.",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 and LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM Synovitis soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Synovitis only if that head has std>1e-8; otherwise keep the 0.524 stack. Fallback to weak_rank_bakers_eff_llm if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm).",
+            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm). Already falsified at 0.522 (57032978); public Synovitis flattened to 0.465517.",
             "expected_targets": ["Baker's", "ACL", "Effusion", "Synovitis"],
         },
         {
@@ -240,8 +247,11 @@ def run_hypothesize(
         "`weak_rank_bakers_mcl_llm` scored **0.510** (56938248) and is poison",
         "(CSV found, n=4407, MCL std=0.408). `weak_rank_bakers_eff_llm` scored **0.524**",
         "(56995081) and is the frozen floor (CSV found, n=4407, Effusion std=0.408).",
-        "Next is **`weak_rank_bakers_syn_llm`**: keep parser Baker's + LLM ACL + LLM Effusion",
-        "and add LLM Synovitis only if that head has variance. Do not retry MCL.",
+        "`weak_rank_bakers_syn_llm` scored **0.522** (57032978) and is poison",
+        "(CSV found, n=4407, Synovitis LLM std=0.408, but public Synovitis flattened",
+        "to constant 0.465517). Next is **`weak_rank_bakers_syn_from_eff`**: keep parser",
+        "Baker's + LLM ACL + LLM Effusion and mix effusion ranks onto Synovitis only if",
+        "the mixed column keeps variance. Do not retry the Synovitis LLM field or MCL.",
         "Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",

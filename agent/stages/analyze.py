@@ -113,7 +113,9 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "constant on the public 3-study sample (tie); "
                 "weak_rank_bakers_acl_llm scored 0.520 (56902005, accepted); "
                 "weak_rank_bakers_mcl_llm scored 0.510 (56938248, poison); "
-                "weak_rank_bakers_eff_llm scored 0.524 (56995081, accepted). "
+                "weak_rank_bakers_eff_llm scored 0.524 (56995081, accepted); "
+                "weak_rank_bakers_syn_llm scored 0.522 (57032978, poison; public "
+                "Synovitis flattened to 0.465517). "
                 "Replacing learned ranks "
                 "with shrinkage priors scored 0.504 — a regression. Per-target constant shrinkage is "
                 "AUC-invariant; Gaussian 0.005 noise can scramble weak ranks."
@@ -129,17 +131,17 @@ def run_analysis(out_dir: Path, competition: str, cycle_id: str, day_id: str) ->
                 "0.60/0.40 mix tied 0.519; Baker's+ACL 50/50 mix tied 0.519; Baker's+MM 50/50 mix "
                 "scored 0.517 (poison); Baker's goldstd mix tied 0.519; Baker's silence→neg scored "
                 "0.516 (poison); Baker's dropfat scored 0.519 (tie — fat ≡ fluid). Remaining lift "
-                "is LLM Synovitis on top of the accepted parser-Baker's + LLM-ACL + LLM-Effusion "
-                "stack (0.524), not another MCL mix (parser 0.514, v4_blend 0.510) or a resubmit of "
-                "eff_llm / acl_llm."
+                "is mixing LLM Effusion ranks onto Synovitis on the accepted 0.524 stack "
+                "(`weak_rank_bakers_syn_from_eff`), not another Synovitis-field mix (0.522 flatten), "
+                "MCL mix (parser 0.514, v4_blend 0.510), or a resubmit of syn_llm / eff_llm / acl_llm."
             )
             why_low.append(
                 "Local visual training used synthetic DICOMs for gold studies — those weights do not "
                 "transfer to real test MRI; do not spend quota on that checkpoint until trained on real data."
             )
         improvements += [
-            "Next: `weak_rank_bakers_syn_llm` — keep parser Baker's + LLM ACL + LLM Effusion (0.524) and mix stevenleehans v4_blend Synovitis 50/50 only if that head has variance. `weak_rank_bakers_eff_llm` scored 0.524 (56995081, accepted) and is the new frozen fallback. `weak_rank_bakers_mcl_llm` scored 0.510 (56938248, poison). `weak_rank_bakers_acl_llm` scored 0.520 (56902005, accepted). `weak_rank_bakers_llm` scored 0.519 (56872526, tie; Baker's LLM constant). `weak_rank_bakers_dropfat` scored 0.519 (56815942, tie); `weak_rank_bakers_silence` scored 0.516 (56790917, poison); `weak_rank_bakers_goldstd` scored 0.519 (56767585, tie); `weak_rank_bakers_mm_mix` scored 0.517 (56745095, falsified); `weak_rank_bakers_acl_mix` scored 0.519 (56698950, tie); `weak_rank_bakers_w40` scored 0.519 (56664719); `weak_rank_bakers_w60` scored 0.518 (56631726); `weak_rank_bakers_mix` scored 0.519 (56600302).",
-            "Do not resubmit weak_rank_bakers_eff_llm, weak_rank_bakers_mcl_llm, weak_rank_bakers_acl_llm, weak_rank_bakers_llm, weak_rank_bakers_dropfat, weak_rank_bakers_silence, weak_rank_bakers_goldstd, weak_rank_bakers_mm_mix, weak_rank_bakers_acl_mix, weak_rank_bakers_w40, weak_rank_bakers_w60, weak_rank_bakers_mix, weak_rank_named_mix, weak_rank_named, weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0. Late 2026-10-04/05/08 slots wasted quota on gold_meta_logit 0.514, report_shrinkage_priors 0.504, metadata_prior_blend 0.504, and fluid_gate_metadata 0.505.",
+            "Next: `weak_rank_bakers_syn_from_eff` — keep parser Baker's + LLM ACL + LLM Effusion (0.524) and mix stevenleehans v4_blend Effusion ranks onto Synovitis 50/50 only if the mixed column keeps variance. `weak_rank_bakers_syn_llm` scored 0.522 (57032978, poison; public Synovitis flattened). `weak_rank_bakers_eff_llm` scored 0.524 (56995081, accepted) and is the frozen fallback. `weak_rank_bakers_mcl_llm` scored 0.510 (56938248, poison). `weak_rank_bakers_acl_llm` scored 0.520 (56902005, accepted). `weak_rank_bakers_llm` scored 0.519 (56872526, tie; Baker's LLM constant). `weak_rank_bakers_dropfat` scored 0.519 (56815942, tie); `weak_rank_bakers_silence` scored 0.516 (56790917, poison); `weak_rank_bakers_goldstd` scored 0.519 (56767585, tie); `weak_rank_bakers_mm_mix` scored 0.517 (56745095, falsified); `weak_rank_bakers_acl_mix` scored 0.519 (56698950, tie); `weak_rank_bakers_w40` scored 0.519 (56664719); `weak_rank_bakers_w60` scored 0.518 (56631726); `weak_rank_bakers_mix` scored 0.519 (56600302).",
+            "Do not resubmit weak_rank_bakers_syn_llm, weak_rank_bakers_eff_llm, weak_rank_bakers_mcl_llm, weak_rank_bakers_acl_llm, weak_rank_bakers_llm, weak_rank_bakers_dropfat, weak_rank_bakers_silence, weak_rank_bakers_goldstd, weak_rank_bakers_mm_mix, weak_rank_bakers_acl_mix, weak_rank_bakers_w40, weak_rank_bakers_w60, weak_rank_bakers_mix, weak_rank_named_mix, weak_rank_named, weak_rank_confident, weak_rank_goldfill, weak_rank_calibrate, gold_rank_lam2, gold_rank_w40, gold_rank_w70, gold_rank_w50, or gold_meta_logit as cycle 0. Late 2026-10-04/05/08 slots wasted quota on gold_meta_logit 0.514, report_shrinkage_priors 0.504, metadata_prior_blend 0.504, and fluid_gate_metadata 0.505.",
             "Forum ceiling: series composition ~0.595 and scanner-grouped DICOM-header ~0.598 on report-derived labels (discussion 733517). Our 0.524 public score is still below that series-flag ceiling because we fit on 58 gold rows instead of 4,407 reports (discussion 733876).",
             "Parse train.csv Report only, with a right-side Turkish negation window (discussion 734106). Never open test reports. Infer from test_series.csv metadata only.",
             "Use real train DICOMs (or official JPEG caches) on Kaggle/GPU for the visual model only after metadata ablations stall. Public visual notebooks already report ~0.926 LB.",
