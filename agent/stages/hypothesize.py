@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_frac_llm",
+            "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and adding a 50/50 stevenleehans v4_blend Fracture mix will beat 0.524, because Contusion compressed useful gold ranks (0.519) while Fracture is the remaining named trauma finding and still varies on the public sample (0.248–0.435).",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 and LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM Fracture soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Fracture only if that head has std>1e-8; otherwise keep the 0.524 stack. Do not read Synovitis, MCL, or Contusion LLM columns. Fallback to weak_rank_bakers_eff_llm if the CSV is missing or n_llm<20.",
+            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm).",
+            "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture"],
+        },
+        {
             "id": "H_weak_rank_bakers_cont_llm",
             "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and adding a 50/50 stevenleehans v4_blend Contusion mix will beat 0.524, because both Synovitis remaps failed (field 0.522, effusion-proxy 0.521) while Contusion is the remaining fluid-sensitive named finding with public-sample variance (0.265–0.453).",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 and LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM Contusion soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Contusion only if that head has std>1e-8; otherwise keep the 0.524 stack. Do not read Synovitis or MCL LLM columns. Fallback to weak_rank_bakers_eff_llm if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm).",
+            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm). Already falsified at 0.519 (57097591); public Contusion compressed from 0.265–0.453 to 0.296–0.359.",
             "expected_targets": ["Baker's", "ACL", "Effusion", "Contusion"],
         },
         {
@@ -258,10 +265,13 @@ def run_hypothesize(
         "(CSV found, n=4407, Synovitis LLM std=0.408, but public Synovitis flattened",
         "to constant 0.465517). `weak_rank_bakers_syn_from_eff` scored **0.521**",
         "(57064376) and is poison (CSV found; 3-study effusion→Synovitis candidate",
-        "std=0 so the flatten guard skipped, public LB still −0.003). Next is",
-        "**`weak_rank_bakers_cont_llm`**: keep parser Baker's + LLM ACL + LLM Effusion",
-        "and mix LLM Contusion 50/50 only if that head keeps variance. Do not retry",
-        "Synovitis remaps or MCL. Visual MRI encoders stay out of scope.",
+        "std=0 so the flatten guard skipped, public LB still −0.003).",
+        "`weak_rank_bakers_cont_llm` scored **0.519** (57097591) and is poison",
+        "(CSV found, n=4407, Contusion std=0.408; public Contusion compressed",
+        "from 0.265–0.453 to 0.296–0.359). Next is",
+        "**`weak_rank_bakers_frac_llm`**: keep parser Baker's + LLM ACL + LLM Effusion",
+        "and mix LLM Fracture 50/50 only if that head keeps variance. Do not retry",
+        "Contusion mix-weights, Synovitis remaps, or MCL. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
