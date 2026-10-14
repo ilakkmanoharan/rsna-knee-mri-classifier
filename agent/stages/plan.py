@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_moa_llm",
-        "weak_rank_bakers_moa_llm",
+        "weak_rank_bakers_loa_llm",
+        "weak_rank_bakers_loa_llm",
         "weak_rank_bakers_eff_llm",
         "weak_rank_bakers_acl_llm",
         "gold_meta_logit",
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_moa_llm":
+    if strategy == "weak_rank_bakers_loa_llm":
         lines += [
             "- Start from frozen `weak_rank_bakers_eff_llm` (public 0.524): gold_rank_w50 + parser Baker's 50/50 + LLM ACL 50/50 + LLM Effusion 50/50 if std>1e-8.",
-            "- **Add stevenleehans `llm_labels_v4_blend` Medial OA 50/50 only if that LLM head has std>1e-8.**",
+            "- **Add stevenleehans `llm_labels_v4_blend` Lateral OA 50/50 only if that LLM head has std>1e-8.**",
             "- Attach dataset_source `stevenleehans/rsna-knee-llm-report-labels`; keep `enable_internet` false.",
             "- Discover `llm_labels_v4_blend.csv` via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only LLM Medial OA soft labels. Drop any test UID.",
-            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, or Fracture: Baker's LLM was constant (56872526); v4_blend MCL scored 0.510 poison (56938248); Synovitis field scored 0.522 (57032978); effusion→Synovitis scored 0.521 (57064376); Contusion scored 0.519 (57097591); v4 Fracture tied 0.524 (57132860).",
+            "- Fit 7-d/13-d ridge heads on train-only LLM Lateral OA soft labels. Drop any test UID.",
+            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, Fracture, or Medial OA: Baker's LLM was constant (56872526); v4_blend MCL scored 0.510 poison (56938248); Synovitis field scored 0.522 (57032978); effusion→Synovitis scored 0.521 (57064376); Contusion scored 0.519 (57097591); v4 Fracture tied 0.524 (57132860); v4 Medial OA scored 0.523 poison (57169674).",
             "- Leave the other eight targets as the 0.524 stack (gold_rank_w50 + parser Baker's + LLM ACL + LLM Effusion).",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_llm < 20, the CSV is missing, or Medial OA LLM std is 0, fall back to weak_rank_bakers_eff_llm (0.524).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_llm` (0.524 tie, 57132860), `weak_rank_bakers_cont_llm` (0.519 poison, 57097591), `weak_rank_bakers_syn_from_eff` (0.521 poison, 57064376), `weak_rank_bakers_syn_llm` (0.522 poison, 57032978), `weak_rank_bakers_eff_llm` (0.524 accepted, 56995081), `weak_rank_bakers_mcl_llm` (0.510 poison, 56938248), `weak_rank_bakers_acl_llm` (0.520 accepted, 56902005), `weak_rank_bakers_llm` (0.519 tie, 56872526), `weak_rank_bakers_dropfat` (0.519 tie, 56815942), `weak_rank_bakers_silence` (0.516, 56790917), `weak_rank_bakers_goldstd` (0.519 tie, 56767585), `weak_rank_bakers_mm_mix` (0.517, 56745095), `weak_rank_bakers_acl_mix` (0.519 tie, 56698950), `weak_rank_bakers_w40` (0.519 tie, 56664719), `weak_rank_bakers_w60` (0.518, 56631726), `weak_rank_bakers_mix` (0.519, 56600302), or earlier weak-label failures.",
+            "- If n_llm < 20, the CSV is missing, or Lateral OA LLM std is 0, fall back to weak_rank_bakers_eff_llm (0.524).",
+            "- Do **not** resubmit `weak_rank_bakers_moa_llm` (0.523 poison, 57169674), `weak_rank_bakers_frac_llm` (0.524 tie, 57132860), `weak_rank_bakers_cont_llm` (0.519 poison, 57097591), `weak_rank_bakers_syn_from_eff` (0.521 poison, 57064376), `weak_rank_bakers_syn_llm` (0.522 poison, 57032978), `weak_rank_bakers_eff_llm` (0.524 accepted, 56995081), `weak_rank_bakers_mcl_llm` (0.510 poison, 56938248), `weak_rank_bakers_acl_llm` (0.520 accepted, 56902005), `weak_rank_bakers_llm` (0.519 tie, 56872526), `weak_rank_bakers_dropfat` (0.519 tie, 56815942), `weak_rank_bakers_silence` (0.516, 56790917), `weak_rank_bakers_goldstd` (0.519 tie, 56767585), `weak_rank_bakers_mm_mix` (0.517, 56745095), `weak_rank_bakers_acl_mix` (0.519 tie, 56698950), `weak_rank_bakers_w40` (0.519 tie, 56664719), `weak_rank_bakers_w60` (0.518, 56631726), `weak_rank_bakers_mix` (0.519, 56600302), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_moa_llm":
+        lines += [
+            "- Already falsified at public 0.523 (submission 57169674). Kernel mixed Medial OA (std=0.408); public Medial OA compressed 0.134–0.384 → 0.134–0.321.",
+            "- **Do not resubmit.** v4 Medial OA is mild poison. Do not retry Medial OA mix-weights.",
+            "- Keep weak_rank_bakers_eff_llm as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_llm":
