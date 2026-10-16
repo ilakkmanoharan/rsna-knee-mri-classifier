@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_frac_hyb_llm",
+            "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and adding a 50/50 flight0234 hybrid v4+Fracture mix will beat 0.524, because v4 Fracture tied (0.524) while the hybrid Fracture key is 0.8991 macro / Pilkwang 0.8713 / Gemini 0.8750 vs v4 0.793, and all three v4 OA heads just poisoned (0.523).",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then v4 LLM ACL 50/50 and v4 LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Discover report_labels_v4hybrid.csv via explicit /kaggle/input/datasets/flight0234/rsna-knee-hybrid-report-labels plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only hybrid Fracture soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·hybrid_weak on Fracture only if that head has std>1e-8; otherwise keep the 0.524 stack. Do not read hybrid ACL/Effusion/OA/Synovitis/MCL/Contusion columns. Fallback to weak_rank_bakers_eff_llm if the CSV is missing or n_hyb<20.",
+            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm).",
+            "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture"],
+        },
+        {
             "id": "H_weak_rank_bakers_pfoa_llm",
             "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and adding a 50/50 stevenleehans v4_blend PF OA mix will beat 0.524, because both compartment OA heads poisoned (Medial 0.523, Lateral 0.523) while PF OA is the remaining unused OA head, is axial-preferred, and still varies on the public sample (0.237–0.487).",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then LLM ACL 50/50 and LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets mounts plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM PF OA soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on PF OA only if that head has std>1e-8; otherwise keep the 0.524 stack. Do not read Synovitis, MCL, Contusion, Fracture, Medial OA, or Lateral OA LLM columns. Fallback to weak_rank_bakers_eff_llm if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm).",
+            "falsify": "Public score ≤ 0.524 (frozen weak_rank_bakers_eff_llm). Already falsified at 0.523 (57257540); PF OA mixed (std=0.408) and public 3-study PF OA stayed 0.237–0.487 but public LB still −0.001.",
             "expected_targets": ["Baker's", "ACL", "Effusion", "PF OA"],
         },
         {
@@ -298,9 +305,12 @@ def run_hypothesize(
         "`weak_rank_bakers_loa_llm` scored **0.523** (57218864) and is poison",
         "(CSV found, n=4407, Lateral OA std=0.408; public 3-study Lateral OA stayed",
         "0.065–0.315 but public LB still −0.001).",
-        "Next is **`weak_rank_bakers_pfoa_llm`**: keep parser Baker's + LLM ACL + LLM Effusion",
-        "and mix LLM PF OA 50/50 only if that head keeps variance. Do not retry",
-        "v4 Lateral OA, Medial OA, Fracture, Contusion mix-weights, Synovitis remaps, or MCL. Visual MRI encoders stay out of scope.",
+        "`weak_rank_bakers_pfoa_llm` scored **0.523** (57257540) and is poison",
+        "(CSV found, n=4407, PF OA std=0.408; public 3-study PF OA stayed",
+        "0.237–0.487 but public LB still −0.001).",
+        "Next is **`weak_rank_bakers_frac_hyb_llm`**: keep parser Baker's + LLM ACL + LLM Effusion",
+        "and mix flight0234 hybrid Fracture 50/50 only if that head keeps variance. Do not retry",
+        "v4 PF OA, Lateral OA, Medial OA, Fracture, Contusion mix-weights, Synovitis remaps, or MCL. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",
