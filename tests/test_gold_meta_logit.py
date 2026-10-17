@@ -14,31 +14,31 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_llm(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_w60(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_frac_hyb_llm" in md.read_text()
+    assert "weak_rank_bakers_frac_hyb_w60" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_llm"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_w60"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_llm(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_w60(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_llm"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_w60"
     assert "llm" in md.read_text().lower()
 
 
-def test_cycle2_plan_keeps_weak_rank_bakers_eff_llm_fallback(tmp_path):
+def test_cycle2_plan_keeps_weak_rank_bakers_frac_hyb_llm_fallback(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-24", cycle_num=2)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle02_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_eff_llm"
-    assert "0.524" in sidecar_md.read_text()
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_llm"
+    assert "0.527" in sidecar_md.read_text()
 
 
 def test_notebook_contains_learned_metadata_path(tmp_path):
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_llm(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_w60(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,13 +287,13 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_llm(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_frac_hyb_llm" in text
-    assert "`H_weak_rank_bakers_frac_hyb_llm` ← primary" in text
+    assert "H_weak_rank_bakers_frac_hyb_w60" in text
+    assert "`H_weak_rank_bakers_frac_hyb_w60` ← primary" in text
+    assert "0.527" in text
     assert "0.524" in text
-    assert "0.519" in text
-    assert "weak_rank_bakers_eff_llm" in text
+    assert "weak_rank_bakers_frac_hyb_llm" in text
     assert "llm" in text.lower()
-    assert "57257540" in text
+    assert "57298558" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -1228,3 +1228,57 @@ def test_weak_rank_bakers_frac_hyb_llm_mixes_parser_bakers_llm_acl_effusion_and_
     assert float(out["Fracture"].max()) > float(out["Fracture"].min())
     assert ns["used_learned"] is True
     assert ns["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_llm"] == {"Baker's"}
+
+
+def test_weak_rank_bakers_frac_hyb_w60_uses_majority_hybrid_fracture_weight(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w60", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_frac_hyb_w60'" in src
+    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_w60" else 0.50' in src
+    assert "mixed hybrid Fracture" in src
+    meta = json.loads((tmp_path / "nb_frac_hyb_w60" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
+    assert "flight0234/rsna-knee-hybrid-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work50 = tmp_path / "work50"
+    work60 = tmp_path / "work60"
+    work50.mkdir()
+    work60.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    sag = series.groupby(STUDY_ID_COL)["Anatomical_Plane"].apply(lambda s: (s == "Sagittal").mean())
+    fluid = series.groupby(STUDY_ID_COL)["Fluid_Sensitive"].mean()
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["ACL"] = sag.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Effusion"] = fluid.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Fracture"] = 0.5
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+    hyb = llm.copy()
+    # Invert sagittal so hybrid Fracture ranks disagree with gold and mix-weight matters.
+    hyb["Fracture"] = (1.0 - sag.reindex(hyb[STUDY_ID_COL]).fillna(0.5)).clip(0.05, 0.95).to_numpy()
+    hyb.to_csv(data / "report_labels_v4hybrid.csv", index=False)
+
+    def _run(strategy: str, work: Path) -> pd.DataFrame:
+        src = _source_for_strategy(strategy, "00_test")
+        src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+        src = src.replace(
+            'path = Path("/kaggle/working/submission.csv")',
+            f"path = Path({str(work / 'submission.csv')!r})",
+        )
+        ns: dict = {}
+        exec(compile(src, f"{strategy}_nb.py", "exec"), ns, ns)
+        return pd.read_csv(work / "submission.csv"), ns
+
+    out50, _ = _run("weak_rank_bakers_frac_hyb_llm", work50)
+    out60, ns60 = _run("weak_rank_bakers_frac_hyb_w60", work60)
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out60[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out60[DEFAULT_TARGETS].isna().any().any() == False
+    assert float(out60["Fracture"].std()) > 1e-6
+    assert not np.allclose(out50["Fracture"].to_numpy(), out60["Fracture"].to_numpy())
+    assert ns60["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_w60"] == {"Baker's"}
