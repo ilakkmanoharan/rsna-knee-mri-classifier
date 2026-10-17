@@ -1,4 +1,4 @@
-[grok-bot] needs your input — RSNA knee day 2026-10-16
+[grok-bot] needs your input — RSNA knee day 2026-10-17
 
 The Grok supervisor bot needs a decision from you (verdict: **on_track**).
 
@@ -10,6 +10,6 @@ The Grok supervisor bot needs a decision from you (verdict: **on_track**).
 
 ### Why
 
-Submissions due by now: 1/5 · submissions today: None · full pipelines: [0]
+Submissions due by now: 0/5 · submissions today: None · full pipelines: []
 
 Reply in a comment on this issue; the bot reads open issues on its next run.
