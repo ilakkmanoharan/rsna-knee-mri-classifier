@@ -1,6 +1,15 @@
-[agent1] 2026-10-18 cycle 00 complete — no failure
+[grok-bot] needs your input — RSNA knee day 2026-10-18
 
-Submitted weak_rank_bakers_frac_hyb_w60 (57341916) public 0.526 COMPLETE.
-Falsified vs frozen weak_rank_bakers_frac_hyb_llm 0.527 (−0.001).
-Kernel mixed hybrid Fracture (std=0.204, w_gold=0.4); public Fracture 0.248–0.360.
-Quota used 1/5. Next lever: weak_rank_bakers_frac_hyb_w40.
+The Grok supervisor bot needs a decision from you (verdict: **on_track**).
+
+### Questions
+- [ ] Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.
+- [ ] I cannot read Kaggle submission history (RuntimeError: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions
+). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.
+- [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
+
+### Why
+
+Submissions due by now: 1/5 · submissions today: None · full pipelines: [0]
+
+Reply in a comment on this issue; the bot reads open issues on its next run.
