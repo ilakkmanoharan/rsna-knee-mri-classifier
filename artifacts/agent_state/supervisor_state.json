@@ -1,76 +1,16 @@
 {
-  "day_id": "2026-10-18",
+  "day_id": "2026-10-19",
   "dispatches": [],
   "asked": {
-    "636ad3621ffa": "2026-10-18T01:34:23.281718-05:00",
-    "72cb7b5c9452": "2026-10-18T01:34:23.281718-05:00",
-    "dd8e49b68a40": "2026-10-18T01:34:23.281718-05:00"
+    "636ad3621ffa": "2026-10-19T01:46:41.985338-05:00",
+    "72cb7b5c9452": "2026-10-19T01:46:41.985338-05:00",
+    "dd8e49b68a40": "2026-10-19T01:46:41.985338-05:00"
   },
   "verdicts": [
     {
-      "at": "2026-10-18T01:34:23.281718-05:00",
+      "at": "2026-10-19T01:46:41.985338-05:00",
       "verdict": "on_track",
-      "report": "Supervision/2026-10-18_20261018T013426-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T06:41:05.012371-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T064106-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T06:41:07.913455-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T064109-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T09:47:53.466383-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T094755-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T09:47:56.903712-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T094758-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T13:16:12.000548-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T131613-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T13:16:15.453088-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T131616-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T16:00:59.779236-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T160101-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T16:01:03.736770-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T160105-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T18:37:55.863161-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T183757-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T18:37:59.406845-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T183801-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T20:38:38.818629-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T203840-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-18T20:38:42.508796-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-18_20261018T203844-0500_supervision.md"
+      "report": "Supervision/2026-10-19_20261019T014644-0500_supervision.md"
     }
   ]
 }
