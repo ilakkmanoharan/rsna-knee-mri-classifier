@@ -14,21 +14,21 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_w40(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_frac_gem_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_frac_hyb_w40" in md.read_text()
+    assert "weak_rank_bakers_frac_gem_llm" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_w40"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_gem_llm"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_w40(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_frac_gem_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_w40"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_gem_llm"
     assert "llm" in md.read_text().lower()
 
 
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_w40(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_frac_gem_llm(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,14 +287,15 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_w40(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_frac_hyb_w40" in text
-    assert "`H_weak_rank_bakers_frac_hyb_w40` ← primary" in text
+    assert "H_weak_rank_bakers_frac_gem_llm" in text
+    assert "`H_weak_rank_bakers_frac_gem_llm` ← primary" in text
     assert "0.527" in text
     assert "0.526" in text
     assert "weak_rank_bakers_frac_hyb_llm" in text
     assert "llm" in text.lower()
     assert "57298558" in text
     assert "57341916" in text
+    assert "57385111" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -1336,3 +1337,61 @@ def test_weak_rank_bakers_frac_hyb_w40_uses_minority_hybrid_fracture_weight(tmp_
     assert float(out40["Fracture"].std()) > 1e-6
     assert not np.allclose(out50["Fracture"].to_numpy(), out40["Fracture"].to_numpy())
     assert ns40["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_w40"] == {"Baker's"}
+
+
+def test_weak_rank_bakers_frac_gem_llm_uses_gemini_fracture(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_frac_gem", "weak_rank_bakers_frac_gem_llm", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_frac_gem_llm'" in src
+    assert "mixed Gemini Fracture" in src
+    assert "discover_gemini_labels" in src
+    assert "report_labels_v5.csv" in src
+    meta = json.loads((tmp_path / "nb_frac_gem" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
+    assert "yunusgmsoy/rsna-knee-llm-labels-4-source-merged" in meta["dataset_sources"]
+    assert "flight0234/rsna-knee-hybrid-report-labels" not in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work_hyb = tmp_path / "work_hyb"
+    work_gem = tmp_path / "work_gem"
+    work_hyb.mkdir()
+    work_gem.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    sag = series.groupby(STUDY_ID_COL)["Anatomical_Plane"].apply(lambda s: (s == "Sagittal").mean())
+    fluid = series.groupby(STUDY_ID_COL)["Fluid_Sensitive"].mean()
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["ACL"] = sag.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Effusion"] = fluid.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Fracture"] = 0.5
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+    hyb = llm.copy()
+    hyb["Fracture"] = sag.reindex(hyb[STUDY_ID_COL]).fillna(0.5).clip(0.05, 0.95).to_numpy()
+    hyb.to_csv(data / "report_labels_v4hybrid.csv", index=False)
+    gem = llm.copy()
+    gem["Fracture"] = (1.0 - sag.reindex(gem[STUDY_ID_COL]).fillna(0.5)).clip(0.05, 0.95).to_numpy()
+    gem.to_csv(data / "report_labels_v5.csv", index=False)
+
+    def _run(strategy: str, work: Path) -> pd.DataFrame:
+        src = _source_for_strategy(strategy, "00_test")
+        src = src.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+        src = src.replace(
+            'path = Path("/kaggle/working/submission.csv")',
+            f"path = Path({str(work / 'submission.csv')!r})",
+        )
+        ns: dict = {}
+        exec(compile(src, f"{strategy}_nb.py", "exec"), ns, ns)
+        return pd.read_csv(work / "submission.csv"), ns
+
+    out_hyb, _ = _run("weak_rank_bakers_frac_hyb_llm", work_hyb)
+    out_gem, ns_gem = _run("weak_rank_bakers_frac_gem_llm", work_gem)
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out_gem[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out_gem[DEFAULT_TARGETS].isna().any().any() == False
+    assert float(out_gem["Fracture"].std()) > 1e-6
+    assert not np.allclose(out_hyb["Fracture"].to_numpy(), out_gem["Fracture"].to_numpy())
+    assert ns_gem["MIX_TARGETS"]["weak_rank_bakers_frac_gem_llm"] == {"Baker's"}

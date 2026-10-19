@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_frac_gem_llm",
+            "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion stack (0.524) and adding a 50/50 yunusgmsoy Gemini 4-source Fracture mix will beat 0.527, because hybrid Fracture mix-weights plateaued (50/50=0.527, w60=0.526, w40=0.526) while Gemini Fracture is the remaining unused high-agreement Fracture key.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then v4 LLM ACL 50/50 and v4 LLM Effusion 50/50 if std>1e-8 (the 0.524 path). Discover report_labels_v5.csv via explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only Gemini Fracture soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·gemini_weak on Fracture only if that head has std>1e-8; otherwise keep the 0.524 stack. Do not mix hybrid Fracture and do not read Gemini ACL/Effusion/OA/Synovitis/MCL/Contusion/Baker's columns. Fallback to weak_rank_bakers_frac_hyb_llm if the CSV is missing or n_gem<20.",
+            "falsify": "Public score ≤ 0.527 (frozen weak_rank_bakers_frac_hyb_llm).",
+            "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture"],
+        },
+        {
             "id": "H_weak_rank_bakers_frac_hyb_w40",
             "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion + hybrid-Fracture stack (0.527) and giving hybrid Fracture minority weight (0.60 gold / 0.40 hybrid) will beat 0.527, because majority hybrid (0.40/0.60) just dropped to 0.526 after compressing public Fracture 0.248–0.373 → 0.248–0.360.",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then v4 LLM ACL 50/50 and v4 LLM Effusion 50/50 if std>1e-8. Discover report_labels_v4hybrid.csv via explicit /kaggle/input/datasets/flight0234/rsna-knee-hybrid-report-labels plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only hybrid Fracture soft labels (never test UIDs / test reports). Mix 0.60·gold + 0.40·hybrid_weak on Fracture only if that head has std>1e-8; otherwise keep the 0.527 stack. Do not read hybrid ACL/Effusion/OA/Synovitis/MCL/Contusion columns. Fallback to weak_rank_bakers_frac_hyb_llm if the CSV is missing or n_hyb<20.",
-            "falsify": "Public score ≤ 0.527 (frozen weak_rank_bakers_frac_hyb_llm).",
+            "falsify": "Public score ≤ 0.527 (frozen weak_rank_bakers_frac_hyb_llm). Already falsified at 0.526 (57385111); hybrid Fracture mixed (std=0.204, w_gold=0.6) and public Fracture 0.248–0.385.",
             "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture"],
         },
         {
@@ -327,11 +334,13 @@ def run_hypothesize(
         "`weak_rank_bakers_frac_hyb_w60` scored **0.526** (57341916) and is mild poison",
         "(hybrid CSV found, n=4407, Fracture std=0.204, w_gold=0.4; public Fracture compressed",
         "from 0.248–0.373 to 0.248–0.360).",
-        "Next is **`weak_rank_bakers_frac_hyb_w40`**: keep the 0.527 stack and give hybrid Fracture",
-        "minority weight (0.60/0.40) only if that head keeps variance. Do not resubmit",
-        "`weak_rank_bakers_frac_hyb_w60` or `weak_rank_bakers_frac_hyb_llm`. Do not retry v4 PF OA,",
-        "Lateral OA, Medial OA, Fracture, Contusion mix-weights, Synovitis remaps, or MCL.",
-        "Visual MRI encoders stay out of scope.",
+        "`weak_rank_bakers_frac_hyb_w40` scored **0.526** (57385111) and is mild poison",
+        "(hybrid CSV found, n=4407, Fracture std=0.204, w_gold=0.6; public Fracture 0.248–0.385).",
+        "Hybrid mix-weights have plateaued. Next is **`weak_rank_bakers_frac_gem_llm`**: keep the",
+        "0.524 effusion stack and mix yunusgmsoy Gemini 4-source Fracture 50/50 only if that head",
+        "keeps variance. Do not resubmit `weak_rank_bakers_frac_hyb_w40`, `weak_rank_bakers_frac_hyb_w60`,",
+        "or `weak_rank_bakers_frac_hyb_llm`. Do not retry v4 PF OA, Lateral OA, Medial OA, Fracture,",
+        "Contusion mix-weights, Synovitis remaps, or MCL. Visual MRI encoders stay out of scope.",
         "",
         "## Primary hypothesis this cycle",
         "",

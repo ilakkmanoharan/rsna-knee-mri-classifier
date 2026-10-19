@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_frac_hyb_w40",
-        "weak_rank_bakers_frac_hyb_w40",
+        "weak_rank_bakers_frac_gem_llm",
+        "weak_rank_bakers_frac_gem_llm",
         "weak_rank_bakers_frac_hyb_llm",
         "weak_rank_bakers_eff_llm",
         "gold_meta_logit",
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_frac_hyb_w40":
+    if strategy == "weak_rank_bakers_frac_gem_llm":
         lines += [
-            "- Start from frozen `weak_rank_bakers_frac_hyb_llm` (public 0.527): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + v4 LLM Effusion 50/50 + hybrid Fracture 50/50 if std>1e-8.",
-            "- **Change only the hybrid Fracture mix weight to 0.60 gold / 0.40 hybrid** (minority hybrid) if that head has std>1e-8.",
-            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels` and `flight0234/rsna-knee-hybrid-report-labels`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion and `report_labels_v4hybrid.csv` for Fracture via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only hybrid Fracture soft labels. Drop any test UID.",
-            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Medial OA, Lateral OA, or PF OA: Baker's LLM was constant (56872526); v4_blend MCL scored 0.510 poison (56938248); Synovitis field scored 0.522 (57032978); effusion→Synovitis scored 0.521 (57064376); Contusion scored 0.519 (57097591); v4 Fracture tied 0.524 (57132860); v4 Medial OA scored 0.523 poison (57169674); v4 Lateral OA scored 0.523 poison (57218864); v4 PF OA scored 0.523 poison (57257540).",
-            "- Leave Baker's/ACL/Effusion mix weights at 50/50. Do not read other hybrid columns.",
+            "- Start from frozen `weak_rank_bakers_eff_llm` (public 0.524): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + v4 LLM Effusion 50/50 if std>1e-8.",
+            "- **Add yunusgmsoy `report_labels_v5.csv` Fracture 50/50 only if that Gemini head has std>1e-8.** Do not also mix hybrid Fracture.",
+            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels` and `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`; keep `enable_internet` false.",
+            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion and `report_labels_v5.csv` for Fracture via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only Gemini Fracture soft labels. Drop any test UID.",
+            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, hybrid Fracture mix-weights, Medial OA, Lateral OA, or PF OA.",
+            "- Leave Baker's/ACL/Effusion mix weights at 50/50. Do not read other Gemini columns.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_hyb < 20, the hybrid CSV is missing, or Fracture hybrid std is 0, fall back to weak_rank_bakers_frac_hyb_llm (0.527).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), `weak_rank_bakers_pfoa_llm` (0.523 poison, 57257540), `weak_rank_bakers_loa_llm` (0.523 poison, 57218864), `weak_rank_bakers_moa_llm` (0.523 poison, 57169674), `weak_rank_bakers_frac_llm` (0.524 tie, 57132860), `weak_rank_bakers_cont_llm` (0.519 poison, 57097591), `weak_rank_bakers_syn_from_eff` (0.521 poison, 57064376), `weak_rank_bakers_syn_llm` (0.522 poison, 57032978), `weak_rank_bakers_eff_llm` (0.524 accepted, 56995081), `weak_rank_bakers_mcl_llm` (0.510 poison, 56938248), `weak_rank_bakers_acl_llm` (0.520 accepted, 56902005), or earlier weak-label failures.",
+            "- If n_gem < 20, the Gemini CSV is missing, or Fracture Gemini std is 0, fall back to weak_rank_bakers_frac_hyb_llm (0.527).",
+            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), `weak_rank_bakers_pfoa_llm` (0.523 poison, 57257540), `weak_rank_bakers_loa_llm` (0.523 poison, 57218864), `weak_rank_bakers_moa_llm` (0.523 poison, 57169674), `weak_rank_bakers_frac_llm` (0.524 tie, 57132860), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_frac_hyb_w40":
+        lines += [
+            "- Already falsified at public 0.526 (submission 57385111). Kernel mixed hybrid Fracture (std=0.204, w_gold=0.6); public Fracture 0.248–0.385.",
+            "- **Do not resubmit.** Minority hybrid Fracture is mild poison. Hybrid mix-weights have plateaued.",
+            "- Keep weak_rank_bakers_frac_hyb_llm as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_hyb_w60":
