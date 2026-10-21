@@ -125,7 +125,7 @@ def offset_for(t: str, feats: dict, strategy: str) -> float:
     for plane, w in pref.items():
         # missing preferred plane → mild negative (NOT forced zero label)
         off += w * (feats.get(plane, 0.0) - 0.5)
-    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"}}:
+    if strategy in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "rank_ensemble_safe", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"}}:
         fb = FLUID_BOOST.get(t, 0.0)
         if strategy == "fluid_gate_metadata":
             fb *= 1.5
@@ -249,12 +249,12 @@ for uid in uids:
         if STRATEGY == "report_shrinkage_priors":
             p0 = float(np.clip(p0 + SHRINK.get(t, 0.0), EPS, 1 - EPS))
         off = offset_for(t, feats, STRATEGY)
-        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"}}:
+        if STRATEGY in {{"metadata_prior_blend", "report_shrinkage_priors", "fluid_gate_metadata", "gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"}}:
             p = float(sigmoid(logit(p0) + off))
         else:
             p = p0
         # Hand-tuned strategies keep tiny jitter; learned ranking must not be scrambled.
-        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"}}:
+        if STRATEGY not in {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"}}:
             p = float(np.clip(p + rng.normal(0, 0.005), EPS, 1 - EPS))
         else:
             p = float(np.clip(p, EPS, 1 - EPS))
@@ -387,6 +387,7 @@ MIX_TARGETS = {{
     "weak_rank_bakers_frac_hyb_w40": BAKERS_ONLY,
     "weak_rank_bakers_frac_gem_llm": BAKERS_ONLY,
     "weak_rank_bakers_frac_hyb_gem_llm": BAKERS_ONLY,
+    "weak_rank_bakers_frac_hyb_mm_llm": BAKERS_ONLY,
 }}
 MIX_GOLD_W = {{
     "weak_rank_named_mix": 0.50,
@@ -414,6 +415,7 @@ MIX_GOLD_W = {{
     "weak_rank_bakers_frac_hyb_w40": 0.50,
     "weak_rank_bakers_frac_gem_llm": 0.50,
     "weak_rank_bakers_frac_hyb_gem_llm": 0.50,
+    "weak_rank_bakers_frac_hyb_mm_llm": 0.50,
 }}
 MIX_NAMED_SET = {{
     "weak_rank_bakers_mm_mix": NAMED_PLUS_MM,
@@ -756,9 +758,9 @@ def learned_scores_llm(interact=False, lam=2.0, target_name="Baker's", finder=No
 used_learned = False
 n7 = nI = 0
 WEAK_STRATS = {{"weak_rank_calibrate", "weak_rank_goldfill", "weak_rank_confident", "weak_rank_named"}}
-BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50, "weak_rank_bakers_goldstd": 0.50, "weak_rank_bakers_silence": 0.50, "weak_rank_bakers_dropfat": 0.50, "weak_rank_bakers_llm": 0.50, "weak_rank_bakers_acl_llm": 0.50, "weak_rank_bakers_mcl_llm": 0.50, "weak_rank_bakers_eff_llm": 0.50, "weak_rank_bakers_syn_llm": 0.50, "weak_rank_bakers_syn_from_eff": 0.50, "weak_rank_bakers_cont_llm": 0.50, "weak_rank_bakers_frac_llm": 0.50, "weak_rank_bakers_moa_llm": 0.50, "weak_rank_bakers_loa_llm": 0.50, "weak_rank_bakers_pfoa_llm": 0.50, "weak_rank_bakers_frac_hyb_llm": 0.50, "weak_rank_bakers_frac_hyb_w60": 0.50, "weak_rank_bakers_frac_hyb_w40": 0.50, "weak_rank_bakers_frac_gem_llm": 0.50, "weak_rank_bakers_frac_hyb_gem_llm": 0.50}}
-INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5, "weak_rank_bakers_goldstd": 3.5, "weak_rank_bakers_silence": 3.5, "weak_rank_bakers_dropfat": 3.5, "weak_rank_bakers_llm": 3.5, "weak_rank_bakers_acl_llm": 3.5, "weak_rank_bakers_mcl_llm": 3.5, "weak_rank_bakers_eff_llm": 3.5, "weak_rank_bakers_syn_llm": 3.5, "weak_rank_bakers_syn_from_eff": 3.5, "weak_rank_bakers_cont_llm": 3.5, "weak_rank_bakers_frac_llm": 3.5, "weak_rank_bakers_moa_llm": 3.5, "weak_rank_bakers_loa_llm": 3.5, "weak_rank_bakers_pfoa_llm": 3.5, "weak_rank_bakers_frac_hyb_llm": 3.5, "weak_rank_bakers_frac_hyb_w60": 3.5, "weak_rank_bakers_frac_hyb_w40": 3.5, "weak_rank_bakers_frac_gem_llm": 3.5, "weak_rank_bakers_frac_hyb_gem_llm": 3.5}}
-LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"}}
+BLEND_W7 = {{"gold_rank_interact": 0.60, "gold_rank_w50": 0.50, "gold_rank_w70": 0.70, "gold_rank_w40": 0.40, "gold_rank_lam2": 0.50, "weak_rank_calibrate": 0.50, "weak_rank_goldfill": 0.50, "weak_rank_confident": 0.50, "weak_rank_named": 0.50, "weak_rank_named_mix": 0.50, "weak_rank_bakers_mix": 0.50, "weak_rank_bakers_w60": 0.50, "weak_rank_bakers_w40": 0.50, "weak_rank_bakers_acl_mix": 0.50, "weak_rank_bakers_mm_mix": 0.50, "weak_rank_bakers_goldstd": 0.50, "weak_rank_bakers_silence": 0.50, "weak_rank_bakers_dropfat": 0.50, "weak_rank_bakers_llm": 0.50, "weak_rank_bakers_acl_llm": 0.50, "weak_rank_bakers_mcl_llm": 0.50, "weak_rank_bakers_eff_llm": 0.50, "weak_rank_bakers_syn_llm": 0.50, "weak_rank_bakers_syn_from_eff": 0.50, "weak_rank_bakers_cont_llm": 0.50, "weak_rank_bakers_frac_llm": 0.50, "weak_rank_bakers_moa_llm": 0.50, "weak_rank_bakers_loa_llm": 0.50, "weak_rank_bakers_pfoa_llm": 0.50, "weak_rank_bakers_frac_hyb_llm": 0.50, "weak_rank_bakers_frac_hyb_w60": 0.50, "weak_rank_bakers_frac_hyb_w40": 0.50, "weak_rank_bakers_frac_gem_llm": 0.50, "weak_rank_bakers_frac_hyb_gem_llm": 0.50, "weak_rank_bakers_frac_hyb_mm_llm": 0.50}}
+INTERACT_LAM = {{"gold_rank_interact": 3.5, "gold_rank_w50": 3.5, "gold_rank_w70": 3.5, "gold_rank_w40": 3.5, "gold_rank_lam2": 2.0, "weak_rank_calibrate": 3.5, "weak_rank_goldfill": 3.5, "weak_rank_confident": 3.5, "weak_rank_named": 3.5, "weak_rank_named_mix": 3.5, "weak_rank_bakers_mix": 3.5, "weak_rank_bakers_w60": 3.5, "weak_rank_bakers_w40": 3.5, "weak_rank_bakers_acl_mix": 3.5, "weak_rank_bakers_mm_mix": 3.5, "weak_rank_bakers_goldstd": 3.5, "weak_rank_bakers_silence": 3.5, "weak_rank_bakers_dropfat": 3.5, "weak_rank_bakers_llm": 3.5, "weak_rank_bakers_acl_llm": 3.5, "weak_rank_bakers_mcl_llm": 3.5, "weak_rank_bakers_eff_llm": 3.5, "weak_rank_bakers_syn_llm": 3.5, "weak_rank_bakers_syn_from_eff": 3.5, "weak_rank_bakers_cont_llm": 3.5, "weak_rank_bakers_frac_llm": 3.5, "weak_rank_bakers_moa_llm": 3.5, "weak_rank_bakers_loa_llm": 3.5, "weak_rank_bakers_pfoa_llm": 3.5, "weak_rank_bakers_frac_hyb_llm": 3.5, "weak_rank_bakers_frac_hyb_w60": 3.5, "weak_rank_bakers_frac_hyb_w40": 3.5, "weak_rank_bakers_frac_gem_llm": 3.5, "weak_rank_bakers_frac_hyb_gem_llm": 3.5, "weak_rank_bakers_frac_hyb_mm_llm": 3.5}}
+LEARNED = {{"gold_meta_logit", "gold_rank_interact", "gold_rank_w50", "gold_rank_w70", "gold_rank_w40", "gold_rank_lam2", "weak_rank_named_mix", "weak_rank_bakers_mix", "weak_rank_bakers_w60", "weak_rank_bakers_w40", "weak_rank_bakers_acl_mix", "weak_rank_bakers_mm_mix", "weak_rank_bakers_goldstd", "weak_rank_bakers_silence", "weak_rank_bakers_dropfat", "weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"}}
 if STRATEGY in WEAK_STRATS and train_series is not None:
     w7 = float(BLEND_W7[STRATEGY])
     lamI = float(INTERACT_LAM[STRATEGY])
@@ -851,7 +853,7 @@ if STRATEGY in MIX_TARGETS and used_learned and train_series is not None:
     else:
         print(STRATEGY, "skipped named mix; keeping gold_rank_w50. n7w", n7w, "nIw", nIw)
 
-if STRATEGY in {"weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"} and used_learned and train_series is not None:
+if STRATEGY in {"weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"} and used_learned and train_series is not None:
     # Keep parser Baker's mix; add LLM ACL only if that head has public-test variance.
     # 2026-10-06 Baker's LLM head was constant (std~0) so mixing it was rank-preserving.
     scores7l, n7l = learned_scores_llm(False, 2.0, target_name="ACL")
@@ -909,7 +911,7 @@ if STRATEGY == "weak_rank_bakers_mcl_llm" and used_learned and train_series is n
     else:
         print(STRATEGY, "LLM MCL missing; keeping bakers_acl_llm stack. n7m", n7m, "nIm", nIm)
 
-if STRATEGY in {"weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"} and used_learned and train_series is not None:
+if STRATEGY in {"weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm", "weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"} and used_learned and train_series is not None:
     # Keep parser Baker's + LLM ACL (0.520); add LLM Effusion only if that head has variance.
     # Accepted at 0.524 (56995081). syn_llm reuses this stack before adding Synovitis.
     scores7e, n7e = learned_scores_llm(False, 2.0, target_name="Effusion")
@@ -1144,7 +1146,7 @@ if STRATEGY == "weak_rank_bakers_pfoa_llm" and used_learned and train_series is 
     else:
         print(STRATEGY, "LLM PF OA missing; keeping bakers_eff_llm stack. n7p", n7pf, "nIp", nIpf)
 
-if STRATEGY in {"weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_hyb_gem_llm"} and used_learned and train_series is not None:
+if STRATEGY in {"weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_hyb_gem_llm", "weak_rank_bakers_frac_hyb_mm_llm"} and used_learned and train_series is not None:
     # Keep parser Baker's + v4 LLM ACL + v4 LLM Effusion; add hybrid Fracture if variance.
     # frac_hyb_llm accepted 0.527 (57298558). w60 gives hybrid Fracture majority weight.
     scores7h, n7h = learned_scores_llm(False, 2.0, target_name="Fracture", finder=discover_hybrid_labels)
@@ -1173,6 +1175,35 @@ if STRATEGY in {"weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60"
             print(STRATEGY, "skip constant hybrid Fracture std", frac_std, "; keeping bakers_frac_hyb_llm stack")
     else:
         print(STRATEGY, "hybrid Fracture missing; keeping bakers_frac_hyb_llm stack. n7h", n7h, "nIh", nIh)
+
+if STRATEGY == "weak_rank_bakers_frac_hyb_mm_llm" and used_learned and train_series is not None:
+    # Keep the 0.527 hybrid stack; add v4 LLM Medial Meniscus if variance.
+    # Parser MM poisoned 0.517 (56745095). Fracture Gemini stacking tied 0.527 (57468780).
+    scores7mm, n7mm = learned_scores_llm(False, 2.0, target_name="Medial Meniscus")
+    scoresImm, nImm = learned_scores_llm(True, 3.5, target_name="Medial Meniscus")
+    ranked_mm = None
+    if scores7mm is not None and scoresImm is not None:
+        ranked_mm = 0.5 * rank_cols(scores7mm) + 0.5 * rank_cols(scoresImm)
+        print(STRATEGY, "llm Medial Meniscus blend 0.50/0.50 n7mm", n7mm, "nImm", nImm)
+    elif scores7mm is not None:
+        ranked_mm = rank_cols(scores7mm)
+        print(STRATEGY, "llm Medial Meniscus 7d only n7mm", n7mm, "nImm", nImm)
+    if ranked_mm is not None and "Medial Meniscus" in targets:
+        mm_j = targets.index("Medial Meniscus")
+        mm_std = float(np.std(ranked_mm[:, mm_j]))
+        if mm_std > 1e-8:
+            mixed = out[targets].to_numpy(dtype=float)
+            weak_col = np.clip(prev["Medial Meniscus"] + 0.25 * (ranked_mm[:, mm_j] - 0.5), EPS, 1 - EPS)
+            mixed[:, mm_j] = 0.50 * mixed[:, mm_j] + 0.50 * weak_col
+            out = sample[[study_col]].copy()
+            for j, t in enumerate(targets):
+                out[t] = mixed[:, j]
+            out = out[sample.columns]
+            print(STRATEGY, "mixed LLM Medial Meniscus std", mm_std)
+        else:
+            print(STRATEGY, "skip constant LLM Medial Meniscus std", mm_std, "; keeping bakers_frac_hyb_llm stack")
+    else:
+        print(STRATEGY, "LLM Medial Meniscus missing; keeping bakers_frac_hyb_llm stack. n7mm", n7mm, "nImm", nImm)
 
 if STRATEGY in {"weak_rank_bakers_frac_gem_llm", "weak_rank_bakers_frac_hyb_gem_llm"} and used_learned and train_series is not None:
     # gem_llm: 0.524 stack + Gemini Fracture (falsified 0.525). hyb_gem: 0.527 hybrid stack then Gemini.
@@ -1242,7 +1273,7 @@ def implement_notebook(kernel_dir: Path, strategy: str, cycle_id: str, kernel_sl
             else ["stevenleehans/rsna-knee-llm-report-labels", "yunusgmsoy/rsna-knee-llm-labels-4-source-merged"]
             if strategy == "weak_rank_bakers_frac_gem_llm"
             else ["stevenleehans/rsna-knee-llm-report-labels", "flight0234/rsna-knee-hybrid-report-labels"]
-            if strategy in {"weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40"}
+            if strategy in {"weak_rank_bakers_frac_hyb_llm", "weak_rank_bakers_frac_hyb_w60", "weak_rank_bakers_frac_hyb_w40", "weak_rank_bakers_frac_hyb_mm_llm"}
             else ["stevenleehans/rsna-knee-llm-report-labels"]
             if strategy in {"weak_rank_bakers_llm", "weak_rank_bakers_acl_llm", "weak_rank_bakers_mcl_llm", "weak_rank_bakers_eff_llm", "weak_rank_bakers_syn_llm", "weak_rank_bakers_syn_from_eff", "weak_rank_bakers_cont_llm", "weak_rank_bakers_frac_llm", "weak_rank_bakers_moa_llm", "weak_rank_bakers_loa_llm", "weak_rank_bakers_pfoa_llm"}
             else []
