@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_frac_hyb_lm_llm",
+            "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion + hybrid-Fracture stack (0.527) and adding a 50/50 stevenleehans v4_blend Lateral Meniscus mix will beat 0.527, because LLM Medial Meniscus just tied (0.527) rather than poisoning, so the last unused named object can still transfer.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then v4 LLM ACL 50/50, v4 LLM Effusion 50/50, and hybrid Fracture 50/50 if std>1e-8 (the 0.527 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM Lateral Meniscus soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Lateral Meniscus only if that head has std>1e-8; otherwise keep the 0.527 stack. Do not read LLM MCL/Synovitis/Contusion/OA/Fracture/Baker's/Medial Meniscus columns. Fallback to weak_rank_bakers_frac_hyb_llm if the CSV is missing or n_llm<20.",
+            "falsify": "Public score ≤ 0.527 (frozen weak_rank_bakers_frac_hyb_llm).",
+            "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture", "Lateral Meniscus"],
+        },
+        {
             "id": "H_weak_rank_bakers_frac_hyb_mm_llm",
             "hypothesis": "Keeping the accepted parser-Baker's + LLM-ACL + LLM-Effusion + hybrid-Fracture stack (0.527) and adding a 50/50 stevenleehans v4_blend Medial Meniscus mix will beat 0.527, because Fracture Gemini stacking just tied (0.527) while LLM Medial Meniscus is the remaining unused named object and still varies on the public sample (0.323–0.511).",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then v4 LLM ACL 50/50, v4 LLM Effusion 50/50, and hybrid Fracture 50/50 if std>1e-8 (the 0.527 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM Medial Meniscus soft labels (never test UIDs / test reports). Mix 0.50·gold + 0.50·llm_weak on Medial Meniscus only if that head has std>1e-8; otherwise keep the 0.527 stack. Do not read LLM MCL/Synovitis/Contusion/OA/Fracture/Baker's columns and do not add Lateral Meniscus. Fallback to weak_rank_bakers_frac_hyb_llm if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.527 (frozen weak_rank_bakers_frac_hyb_llm).",
+            "falsify": "Public score ≤ 0.527 (frozen weak_rank_bakers_frac_hyb_llm). Already falsified at 0.527 tie (57512380); Medial Meniscus mixed (std=0.408) and public MM 0.323–0.542.",
             "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture", "Medial Meniscus"],
         },
         {
@@ -354,11 +361,13 @@ def run_hypothesize(
         "(Gemini CSV found, n=4407, Fracture std=0.354; public Fracture 0.217–0.404, matching v4).",
         "`weak_rank_bakers_frac_hyb_gem_llm` scored **0.527** (57468780) and is a falsified tie",
         "(Gemini CSV found, n=4407, Fracture std=0.354; public Fracture 0.217–0.373).",
-        "Gemini-on-hybrid pulled the public Fracture min toward Gemini while keeping the hybrid max;",
-        "public LB did not move. Fracture keys are exhausted.",
-        "Next is **`weak_rank_bakers_frac_hyb_mm_llm`**: keep the 0.527 hybrid stack and mix",
-        "v4 LLM Medial Meniscus 50/50 only if that head keeps variance. Do not resubmit",
-        "`weak_rank_bakers_frac_hyb_gem_llm`, `weak_rank_bakers_frac_gem_llm`,",
+        "`weak_rank_bakers_frac_hyb_mm_llm` scored **0.527** (57512380) and is a falsified tie",
+        "(CSV found, n=4407, Medial Meniscus std=0.408; public MM 0.323–0.542).",
+        "LLM MM transferred enough to keep variance but did not move public macro AUC.",
+        "Parser MM was poison (0.517); LLM MM is only a tie, so Lateral Meniscus remains open.",
+        "Next is **`weak_rank_bakers_frac_hyb_lm_llm`**: keep the 0.527 hybrid stack and mix",
+        "v4 LLM Lateral Meniscus 50/50 only if that head keeps variance. Do not resubmit",
+        "`weak_rank_bakers_frac_hyb_mm_llm`, `weak_rank_bakers_frac_hyb_gem_llm`, `weak_rank_bakers_frac_gem_llm`,",
         "`weak_rank_bakers_frac_hyb_w40`, `weak_rank_bakers_frac_hyb_w60`,",
         "or `weak_rank_bakers_frac_hyb_llm`. Do not retry v4 PF OA, Lateral OA, Medial OA, Fracture,",
         "Contusion mix-weights, Synovitis remaps, MCL, or parser MM. Visual MRI encoders stay out of scope.",

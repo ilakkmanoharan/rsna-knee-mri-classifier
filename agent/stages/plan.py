@@ -17,8 +17,8 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_frac_hyb_mm_llm",
-        "weak_rank_bakers_frac_hyb_mm_llm",
+        "weak_rank_bakers_frac_hyb_lm_llm",
+        "weak_rank_bakers_frac_hyb_lm_llm",
         "weak_rank_bakers_frac_hyb_llm",
         "weak_rank_bakers_eff_llm",
         "gold_meta_logit",
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_frac_hyb_mm_llm":
+    if strategy == "weak_rank_bakers_frac_hyb_lm_llm":
         lines += [
             "- Start from frozen `weak_rank_bakers_frac_hyb_llm` (public 0.527): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + v4 LLM Effusion 50/50 + hybrid Fracture 50/50 if std>1e-8.",
-            "- **Add stevenleehans `llm_labels_v4_blend.csv` Medial Meniscus 50/50 only if that head has std>1e-8.**",
+            "- **Add stevenleehans `llm_labels_v4_blend.csv` Lateral Meniscus 50/50 only if that head has std>1e-8.**",
             "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels` and `flight0234/rsna-knee-hybrid-report-labels`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Medial Meniscus and `report_labels_v4hybrid.csv` for hybrid Fracture via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only LLM Medial Meniscus soft labels. Drop any test UID.",
-            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, hybrid mix-weights, Medial OA, Lateral OA, PF OA, or Lateral Meniscus.",
+            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus and `report_labels_v4hybrid.csv` for hybrid Fracture via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only LLM Lateral Meniscus soft labels. Drop any test UID.",
+            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, hybrid mix-weights, Medial OA, Lateral OA, PF OA, or Medial Meniscus.",
             "- Leave Baker's/ACL/Effusion/hybrid-Fracture mix weights at 50/50.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_llm < 20, the CSV is missing, or Medial Meniscus LLM std is 0, fall back to weak_rank_bakers_frac_hyb_llm (0.527).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_gem_llm` (0.527 tie, 57468780), `weak_rank_bakers_frac_gem_llm` (0.525 poison, 57425148), `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), or earlier weak-label failures.",
+            "- If n_llm < 20, the CSV is missing, or Lateral Meniscus LLM std is 0, fall back to weak_rank_bakers_frac_hyb_llm (0.527).",
+            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_mm_llm` (0.527 tie, 57512380), `weak_rank_bakers_frac_hyb_gem_llm` (0.527 tie, 57468780), `weak_rank_bakers_frac_gem_llm` (0.525 poison, 57425148), `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_frac_hyb_mm_llm":
+        lines += [
+            "- Already falsified at public 0.527 (submission 57512380). Kernel mixed Medial Meniscus (std=0.408); public MM 0.323–0.542.",
+            "- **Do not resubmit.** v4 LLM Medial Meniscus is a rank-preserving tie. Parser MM remains poison (0.517).",
+            "- Keep weak_rank_bakers_frac_hyb_llm as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_hyb_gem_llm":

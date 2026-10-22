@@ -65,14 +65,23 @@ def commit_and_push(
     sha = _run(["git", "rev-parse", "HEAD"]).stdout.strip()
     logger.info("Committed %s", sha)
     if auto_push:
-        push = subprocess.run(
-            ["git", "push", "-u", "origin", branch],
-            cwd=REPO_ROOT,
-            capture_output=True,
-            text=True,
-        )
-        if push.returncode != 0:
-            logger.error("push failed: %s %s", push.stdout, push.stderr)
-        else:
-            logger.info("Pushed to origin/%s", branch)
+        current = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"], check=False).stdout.strip()
+        # Cloud feature branches used to `git push origin main`, which only
+        # updates stale local main. Push HEAD to the configured branch, and
+        # also keep the current branch up to date when they differ.
+        targets = [branch]
+        if current and current not in {"HEAD", branch}:
+            targets.append(current)
+        for dest in targets:
+            refspec = f"HEAD:{dest}" if dest != current else dest
+            push = subprocess.run(
+                ["git", "push", "-u", "origin", refspec],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+            )
+            if push.returncode != 0:
+                logger.error("push origin/%s failed: %s %s", dest, push.stdout, push.stderr)
+            else:
+                logger.info("Pushed HEAD to origin/%s", dest)
     return sha
