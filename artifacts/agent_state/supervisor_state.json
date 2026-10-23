@@ -11,6 +11,11 @@
       "at": "2026-10-23T01:27:48.092331-05:00",
       "verdict": "on_track",
       "report": "Supervision/2026-10-23_20261023T012751-0500_supervision.md"
+    },
+    {
+      "at": "2026-10-23T07:04:11.287419-05:00",
+      "verdict": "failing",
+      "report": "Supervision/2026-10-23_20261023T070413-0500_supervision.md"
     }
   ]
 }
