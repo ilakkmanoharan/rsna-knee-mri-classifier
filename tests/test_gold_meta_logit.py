@@ -14,31 +14,31 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_lm_llm(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_lm_w60(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_frac_hyb_lm_llm" in md.read_text()
+    assert "weak_rank_bakers_frac_hyb_lm_w60" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_llm"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_w60"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_lm_llm(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_lm_w60(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_llm"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_w60"
     assert "llm" in md.read_text().lower()
 
 
-def test_cycle2_plan_keeps_weak_rank_bakers_frac_hyb_llm_fallback(tmp_path):
+def test_cycle2_plan_keeps_weak_rank_bakers_frac_hyb_lm_llm_fallback(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-24", cycle_num=2)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle02_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_llm"
-    assert "0.527" in sidecar_md.read_text()
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_llm"
+    assert "0.529" in sidecar_md.read_text()
 
 
 def test_notebook_contains_learned_metadata_path(tmp_path):
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_llm(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_w60(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,11 +287,12 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_llm(tmp_path):
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_frac_hyb_lm_llm" in text
-    assert "`H_weak_rank_bakers_frac_hyb_lm_llm` ← primary" in text
+    assert "H_weak_rank_bakers_frac_hyb_lm_w60" in text
+    assert "`H_weak_rank_bakers_frac_hyb_lm_w60` ← primary" in text
+    assert "0.529" in text
     assert "0.527" in text
-    assert "0.525" in text
     assert "Lateral Meniscus" in text
+    assert "weak_rank_bakers_frac_hyb_lm_llm" in text
     assert "weak_rank_bakers_frac_hyb_mm_llm" in text
     assert "weak_rank_bakers_frac_hyb_gem_llm" in text
     assert "weak_rank_bakers_frac_hyb_llm" in text
@@ -300,6 +301,7 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_llm(tmp_path):
     assert "57425148" in text
     assert "57468780" in text
     assert "57512380" in text
+    assert "57551203" in text
 
 
 def test_weak_rank_calibrate_notebook_and_synthetic_acl(tmp_path):
@@ -1576,3 +1578,57 @@ def test_weak_rank_bakers_frac_hyb_lm_llm_mixes_lateral_meniscus(tmp_path):
     assert not np.allclose(out_hyb["Lateral Meniscus"].to_numpy(), out_lm["Lateral Meniscus"].to_numpy())
     assert np.allclose(out_hyb["Fracture"].to_numpy(), out_lm["Fracture"].to_numpy())
     assert ns_lm["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_llm"] == {"Baker's"}
+
+
+def test_weak_rank_bakers_frac_hyb_lm_w60_gives_majority_lm_weight(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_frac_hyb_lm_w60", "weak_rank_bakers_frac_hyb_lm_w60", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_w60'" in src
+    assert "mixed LLM Lateral Meniscus" in src
+    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_w60" else 0.50' in src
+    meta = json.loads((tmp_path / "nb_frac_hyb_lm_w60" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
+    assert "flight0234/rsna-knee-hybrid-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work_lm = tmp_path / "work_lm"
+    work_w60 = tmp_path / "work_w60"
+    work_lm.mkdir()
+    work_w60.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    sag = series.groupby(STUDY_ID_COL)["Anatomical_Plane"].apply(lambda s: (s == "Sagittal").mean())
+    fluid = series.groupby(STUDY_ID_COL)["Fluid_Sensitive"].mean()
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["ACL"] = sag.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Effusion"] = fluid.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Lateral Meniscus"] = np.linspace(0.06, 0.94, len(llm))
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+    hyb = llm.copy()
+    hyb["Fracture"] = np.linspace(0.08, 0.92, len(hyb))
+    hyb.to_csv(data / "report_labels_v4hybrid.csv", index=False)
+
+    def _run(strategy: str, work: Path) -> pd.DataFrame:
+        src_s = _source_for_strategy(strategy, "00_test")
+        src_s = src_s.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+        src_s = src_s.replace(
+            'path = Path("/kaggle/working/submission.csv")',
+            f"path = Path({str(work / 'submission.csv')!r})",
+        )
+        ns: dict = {}
+        exec(compile(src_s, f"{strategy}_nb.py", "exec"), ns, ns)
+        return pd.read_csv(work / "submission.csv"), ns
+
+    out_lm, _ = _run("weak_rank_bakers_frac_hyb_lm_llm", work_lm)
+    out_w60, ns_w60 = _run("weak_rank_bakers_frac_hyb_lm_w60", work_w60)
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out_w60[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out_w60[DEFAULT_TARGETS].isna().any().any() == False
+    assert float(out_w60["Lateral Meniscus"].std()) > 1e-6
+    assert not np.allclose(out_lm["Lateral Meniscus"].to_numpy(), out_w60["Lateral Meniscus"].to_numpy())
+    assert np.allclose(out_lm["Fracture"].to_numpy(), out_w60["Fracture"].to_numpy())
+    assert ns_w60["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_w60"] == {"Baker's"}
