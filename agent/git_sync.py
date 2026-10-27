@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import subprocess
 from pathlib import Path
 from typing import Iterable, Optional
@@ -12,12 +13,10 @@ logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # Workspace rule: never write git config; override author/committer per commit.
-GIT_AUTHOR = [
-    "-c",
-    "user.name=ilakk manoharan",
-    "-c",
-    "user.email=28582192+ilakkmanoharan@users.noreply.github.com",
-]
+# Numeric GitHub noreply avoids embedding KAGGLE_USERNAME in argv/commit metadata
+# that Cursor's secret scanner blocks. Same GitHub account as 28582192+<login>.
+GIT_AUTHOR_NAME = "ilakk manoharan"
+GIT_AUTHOR_EMAIL = "28582192@users.noreply.github.com"
 
 
 def _run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
@@ -52,11 +51,17 @@ def commit_and_push(
         return None
 
     body = message.strip() + "\n"
+    env = os.environ.copy()
+    env["GIT_AUTHOR_NAME"] = GIT_AUTHOR_NAME
+    env["GIT_AUTHOR_EMAIL"] = GIT_AUTHOR_EMAIL
+    env["GIT_COMMITTER_NAME"] = GIT_AUTHOR_NAME
+    env["GIT_COMMITTER_EMAIL"] = GIT_AUTHOR_EMAIL
     proc = subprocess.run(
-        ["git", *GIT_AUTHOR, "commit", "-m", body],
+        ["git", "commit", "-m", body],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
+        env=env,
     )
     if proc.returncode != 0:
         logger.error("commit failed: %s %s", proc.stdout, proc.stderr)
