@@ -14,30 +14,30 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_w60(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_w40(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" in md.read_text()
+    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_w40" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_w60(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_w40(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40"
     assert "llm" in md.read_text().lower()
 
 
-def test_cycle2_plan_keeps_acl_w60_not_gold_meta_logit(tmp_path):
+def test_cycle2_plan_keeps_acl_w40_not_gold_meta_logit(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-24", cycle_num=2)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle02_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40"
     assert "0.530" in sidecar_md.read_text()
 
 
@@ -275,7 +275,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_eff_acl_w60(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_eff_acl_w40(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -287,16 +287,17 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_eff_acl_w60(tmp_path
         cycle_num=0,
     )
     text = md.read_text()
-    assert "H_weak_rank_bakers_frac_hyb_lm_eff_acl_w60" in text
-    assert "`H_weak_rank_bakers_frac_hyb_lm_eff_acl_w60` ← primary" in text
+    assert "H_weak_rank_bakers_frac_hyb_lm_eff_acl_w40" in text
+    assert "`H_weak_rank_bakers_frac_hyb_lm_eff_acl_w40` ← primary" in text
     assert "0.530" in text
     assert "0.528" in text
     assert "ACL" in text
+    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" in text
     assert "weak_rank_bakers_frac_hyb_lm_eff_w40" in text
     assert "weak_rank_bakers_frac_hyb_lm_eff_w60" in text
     assert "weak_rank_bakers_frac_hyb_lm_llm" in text
     assert "llm" in text.lower()
-    assert "57656351" in text
+    assert "57726811" in text
     assert "57691260" in text
 
 
@@ -1635,8 +1636,8 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_w60_gives_majority_acl_weight(tmp_
     src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
     assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_eff_acl_w60'" in src
     assert "mixed LLM ACL std" in src
-    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" else 0.50' in src
-    assert 'STRATEGY in {"weak_rank_bakers_frac_hyb_lm_eff_w60", "weak_rank_bakers_frac_hyb_lm_eff_acl_w60"}' in src
+    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40" else 0.50' in src
+    assert 'STRATEGY in {"weak_rank_bakers_frac_hyb_lm_eff_w60", "weak_rank_bakers_frac_hyb_lm_eff_acl_w60", "weak_rank_bakers_frac_hyb_lm_eff_acl_w40"}' in src
     meta = json.loads((tmp_path / "nb_acl_w60" / "kernel-metadata.json").read_text())
     assert meta["enable_internet"] is False
     assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
@@ -1682,4 +1683,57 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_w60_gives_majority_acl_weight(tmp_
     assert np.allclose(out_base["Effusion"].to_numpy(), out_acl["Effusion"].to_numpy())
     assert np.allclose(out_base["Lateral Meniscus"].to_numpy(), out_acl["Lateral Meniscus"].to_numpy())
     assert ns_acl["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_eff_acl_w60"] == {"Baker's"}
-    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" else 0.50' in src
+    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40" else 0.50' in src
+
+
+def test_weak_rank_bakers_frac_hyb_lm_eff_acl_w40_gives_minority_acl_weight(tmp_path):
+    nb = implement_notebook(tmp_path / "nb_acl_w40", "weak_rank_bakers_frac_hyb_lm_eff_acl_w40", "00_test", "slug", "user")
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_eff_acl_w40'" in src
+    assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40" else 0.50' in src
+    meta = json.loads((tmp_path / "nb_acl_w40" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "stevenleehans/rsna-knee-llm-report-labels" in meta["dataset_sources"]
+    assert "flight0234/rsna-knee-hybrid-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work_w60 = tmp_path / "work_w60"
+    work_w40 = tmp_path / "work_w40"
+    work_w60.mkdir()
+    work_w40.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    fluid = series.groupby(STUDY_ID_COL)["Fluid_Sensitive"].mean()
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for t in DEFAULT_TARGETS:
+        llm[t] = 0.25
+    llm["ACL"] = np.linspace(0.94, 0.06, len(llm))
+    llm["Effusion"] = fluid.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Lateral Meniscus"] = np.linspace(0.06, 0.94, len(llm))
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+    hyb = llm.copy()
+    hyb["Fracture"] = np.linspace(0.08, 0.92, len(hyb))
+    hyb.to_csv(data / "report_labels_v4hybrid.csv", index=False)
+
+    def _run(strategy: str, work: Path):
+        src_s = _source_for_strategy(strategy, "00_test")
+        src_s = src_s.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+        src_s = src_s.replace(
+            'path = Path("/kaggle/working/submission.csv")',
+            f"path = Path({str(work / 'submission.csv')!r})",
+        )
+        ns: dict = {}
+        exec(compile(src_s, f"{strategy}_nb.py", "exec"), ns, ns)
+        return pd.read_csv(work / "submission.csv"), ns
+
+    out_w60, _ = _run("weak_rank_bakers_frac_hyb_lm_eff_acl_w60", work_w60)
+    out_w40, ns_w40 = _run("weak_rank_bakers_frac_hyb_lm_eff_acl_w40", work_w40)
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out_w40[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out_w40[DEFAULT_TARGETS].isna().any().any() == False
+    assert float(out_w40["ACL"].std()) > 1e-6
+    assert np.allclose(out_w60["Effusion"].to_numpy(), out_w40["Effusion"].to_numpy())
+    assert np.allclose(out_w60["Lateral Meniscus"].to_numpy(), out_w40["Lateral Meniscus"].to_numpy())
+    assert ns_w40["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_eff_acl_w40"] == {"Baker's"}
+    assert "mixed LLM ACL std" in src

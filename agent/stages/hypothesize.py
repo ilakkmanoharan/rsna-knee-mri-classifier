@@ -18,10 +18,17 @@ def run_hypothesize(
     # Cycle-indexed primary hypothesis so each slot tests something different
     catalog = [
         {
+            "id": "H_weak_rank_bakers_frac_hyb_lm_eff_acl_w40",
+            "hypothesis": "Keeping the accepted parser-Baker's + majority-Effusion + hybrid-Fracture + LLM-Lateral-Meniscus stack (0.530) and giving v4 LLM ACL minority weight (0.60 gold / 0.40 LLM) will beat 0.530, because majority ACL (0.40/0.60) just tied after widening public ACL 0.320–0.539 → 0.314–0.539.",
+            "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then hybrid Fracture 50/50 and v4 LLM Lateral Meniscus 50/50 if std>1e-8. Keep majority v4 LLM Effusion (0.40/0.60) if std>1e-8 (the 0.530 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM ACL soft labels (never test UIDs / test reports). Mix 0.60·gold + 0.40·llm_weak on ACL only if that head has std>1e-8; otherwise keep the 0.530 stack. Do not read LLM MCL/Synovitis/Contusion/OA/Fracture/Baker's/Medial Meniscus columns and do not remix Effusion or LM weights. Fallback to weak_rank_bakers_frac_hyb_lm_eff_w60 if the CSV is missing or n_llm<20.",
+            "falsify": "Public score ≤ 0.530 (frozen weak_rank_bakers_frac_hyb_lm_eff_w60).",
+            "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture", "Lateral Meniscus"],
+        },
+        {
             "id": "H_weak_rank_bakers_frac_hyb_lm_eff_acl_w60",
             "hypothesis": "Keeping the accepted parser-Baker's + majority-Effusion + hybrid-Fracture + LLM-Lateral-Meniscus stack (0.530) and giving v4 LLM ACL majority weight (0.40 gold / 0.60 LLM) will beat 0.530, because Effusion mix-weights just plateaued (w60=0.530, w40=0.528) while ACL 50/50 is the remaining unused mix-weight that already transferred (+0.001).",
             "mechanism": "Fit frozen gold_rank_w50 exactly (7-d λ=2 + 13-d λI=3.5, 0.50/0.50). Apply parser weak_rank_bakers_mix on Baker's only, then hybrid Fracture 50/50 and v4 LLM Lateral Meniscus 50/50 if std>1e-8. Keep majority v4 LLM Effusion (0.40/0.60) if std>1e-8 (the 0.530 path). Discover llm_labels_v4_blend.csv via explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels plus depth-6 BFS. Fit 7-d/13-d ridge heads on train-only LLM ACL soft labels (never test UIDs / test reports). Mix 0.40·gold + 0.60·llm_weak on ACL only if that head has std>1e-8; otherwise keep the 0.530 stack. Do not read LLM MCL/Synovitis/Contusion/OA/Fracture/Baker's/Medial Meniscus columns and do not remix Effusion or LM weights. Fallback to weak_rank_bakers_frac_hyb_lm_eff_w60 if the CSV is missing or n_llm<20.",
-            "falsify": "Public score ≤ 0.530 (frozen weak_rank_bakers_frac_hyb_lm_eff_w60).",
+            "falsify": "Public score ≤ 0.530 (frozen weak_rank_bakers_frac_hyb_lm_eff_w60). Already falsified at 0.530 tie (57726811); ACL mixed (std=0.408, w_gold=0.4) and public ACL 0.314–0.539.",
             "expected_targets": ["Baker's", "ACL", "Effusion", "Fracture", "Lateral Meniscus"],
         },
         {
@@ -413,10 +420,12 @@ def run_hypothesize(
         "Parser MM was poison (0.517); LLM LM is the first meniscus key that lifted the floor.",
         "LM mix-weights are exhausted (50/50=0.529, w60=0.529, w40=0.528).",
         "Effusion mix-weights are exhausted (w60=0.530, 50/50=0.529 on the LM stack, w40=0.528).",
-        "Next is **`weak_rank_bakers_frac_hyb_lm_eff_acl_w60`**: keep the 0.530 stack (Effusion stays",
-        "majority 0.40/0.60; LM stays 50/50) and give ACL majority weight (0.40/0.60) only if that",
+        "`weak_rank_bakers_frac_hyb_lm_eff_acl_w60` scored **0.530** (57726811) and is a falsified tie",
+        "(CSV found, n=4407, ACL std=0.408, w_gold=0.4; public ACL 0.314–0.539).",
+        "Next is **`weak_rank_bakers_frac_hyb_lm_eff_acl_w40`**: keep the 0.530 stack (Effusion stays",
+        "majority 0.40/0.60; LM stays 50/50) and give ACL minority weight (0.60/0.40) only if that",
         "head keeps variance. Do not resubmit",
-        "`weak_rank_bakers_frac_hyb_lm_eff_w40`, `weak_rank_bakers_frac_hyb_lm_eff_w60`, `weak_rank_bakers_frac_hyb_lm_w40`, `weak_rank_bakers_frac_hyb_lm_w60`, `weak_rank_bakers_frac_hyb_lm_llm`, `weak_rank_bakers_frac_hyb_mm_llm`, `weak_rank_bakers_frac_hyb_gem_llm`,",
+        "`weak_rank_bakers_frac_hyb_lm_eff_acl_w60`, `weak_rank_bakers_frac_hyb_lm_eff_w40`, `weak_rank_bakers_frac_hyb_lm_eff_w60`, `weak_rank_bakers_frac_hyb_lm_w40`, `weak_rank_bakers_frac_hyb_lm_w60`, `weak_rank_bakers_frac_hyb_lm_llm`, `weak_rank_bakers_frac_hyb_mm_llm`, `weak_rank_bakers_frac_hyb_gem_llm`,",
         "`weak_rank_bakers_frac_gem_llm`, `weak_rank_bakers_frac_hyb_w40`, `weak_rank_bakers_frac_hyb_w60`,",
         "or `weak_rank_bakers_frac_hyb_llm`. Do not retry v4 PF OA, Lateral OA, Medial OA, Fracture,",
         "Contusion mix-weights, Synovitis remaps, MCL, or parser MM. Visual MRI encoders stay out of scope.",
