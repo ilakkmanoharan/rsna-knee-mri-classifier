@@ -17,11 +17,11 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_w40",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_w40",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_w40",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_w40",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_w40",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem",
     ][cycle_num % 5]
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40":
+    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem":
         lines += [
-            "- Start from frozen `weak_rank_bakers_frac_hyb_lm_eff_w60` (public 0.530): gold_rank_w50 + parser Baker's 50/50 + majority v4 LLM Effusion 0.40/0.60 + hybrid Fracture 50/50 + v4 LLM Lateral Meniscus 50/50 if std>1e-8.",
-            "- **Give stevenleehans `llm_labels_v4_blend.csv` ACL minority weight (0.60 gold / 0.40 LLM) only if that head has std>1e-8. Keep Effusion at 0.40/0.60 and Lateral Meniscus at 50/50.**",
-            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels` and `flight0234/rsna-knee-hybrid-report-labels`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus and `report_labels_v4hybrid.csv` for hybrid Fracture via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only LLM ACL soft labels. Drop any test UID.",
-            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, hybrid mix-weights, LM mix-weights, Effusion mix-weights, Medial OA, Lateral OA, PF OA, or Medial Meniscus.",
-            "- Leave Baker's/hybrid-Fracture/LM mix weights at 50/50 and Effusion at majority 0.40/0.60.",
+            "- Start from frozen `weak_rank_bakers_frac_hyb_lm_eff_w60` (public 0.530): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + majority v4 LLM Effusion 0.40/0.60 + hybrid Fracture 50/50 + v4 LLM Lateral Meniscus 50/50 if std>1e-8.",
+            "- **Give yunusgmsoy `report_labels_v5.csv` Gemini ACL 50/50 weight only if that head has std>1e-8. Keep v4 ACL at 50/50, Effusion at 0.40/0.60, and Lateral Meniscus at 50/50.**",
+            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels`, `flight0234/rsna-knee-hybrid-report-labels`, and `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`; keep `enable_internet` false.",
+            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, and `report_labels_v5.csv` for Gemini ACL via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only Gemini ACL soft labels. Drop any test UID.",
+            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, hybrid mix-weights, LM mix-weights, Effusion mix-weights, v4 ACL mix-weights, Medial OA, Lateral OA, PF OA, or Medial Meniscus.",
+            "- Leave Baker's/v4-ACL/hybrid-Fracture/LM mix weights at 50/50 and Effusion at majority 0.40/0.60.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_llm < 20, the CSV is missing, or ACL LLM std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_w60 (0.530).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_w60` (0.530 tie, 57726811), `weak_rank_bakers_frac_hyb_lm_eff_w40` (0.528 poison, 57691260), `weak_rank_bakers_frac_hyb_lm_eff_w60` (0.530 accepted, 57656351), `weak_rank_bakers_frac_hyb_lm_w40` (0.528 poison, 57619038), `weak_rank_bakers_frac_hyb_lm_w60` (0.529 tie, 57584615), `weak_rank_bakers_frac_hyb_lm_llm` (0.529 accepted, 57551203), `weak_rank_bakers_frac_hyb_mm_llm` (0.527 tie, 57512380), `weak_rank_bakers_frac_hyb_gem_llm` (0.527 tie, 57468780), `weak_rank_bakers_frac_gem_llm` (0.525 poison, 57425148), `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), or earlier weak-label failures.",
+            "- If n_gem < 20, the Gemini CSV is missing, or Gemini ACL std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_w60 (0.530).",
+            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_w40` (0.529 poison, 57760822), `weak_rank_bakers_frac_hyb_lm_eff_acl_w60` (0.530 tie, 57726811), `weak_rank_bakers_frac_hyb_lm_eff_w40` (0.528 poison, 57691260), `weak_rank_bakers_frac_hyb_lm_eff_w60` (0.530 accepted, 57656351), `weak_rank_bakers_frac_hyb_lm_w40` (0.528 poison, 57619038), `weak_rank_bakers_frac_hyb_lm_w60` (0.529 tie, 57584615), `weak_rank_bakers_frac_hyb_lm_llm` (0.529 accepted, 57551203), `weak_rank_bakers_frac_hyb_mm_llm` (0.527 tie, 57512380), `weak_rank_bakers_frac_hyb_gem_llm` (0.527 tie, 57468780), `weak_rank_bakers_frac_gem_llm` (0.525 poison, 57425148), `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40":
+        lines += [
+            "- Already falsified at public 0.529 (submission 57760822). Kernel mixed ACL (std=0.408, w_gold=0.6); public ACL compressed 0.314–0.539 → 0.326–0.539.",
+            "- **Do not resubmit.** Minority ACL weight is mild poison (−0.001 vs 0.530).",
+            "- Keep weak_rank_bakers_frac_hyb_lm_eff_w60 as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60":
