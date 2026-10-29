@@ -1,56 +1,16 @@
 {
-  "day_id": "2026-10-28",
+  "day_id": "2026-10-29",
   "dispatches": [],
   "asked": {
-    "636ad3621ffa": "2026-10-28T01:18:06.987302-05:00",
-    "72cb7b5c9452": "2026-10-28T01:18:06.987302-05:00",
-    "dd8e49b68a40": "2026-10-28T01:18:06.987302-05:00"
+    "636ad3621ffa": "2026-10-29T05:23:31.382972-05:00",
+    "72cb7b5c9452": "2026-10-29T05:23:31.382972-05:00",
+    "dd8e49b68a40": "2026-10-29T05:23:31.382972-05:00"
   },
   "verdicts": [
     {
-      "at": "2026-10-28T01:18:06.987302-05:00",
-      "verdict": "on_track",
-      "report": "Supervision/2026-10-28_20261028T011810-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T08:30:52.639958-05:00",
+      "at": "2026-10-29T05:23:31.382972-05:00",
       "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T083054-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T08:30:56.194034-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T083057-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T14:05:33.911613-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T140535-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T14:05:38.320699-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T140539-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T18:30:13.563636-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T183015-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T18:30:17.167548-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T183018-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T21:49:47.191148-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T214949-0500_supervision.md"
-    },
-    {
-      "at": "2026-10-28T21:49:50.934796-05:00",
-      "verdict": "failing",
-      "report": "Supervision/2026-10-28_20261028T214952-0500_supervision.md"
+      "report": "Supervision/2026-10-29_20261029T052335-0500_supervision.md"
     }
   ]
 }
