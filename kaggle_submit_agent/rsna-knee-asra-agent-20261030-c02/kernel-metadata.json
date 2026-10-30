@@ -1,0 +1,21 @@
+{
+  "id": "kaggle-user/rsna-knee-asra-agent-20261030-c02",
+  "title": "rsna-knee-asra-agent-20261030-c02",
+  "code_file": "notebook.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [
+    "stevenleehans/rsna-knee-llm-report-labels",
+    "flight0234/rsna-knee-hybrid-report-labels",
+    "yunusgmsoy/rsna-knee-llm-labels-4-source-merged"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "kernel_sources": [],
+  "model_sources": []
+}
