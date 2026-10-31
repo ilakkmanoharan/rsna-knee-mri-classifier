@@ -16,6 +16,11 @@
       "at": "2026-10-31T02:28:56.554448-05:00",
       "verdict": "degraded",
       "report": "Supervision/2026-10-31_20261031T022857-0500_supervision.md"
+    },
+    {
+      "at": "2026-10-31T08:51:47.206184-05:00",
+      "verdict": "failing",
+      "report": "Supervision/2026-10-31_20261031T085148-0500_supervision.md"
     }
   ]
 }
