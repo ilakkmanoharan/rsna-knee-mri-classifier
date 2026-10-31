@@ -17,11 +17,11 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_acl_qwen",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_acl_qwen",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_acl_qwen",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_acl_qwen",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_acl_qwen",
     ][cycle_num % 5]
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem":
+    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_acl_qwen":
         lines += [
             "- Start from frozen `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem` (public 0.534): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + majority v4 LLM Effusion 0.40/0.60 + hybrid Fracture 50/50 + v4 LLM Lateral Meniscus 50/50 + Gemini ACL 50/50 + majority Gemini Effusion 0.40/0.60 + Gemini Lateral Meniscus 50/50 if std>1e-8.",
-            "- **Add yunusgmsoy `report_labels_v5.csv` Gemini Baker's 50/50 only if that head has std>1e-8. Keep Gemini LM at 50/50, Gemini ACL at 50/50, Gemini Effusion at majority 0.40/0.60, v4 ACL at 50/50, v4 Effusion at 0.40/0.60, and v4 Lateral Meniscus at 50/50.**",
-            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels`, `flight0234/rsna-knee-hybrid-report-labels`, and `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, and `report_labels_v5.csv` for Gemini ACL + Gemini Effusion + Gemini Lateral Meniscus + Gemini Baker's via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only Gemini Baker's soft labels. Drop any test UID.",
-            "- Do **not** remix LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, Gemini Effusion mix-weights, Gemini LM mix-weights, Gemini MM, hybrid mix-weights, v4 LM mix-weights, v4 Effusion mix-weights, v4 ACL mix-weights, Gemini ACL mix-weights, v4 Medial Meniscus, Medial OA, Lateral OA, or PF OA.",
+            "- **Add laymond `weak_labels_v2_filled.csv` Qwen2.5-32B v2 ACL 50/50 only if that head has std>1e-8. Map `ACL__confidence` onto ACL. Keep Gemini LM at 50/50, Gemini ACL at 50/50, Gemini Effusion at majority 0.40/0.60, v4 ACL at 50/50, v4 Effusion at 0.40/0.60, and v4 Lateral Meniscus at 50/50.**",
+            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels`, `flight0234/rsna-knee-hybrid-report-labels`, `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`, and `laymond/rsna-knee-abnormality-qwen3-8b-weak-labels`; keep `enable_internet` false.",
+            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, `report_labels_v5.csv` for Gemini ACL + Gemini Effusion + Gemini Lateral Meniscus, and `weak_labels_v2_filled.csv` for Qwen ACL via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only Qwen ACL soft labels. Drop any test UID. Prefer `weak_labels_v2_filled.csv` over raw; never use the deprecated `qwen_knee_weak_labels.csv`. Do not read the Report column.",
+            "- Do **not** remix Gemini Baker's, LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, Gemini Effusion mix-weights, Gemini LM mix-weights, Gemini MM, hybrid mix-weights, v4 LM mix-weights, v4 Effusion mix-weights, v4 ACL mix-weights, Gemini ACL mix-weights, v4 Medial Meniscus, Medial OA, Lateral OA, or PF OA.",
             "- Leave parser-Baker's/v4-ACL/Gemini-ACL/hybrid-Fracture/v4-LM/Gemini-LM mix weights at 50/50, v4 Effusion at majority 0.40/0.60, and Gemini Effusion at majority 0.40/0.60.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_gem < 20, the Gemini CSV is missing, or Gemini Baker's std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem (0.534).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_mm_gem` (0.534 tie, 57833621), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w40` (0.534 tie, 57831368), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60` (0.534 tie, 57828760), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem` (0.534 accepted, 57804837), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w40` (0.532 poison, 57802682), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w60` (0.533 accepted, 57800238), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem` (0.532 accepted, 57797758), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_w40` (0.530 poison, 57770241), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_w60` (0.531 tie, 57768062), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem` (0.531 accepted, 57765842), `weak_rank_bakers_frac_hyb_lm_eff_acl_w40` (0.529 poison, 57760822), `weak_rank_bakers_frac_hyb_lm_eff_acl_w60` (0.530 tie, 57726811), `weak_rank_bakers_frac_hyb_lm_eff_w40` (0.528 poison, 57691260), `weak_rank_bakers_frac_hyb_lm_eff_w60` (0.530 accepted, 57656351), `weak_rank_bakers_frac_hyb_lm_w40` (0.528 poison, 57619038), `weak_rank_bakers_frac_hyb_lm_w60` (0.529 tie, 57584615), `weak_rank_bakers_frac_hyb_lm_llm` (0.529 accepted, 57551203), `weak_rank_bakers_frac_hyb_mm_llm` (0.527 tie, 57512380), `weak_rank_bakers_frac_hyb_gem_llm` (0.527 tie, 57468780), `weak_rank_bakers_frac_gem_llm` (0.525 poison, 57425148), `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), or earlier weak-label failures.",
+            "- If n_qwen < 20, the Qwen CSV is missing, or Qwen ACL std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem (0.534).",
+            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem` (0.531 poison, 57835922), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_mm_gem` (0.534 tie, 57833621), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w40` (0.534 tie, 57831368), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60` (0.534 tie, 57828760), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem` (0.534 accepted, 57804837), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w40` (0.532 poison, 57802682), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w60` (0.533 accepted, 57800238), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem` (0.532 accepted, 57797758), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_w40` (0.530 poison, 57770241), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_w60` (0.531 tie, 57768062), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem` (0.531 accepted, 57765842), `weak_rank_bakers_frac_hyb_lm_eff_acl_w40` (0.529 poison, 57760822), `weak_rank_bakers_frac_hyb_lm_eff_acl_w60` (0.530 tie, 57726811), `weak_rank_bakers_frac_hyb_lm_eff_w40` (0.528 poison, 57691260), `weak_rank_bakers_frac_hyb_lm_eff_w60` (0.530 accepted, 57656351), `weak_rank_bakers_frac_hyb_lm_w40` (0.528 poison, 57619038), `weak_rank_bakers_frac_hyb_lm_w60` (0.529 tie, 57584615), `weak_rank_bakers_frac_hyb_lm_llm` (0.529 accepted, 57551203), `weak_rank_bakers_frac_hyb_mm_llm` (0.527 tie, 57512380), `weak_rank_bakers_frac_hyb_gem_llm` (0.527 tie, 57468780), `weak_rank_bakers_frac_gem_llm` (0.525 poison, 57425148), `weak_rank_bakers_frac_hyb_w40` (0.526 poison, 57385111), `weak_rank_bakers_frac_hyb_w60` (0.526 poison, 57341916), `weak_rank_bakers_frac_hyb_llm` (0.527 accepted, 57298558), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_bak_gem":
+        lines += [
+            "- Already falsified at public 0.531 (submission 57835922). Kernel mixed Gemini Baker's (std=0.408, w_gold=0.5); public Baker's widened 0.206897 → 0.144–0.269.",
+            "- **Do not resubmit.** Gemini Baker's 50/50 is poison (−0.003 vs 0.534). Do not retry Gemini Baker's mix-weights or any Baker's LLM remix.",
+            "- Keep weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_mm_gem":
