@@ -1,0 +1,61 @@
+top-level ['competitions', 'datasets']
+ROOT /kaggle/input/competitions/rsna-knee-abnormality-detection STRATEGY weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 CYCLE 00_20261031T010602-0500
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 blend 0.5 *7d + 0.5 *plane-protocol lamI 3.5 n7 58 nI 58
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 named-weak blend 0.50/0.50 n7w 4407 nIw 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed named targets ["Baker's"] w_gold 0.5
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm ACL n 4407 path llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm ACL n 4407 path llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm ACL blend 0.50/0.50 n7l 4407 nIl 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed LLM ACL std 0.4082474739672821 w_gold 0.5
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm ACL n 4407 path report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm ACL n 4407 path report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini ACL blend 0.50/0.50 n7ga 4407 nIga 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed Gemini ACL std 0.20412373698364103 w_gold 0.5
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Effusion n 4407 path llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Effusion n 4407 path llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Effusion blend 0.50/0.50 n7e 4407 nIe 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed LLM Effusion std 0.4082474739672821 w_gold 0.4
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 hybrid csv explicit /kaggle/input/datasets/flight0234/rsna-knee-hybrid-report-labels/report_labels_v4hybrid.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Fracture n 4407 path report_labels_v4hybrid.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 hybrid csv explicit /kaggle/input/datasets/flight0234/rsna-knee-hybrid-report-labels/report_labels_v4hybrid.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Fracture n 4407 path report_labels_v4hybrid.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 hybrid Fracture blend 0.50/0.50 n7h 4407 nIh 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed hybrid Fracture std 0.20412373698364103 w_gold 0.5
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Lateral Meniscus n 4407 path llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Lateral Meniscus n 4407 path llm_labels_v4_blend.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Lateral Meniscus blend 0.50/0.50 n7lm 4407 nIlm 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed LLM Lateral Meniscus std 0.4082474739672821 w_gold 0.5
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Effusion n 4407 path report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Effusion n 4407 path report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini Effusion blend 0.50/0.50 n7ge 4407 nIge 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed Gemini Effusion std 0.4082474739672821 w_gold 0.4
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Lateral Meniscus n 4407 path report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 llm Lateral Meniscus n 4407 path report_labels_v5.csv
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 gemini Lateral Meniscus blend 0.50/0.50 n7glm 4407 nIglm 4407
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_w60 mixed Gemini Lateral Meniscus std 0.35355268348649255 w_gold 0.4
+Wrote /kaggle/working/submission.csv (3, 13)
+                      mean           std       min       max
+ACL               0.413793  7.160260e-02  0.335668  0.476293
+MCL               0.155172  1.249998e-01  0.030173  0.280172
+Medial Meniscus   0.448276  1.082530e-01  0.323276  0.510776
+Lateral Meniscus  0.396552  1.023167e-01  0.284052  0.484052
+Medial OA         0.258621  1.249998e-01  0.133621  0.383620
+Lateral OA        0.189655  1.249998e-01  0.064655  0.314655
+PF OA             0.362069  1.249998e-01  0.237069  0.487069
+Effusion          0.603448  1.203119e-01  0.478449  0.718448
+Synovitis         0.465517  1.249998e-01  0.340517  0.590517
+Baker's           0.206897  2.775558e-17  0.206897  0.206897
+Contusion         0.327586  1.082530e-01  0.265086  0.452586
+Fracture          0.310345  6.249988e-02  0.247845  0.372845
