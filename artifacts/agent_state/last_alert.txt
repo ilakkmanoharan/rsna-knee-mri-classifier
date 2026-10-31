@@ -1,3 +1,4 @@
-2026-10-31 cycle 03 COMPLETE: bak_gem submission 57835922 public 0.531 poison vs frozen 0.534.
-Quota 4/5 (Chicago day). Next lever is acl_qwen. Do not submit a second cycle in this run.
-Stale grok-bot 401/writeup-count alert is not the live Kaggle state; ListSubmissions and kernels_push succeeded this cycle.
+2026-10-31 cycle 04 COMPLETE: acl_qwen submission 57837907 public 0.534 tie vs frozen 0.534.
+Kernel found weak_labels_v2_filled.csv n=4407; mixed Qwen ACL (std=0.408, w_gold=0.5).
+Public ACL widened 0.336–0.476 → 0.312–0.508. Baker's stayed constant 0.206897.
+Quota 5/5 (Chicago day). Next lever is eff_qwen. Do not submit a second cycle in this run.
