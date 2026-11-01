@@ -1,4 +1,4 @@
-2026-10-31 cycle 04 COMPLETE: acl_qwen submission 57837907 public 0.534 tie vs frozen 0.534.
-Kernel found weak_labels_v2_filled.csv n=4407; mixed Qwen ACL (std=0.408, w_gold=0.5).
-Public ACL widened 0.336–0.476 → 0.312–0.508. Baker's stayed constant 0.206897.
-Quota 5/5 (Chicago day). Next lever is eff_qwen. Do not submit a second cycle in this run.
+2026-11-01 cycle 00 COMPLETE: eff_qwen submission 57862147 public 0.534 tie vs frozen 0.534.
+Kernel found weak_labels_v2_filled.csv n=4407; mixed Qwen Effusion (std=0.408, w_gold=0.5).
+Public Effusion widened 0.478–0.718 → 0.478–0.723. Baker's stayed constant 0.206897.
+Quota 1/5 (Chicago day). Next lever is lm_qwen. Do not submit a second cycle in this run.
