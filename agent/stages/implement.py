@@ -796,9 +796,14 @@ def learned_scores_llm(interact=False, lam=2.0, target_name="Baker's", finder=No
         return None, 0
     llm = pd.read_csv(llm_path)
     if target_name not in llm.columns:
-        alt = f"{{target_name}}__confidence"
-        if alt in llm.columns:
-            llm[target_name] = pd.to_numeric(llm[alt], errors="coerce")
+        for alt in (
+            f"{{target_name}}__confidence",
+            target_name.replace(" ", "_"),
+            target_name.replace(" ", "_") + "__confidence",
+        ):
+            if alt in llm.columns:
+                llm[target_name] = pd.to_numeric(llm[alt], errors="coerce")
+                break
     if study_col not in llm.columns or target_name not in llm.columns:
         print(STRATEGY, "llm csv missing columns", list(llm.columns)[:8])
         return None, 0
