@@ -1,7 +1,7 @@
-[agent1] 2026-11-01 cycle 02 complete — no retry needed
+[agent1] 2026-11-01 cycle 03 complete — no retry needed
 
-Submitted weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_w60 (57866681).
-Public score 0.534 COMPLETE; poison vs frozen 0.535 (57864395).
-Kernel mixed Qwen LM std=0.408 w_gold=0.4; public LM 0.278–0.509.
-Quota 3/5 Chicago day. Next lever is lm_qwen_w40. Do not resubmit w60.
+Submitted weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_w40 (57868885).
+Public score 0.535 COMPLETE; tie vs frozen 0.535 (57864395).
+Kernel mixed Qwen LM std=0.408 w_gold=0.6; public LM 0.281–0.503 vs 50/50 0.279–0.506.
+Quota 4/5 Chicago day. Next lever is lm_qwen_mm_qwen. Do not resubmit w40.
 SMTP unset; this local alert is the failure/status record.
