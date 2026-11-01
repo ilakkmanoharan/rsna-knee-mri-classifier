@@ -1,4 +1,4 @@
-2026-11-01 cycle 00 COMPLETE: eff_qwen submission 57862147 public 0.534 tie vs frozen 0.534.
-Kernel found weak_labels_v2_filled.csv n=4407; mixed Qwen Effusion (std=0.408, w_gold=0.5).
-Public Effusion widened 0.478–0.718 → 0.478–0.723. Baker's stayed constant 0.206897.
-Quota 1/5 (Chicago day). Next lever is lm_qwen. Do not submit a second cycle in this run.
+2026-11-01 cycle 01 COMPLETE: lm_qwen submission 57864395 public 0.535 accepted (+0.001 vs frozen 0.534).
+Kernel found weak_labels_v2_filled.csv n=4407; mixed Qwen LM (std=0.408, w_gold=0.5).
+Public LM widened 0.287–0.490 → 0.279–0.506. Baker's stayed constant 0.206897.
+Quota 2/5 (Chicago day). Next lever is lm_qwen_w60. Do not submit a second cycle in this run.
