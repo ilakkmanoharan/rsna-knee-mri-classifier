@@ -2896,3 +2896,79 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_qwen
     assert np.allclose(out_qwen["Lateral Meniscus"].to_numpy(), out_mm["Lateral Meniscus"].to_numpy())
     assert not np.allclose(out_qwen["Medial Meniscus"].to_numpy(), out_mm["Medial Meniscus"].to_numpy())
     assert ns_mm["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_qwen"] == {"Baker's"}
+
+
+def test_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen_mixes_qwen_frac(tmp_path):
+    nb = implement_notebook(
+        tmp_path / "nb_lm_qwen_frac_qwen",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen",
+        "00_test",
+        "slug",
+        "user",
+    )
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen'" in src
+    assert "mixed Qwen Fracture std" in src
+    assert "mixed Qwen Lateral Meniscus std" in src
+    assert "discover_qwen_labels" in src
+    assert "{target_name}__confidence" in src
+    meta = json.loads((tmp_path / "nb_lm_qwen_frac_qwen" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "laymond/rsna-knee-abnormality-qwen3-8b-weak-labels" in meta["dataset_sources"]
+    assert "yunusgmsoy/rsna-knee-llm-labels-4-source-merged" in meta["dataset_sources"]
+    assert "flight0234/rsna-knee-hybrid-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work_qwen = tmp_path / "work_qwen"
+    work_frac = tmp_path / "work_frac"
+    work_qwen.mkdir()
+    work_frac.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    fluid = series.groupby(STUDY_ID_COL)["Fluid_Sensitive"].mean()
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for tgt in DEFAULT_TARGETS:
+        llm[tgt] = 0.25
+    llm["ACL"] = np.linspace(0.94, 0.06, len(llm))
+    llm["Effusion"] = fluid.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Lateral Meniscus"] = np.linspace(0.06, 0.94, len(llm))
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+    hyb = llm.copy()
+    hyb["Fracture"] = np.linspace(0.08, 0.92, len(hyb))
+    hyb.to_csv(data / "report_labels_v4hybrid.csv", index=False)
+    gem = llm.copy()
+    gem["ACL"] = np.linspace(0.05, 0.95, len(gem))
+    gem["Effusion"] = np.linspace(0.97, 0.03, len(gem))
+    gem["Lateral Meniscus"] = np.linspace(0.99, 0.01, len(gem))
+    gem.to_csv(data / "report_labels_v5.csv", index=False)
+    qwen = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    qwen["Lateral Meniscus__confidence"] = np.linspace(0.03, 0.97, len(qwen))
+    qwen["Fracture__confidence"] = np.linspace(0.04, 0.96, len(qwen))
+    qwen.to_csv(data / "weak_labels_v2_filled.csv", index=False)
+
+    def _run(strategy: str, work: Path):
+        src_s = _source_for_strategy(strategy, "00_test")
+        src_s = src_s.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+        src_s = src_s.replace(
+            'path = Path("/kaggle/working/submission.csv")',
+            f"path = Path({str(work / 'submission.csv')!r})",
+        )
+        ns: dict = {}
+        exec(compile(src_s, f"{strategy}_nb.py", "exec"), ns, ns)
+        return pd.read_csv(work / "submission.csv"), ns
+
+    out_qwen, _ = _run("weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen", work_qwen)
+    out_frac, ns_frac = _run(
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen", work_frac
+    )
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out_frac[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out_frac[DEFAULT_TARGETS].isna().any().any() == False
+    assert float(out_frac["Fracture"].std()) > 1e-6
+    assert np.allclose(out_qwen["ACL"].to_numpy(), out_frac["ACL"].to_numpy())
+    assert np.allclose(out_qwen["Effusion"].to_numpy(), out_frac["Effusion"].to_numpy())
+    assert np.allclose(out_qwen["Baker's"].to_numpy(), out_frac["Baker's"].to_numpy())
+    assert np.allclose(out_qwen["Lateral Meniscus"].to_numpy(), out_frac["Lateral Meniscus"].to_numpy())
+    assert not np.allclose(out_qwen["Fracture"].to_numpy(), out_frac["Fracture"].to_numpy())
+    assert ns_frac["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen"] == {"Baker's"}
