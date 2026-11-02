@@ -1,9 +1,9 @@
-[agent1] 2026-11-02 00:06 CST — quota skip, no retry needed
+[agent1] 2026-11-02 01:36 CST — cycle 00 submitted, no retry needed
 
-Chicago competition day 2026-11-01 is 5/5 (last submit 57871069 mm_qwen 0.535 tie at 06:08 CST).
-This 06:00 UTC cron fired at 00:06 CST, before the 01:00 America/Chicago reset.
-Wrote Research/Analysis/Hypothesis analysis/Plans for cycle 05_20261102T000618-0600.
-Did not implement or submit. Next lever remains
-weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen
-against frozen 0.535 (57864395 lm_qwen).
-SMTP unset; this local alert is the skip record.
+Chicago competition day 2026-11-02 used 1/5.
+Submitted weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen
+(57900067, public 0.529 poison, −0.006 vs frozen 0.535 lm_qwen).
+Kernel mixed Qwen Fracture std=0.408 w_gold=0.5; public Fracture 0.247845–0.404095.
+Rotated catalog[0] to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_front.
+Did not submit a second kernel this run (one cycle per invocation).
+SMTP unset; this local alert is the skip/poison record.
