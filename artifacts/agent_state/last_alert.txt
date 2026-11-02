@@ -1,9 +1,9 @@
-[agent1] 2026-11-02 04:36 CST — cycle 02 submitted, no retry needed
+[agent1] 2026-11-02 06:06 CST — cycle 03 submitted, no retry needed
 
-Chicago competition day 2026-11-02 used 3/5.
-Submitted weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_front
-(57905322, public 0.535 tie vs frozen 0.535 lm_qwen).
-Kernel mixed frontier ACL n=4314 std=0.354 w_gold=0.5; public ACL 0.312231–0.476293 vs Gemini 0.336–0.476.
-Rotated catalog[0] to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_front.
+Chicago competition day 2026-11-02 used 4/5.
+Submitted weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_front
+(57907807, public 0.535 tie vs frozen 0.535 lm_qwen).
+Kernel mixed frontier Effusion n=4314 std=0.408 w_gold=0.5; public Effusion 0.478449–0.723448 vs Gemini 0.478–0.718.
+Rotated catalog[0] to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_front.
 Did not submit a second kernel this run (one cycle per invocation).
 SMTP unset; this local alert is the skip/tie record.
