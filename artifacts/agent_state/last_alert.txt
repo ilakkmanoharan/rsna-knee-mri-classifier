@@ -1,11 +1,13 @@
-2026-11-03 cycle 00 kernel ERROR — SyntaxError in generated notebook
+2026-11-03 cycle 00 kernel ERROR recovered — SyntaxError in generated notebook
 
 Kernel: kaggle-user/rsna-knee-asra-agent-20261103-c00
-Failure: KernelWorkerStatus.ERROR
+First push: KernelWorkerStatus.ERROR (v1)
 Cause: implement.py dict literals omitted `: BAKERS_ONLY` / `: 0.50` / `: 3.5` after
 `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_front` when
 `frac_front` was appended. Papermill: "SyntaxError: ':' expected after dictionary key"
 at notebook line 371 (MIX_WEAK_SET).
 
 Retry: restore the missing dict values, regenerate the same-cycle notebook, resubmit.
-SMTP unset; this local alert is the failure record.
+Kernel v2 COMPLETE. Submission 57938474 public 0.530 / private 0.520 — poison vs 0.535.
+SMTP unset; this local alert is the failure-and-recovery record.
+Do not submit a second Kaggle kernel this run. Next lever is acl_pilk.
