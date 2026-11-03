@@ -1,18 +1,12 @@
-[grok-bot] needs your input — RSNA knee day 2026-11-02
+[agent1] 2026-11-03 00:15 America/Chicago — quota skip
 
-The Grok supervisor bot needs a decision from you (verdict: **failing**).
+Competition day 2026-11-02 is already 5/5 (day starts 01:00 America/Chicago).
+Last submit: cycle 04 mm_front (57935572) public 0.535 tie at 2026-11-03T00:10:54-06:00.
+This 06:00 UTC cron is ~45 min before reset. Did not --force a sixth submit.
 
-### Questions
-- [ ] Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.
-- [ ] I cannot read Kaggle submission history (ModuleNotFoundError: No module named 'six'). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.
-- [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
+Wrote research/analysis/hypothesis/plan for next lever:
+weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_front
+(Deotte frontier Fracture 50/50 on the frozen 0.535 stack).
 
-### Why
-- Research/ has 4 write-up(s) for day 2026-11-02 but 5 were due by now
-- Analysis/ has 4 write-up(s) for day 2026-11-02 but 5 were due by now
-- Hypothesis/ has 4 write-up(s) for day 2026-11-02 but 5 were due by now
-- 1 agent workflow run(s) failed today
-
-Submissions due by now: 5/5 · submissions today: None · full pipelines: [0, 1, 2, 3]
-
-Reply in a comment on this issue; the bot reads open issues on its next run.
+SMTP unset; this local alert is the skip record.
+Do not submit until the 2026-11-03 Chicago day (after 01:00 CST).
