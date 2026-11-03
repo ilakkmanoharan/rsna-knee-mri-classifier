@@ -1,9 +1,15 @@
-2026-11-03 catalog rotated to mm_pilk after eff_pilk 0.535 tie
+2026-11-03 cycle 04 COMPLETE — no current failure
 
-Cycle 03 (57945154) mixed pilkwang Effusion n=4406 std=0.408 w_gold=0.5;
-public Effusion 0.478449–0.723448 vs Gemini 0.478–0.718. Tie vs frozen 0.535.
+Kernel: kaggle-user/rsna-knee-asra-agent-20261103-c04 v1 COMPLETE
+Submission 57947039 public 0.535 — tie vs frozen 0.535
+(mm_pilk mixed pilkwang Medial Meniscus n=4406 std=0.408 w_gold=0.5;
+public MM 0.323276–0.542026 vs typical 0.323–0.511)
 
-Quota 4/5. Last submit 2026-11-03 05:12 Chicago.
-Next lever is mm_pilk (pilkwang Medial Meniscus 50/50 on the 0.535 stack).
-Do not resubmit eff_pilk, lm_pilk, or acl_pilk.
-SMTP unset; this local file is the rotation record.
+Quota 5/5. Last submit 2026-11-03 06:15 Chicago.
+Do not submit a second Kaggle kernel this run.
+Pilkwang transferring named-objects are exhausted
+(ACL 0.534 poison, LM 0.534 poison, Effusion 0.535 tie, MM 0.535 tie).
+Do not resubmit mm_pilk or retry its mix-weights.
+Next unused report-only key is yunusgmsoy 2-source ACL 50/50
+(weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src).
+SMTP unset; this local file is the cycle close-out record.
