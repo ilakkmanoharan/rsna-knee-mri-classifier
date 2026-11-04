@@ -14,32 +14,32 @@ from agent.stages.plan import run_plan
 from src.constants import DEFAULT_TARGETS, STUDY_ID_COL
 
 
-def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src(tmp_path):
+def test_cycle0_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="00_test", day_id="2026-09-24", cycle_num=0)
-    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src" in md.read_text()
+    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src" in md.read_text()
     sidecar = json.loads((tmp_path / "2026-09-24_cycle00_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src"
 
 
-def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src(tmp_path):
+def test_cycle1_plan_selects_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="01_test", day_id="2026-09-24", cycle_num=1)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle01_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src"
     assert "qwen" in md.read_text().lower()
     assert "2-source" in md.read_text().lower() or "2src" in md.read_text().lower()
-    assert "lateral meniscus" in md.read_text().lower()
+    assert "effusion" in md.read_text().lower()
 
 
-def test_cycle2_plan_keeps_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src_not_gold_meta_logit(tmp_path):
+def test_cycle2_plan_keeps_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src_not_gold_meta_logit(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     sidecar_md = run_plan(tmp_path, dummy, dummy, dummy, cycle_id="02_test", day_id="2026-09-24", cycle_num=2)
     sidecar = json.loads((tmp_path / "2026-09-24_cycle02_test_plan.json").read_text())
-    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src"
+    assert sidecar["strategy"] == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src"
     assert "0.535" in sidecar_md.read_text()
 
 
@@ -277,7 +277,7 @@ def test_gold_rank_lam2_notebook_and_synthetic_acl(tmp_path):
     assert ns["nI"] >= 20
 
 
-def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src(tmp_path):
+def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src(tmp_path):
     dummy = tmp_path / "dummy.md"
     dummy.write_text("x")
     md = run_hypothesize(
@@ -289,8 +289,10 @@ def test_hypothesize_cycle0_is_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_
         cycle_num=0,
     )
     text = md.read_text()
+    assert "H_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src" in text
+    assert "`H_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src` ← primary" in text
     assert "H_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src" in text
-    assert "`H_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src` ← primary" in text
+    assert "57979214" in text
     assert "H_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src" in text
     assert "57976260" in text
     assert "H_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk" in text
@@ -1692,7 +1694,7 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_w60_gives_majority_acl_weight(tmp_
     assert "mixed LLM ACL std" in src
     assert 'w_gold = 0.40 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w60" else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_w40" else 0.50' in src
     assert 'STRATEGY in {"weak_rank_bakers_frac_hyb_lm_eff_w60"' in src
-    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src" in src
+    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src" in src
     assert 'else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_w40" else 0.50' in src
     meta = json.loads((tmp_path / "nb_acl_w60" / "kernel-metadata.json").read_text())
     assert meta["enable_internet"] is False
@@ -2048,7 +2050,7 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w60_gives_majority_gem
     assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w60'" in src
     assert "mixed Gemini Effusion std" in src
     assert 'w_gold = 0.40 if STRATEGY in {"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w60"' in src
-    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src" in src
+    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src" in src
     assert 'else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w40" else 0.50' in src
     meta = json.loads((tmp_path / "nb_acl_gem_eff_w60" / "kernel-metadata.json").read_text())
     assert meta["enable_internet"] is False
@@ -2113,7 +2115,7 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w40_gives_minority_gem
     assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w40'" in src
     assert "mixed Gemini Effusion std" in src
     assert 'w_gold = 0.40 if STRATEGY in {"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w60"' in src
-    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src" in src
+    assert "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src" in src
     assert 'else 0.60 if STRATEGY == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_w40" else 0.50' in src
     meta = json.loads((tmp_path / "nb_acl_gem_eff_w40" / "kernel-metadata.json").read_text())
     assert meta["enable_internet"] is False
@@ -3840,3 +3842,90 @@ def test_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src
     assert np.allclose(out_qwen["Fracture"].to_numpy(), out_lm["Fracture"].to_numpy())
     assert ns_lm["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src"] == {"Baker's"}
 
+def test_weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src_mixes_2src_effusion(tmp_path):
+    nb = implement_notebook(
+        tmp_path / "nb_lm_qwen_eff_2src",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src",
+        "00_test",
+        "slug",
+        "user",
+    )
+    src = "".join(json.loads(nb.read_text())["cells"][0]["source"])
+    assert "STRATEGY = 'weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src'" in src
+    assert "mixed 2src Effusion std" in src
+    assert "mixed Qwen Lateral Meniscus std" in src
+    assert "discover_2src_labels" in src
+    assert "discover_qwen_labels" in src
+    assert "rsna-knee-llm-labels-2-source-merged" in src
+    compile(src, "eff_2src_nb.py", "exec")
+    meta = json.loads((tmp_path / "nb_lm_qwen_eff_2src" / "kernel-metadata.json").read_text())
+    assert meta["enable_internet"] is False
+    assert "yunusgmsoy/rsna-knee-llm-labels-2-source-merged" in meta["dataset_sources"]
+    assert "pilkwang/rsna-knee-llm-labels" not in meta["dataset_sources"]
+    assert "cdeotte/rsna-knee-frontier-llm-hybrid-labels" not in meta["dataset_sources"]
+    assert "laymond/rsna-knee-abnormality-qwen3-8b-weak-labels" in meta["dataset_sources"]
+    assert "yunusgmsoy/rsna-knee-llm-labels-4-source-merged" in meta["dataset_sources"]
+    assert "flight0234/rsna-knee-hybrid-report-labels" in meta["dataset_sources"]
+
+    data = tmp_path / "input"
+    work_qwen = tmp_path / "work_qwen"
+    work_eff = tmp_path / "work_eff"
+    work_qwen.mkdir()
+    work_eff.mkdir()
+    _write_synth(data)
+    train = pd.read_csv(data / "train.csv")
+    series = pd.read_csv(data / "train_series.csv")
+    fluid = series.groupby(STUDY_ID_COL)["Fluid_Sensitive"].mean()
+    llm = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for tgt in DEFAULT_TARGETS:
+        llm[tgt] = 0.25
+    llm["ACL"] = np.linspace(0.94, 0.06, len(llm))
+    llm["Effusion"] = fluid.reindex(llm[STUDY_ID_COL]).fillna(0.25).clip(0.05, 0.95).to_numpy()
+    llm["Lateral Meniscus"] = np.linspace(0.06, 0.94, len(llm))
+    llm.to_csv(data / "llm_labels_v4_blend.csv", index=False)
+    hyb = llm.copy()
+    hyb["Fracture"] = np.linspace(0.08, 0.92, len(hyb))
+    hyb.to_csv(data / "report_labels_v4hybrid.csv", index=False)
+    gem = llm.copy()
+    gem["ACL"] = np.linspace(0.05, 0.95, len(gem))
+    gem["Effusion"] = np.linspace(0.97, 0.03, len(gem))
+    gem["Lateral Meniscus"] = np.linspace(0.99, 0.01, len(gem))
+    gem.to_csv(data / "report_labels_v5.csv", index=False)
+    qwen = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    qwen["Lateral Meniscus__confidence"] = np.linspace(0.03, 0.97, len(qwen))
+    qwen.to_csv(data / "weak_labels_v2_filled.csv", index=False)
+    src2 = pd.DataFrame({STUDY_ID_COL: train[STUDY_ID_COL].astype(str)})
+    for tgt in DEFAULT_TARGETS:
+        src2[tgt] = 0.25
+    src2["ACL"] = np.linspace(0.02, 0.98, len(src2))
+    src2["Lateral Meniscus"] = np.linspace(0.99, 0.01, len(src2))
+    src2["Effusion"] = np.linspace(0.01, 0.99, len(src2))
+    src2.to_csv(data / "report_labels_v2.csv", index=False)
+
+    def _run(strategy: str, work: Path):
+        src_s = _source_for_strategy(strategy, "00_test")
+        src_s = src_s.replace("ROOT = discover_root()", f"ROOT = Path({str(data)!r})")
+        src_s = src_s.replace(
+            'path = Path("/kaggle/working/submission.csv")',
+            f"path = Path({str(work / 'submission.csv')!r})",
+        )
+        ns: dict = {}
+        exec(compile(src_s, f"{strategy}_nb.py", "exec"), ns, ns)
+        return pd.read_csv(work / "submission.csv"), ns
+
+    out_qwen, _ = _run(
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen", work_qwen
+    )
+    out_eff, ns_eff = _run(
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src", work_eff
+    )
+    sample = pd.read_csv(data / "sample_submission.csv")
+    assert list(out_eff[STUDY_ID_COL].astype(str)) == list(sample[STUDY_ID_COL].astype(str))
+    assert out_eff[DEFAULT_TARGETS].isna().any().any() == False
+    assert float(out_eff["Effusion"].std()) > 1e-6
+    assert not np.allclose(out_qwen["Effusion"].to_numpy(), out_eff["Effusion"].to_numpy())
+    assert np.allclose(out_qwen["ACL"].to_numpy(), out_eff["ACL"].to_numpy())
+    assert np.allclose(out_qwen["Lateral Meniscus"].to_numpy(), out_eff["Lateral Meniscus"].to_numpy())
+    assert np.allclose(out_qwen["Baker's"].to_numpy(), out_eff["Baker's"].to_numpy())
+    assert np.allclose(out_qwen["Fracture"].to_numpy(), out_eff["Fracture"].to_numpy())
+    assert ns_eff["MIX_TARGETS"]["weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src"] == {"Baker's"}
