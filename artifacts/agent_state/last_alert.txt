@@ -1,10 +1,14 @@
-2026-11-04 cycle 00 COMPLETE — acl_2src submitted, public 0.535 TIE (57976260)
+[grok-bot] needs your input — RSNA knee day 2026-11-04
 
-Kernel mixed 2-source ACL n=4407 std=0.354 w_gold=0.5.
-Public ACL 0.312231–0.476293 vs Gemini 0.336–0.476.
-Quota used 1/5 on Chicago day 2026-11-04.
+The Grok supervisor bot needs a decision from you (verdict: **on_track**).
 
-Do not resubmit acl_2src or retry 2-source ACL mix-weights.
-Next: weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src
-One cycle per run — do not submit lm_2src in this invocation.
-SMTP unset; this local file is the cycle record.
+### Questions
+- [ ] Only the built-in GITHUB_TOKEN is available; GitHub ignores workflow_dispatch from it. Add secret AGENT1_GH_PAT (repo + workflow scopes) so I can re-run agent1-cloud.yml directly.
+- [ ] I cannot read Kaggle submission history (ModuleNotFoundError: No module named 'six'). Confirm KAGGLE_USERNAME / KAGGLE_KEY secrets are valid.
+- [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
+
+### Why
+
+Submissions due by now: 1/5 · submissions today: None · full pipelines: [0]
+
+Reply in a comment on this issue; the bot reads open issues on its next run.
