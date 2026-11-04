@@ -17,11 +17,11 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src",
     ][cycle_num % 5]
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk":
+    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src":
         lines += [
             "- Start from frozen `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen` (public 0.535): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + majority v4 LLM Effusion 0.40/0.60 + hybrid Fracture 50/50 + v4 LLM Lateral Meniscus 50/50 + Gemini ACL 50/50 + majority Gemini Effusion 0.40/0.60 + Gemini Lateral Meniscus 50/50 + Qwen Lateral Meniscus 50/50 if std>1e-8.",
-            "- **Add pilkwang `report_labels_v2.csv` Medial Meniscus 50/50 only if that head has std>1e-8. Keep Qwen LM at accepted 50/50. Keep Gemini LM at 50/50, Gemini ACL at 50/50, Gemini Effusion at majority 0.40/0.60, v4 ACL at 50/50, v4 Effusion at 0.40/0.60, and v4 Lateral Meniscus at 50/50. Do not remix pilkwang Effusion (0.535 tie), pilkwang LM (0.534 poison), pilkwang ACL (0.534 poison), frontier Fracture (0.530 poison), frontier MM (0.535 tie), frontier Effusion (0.535 tie), frontier ACL (0.535 tie), frontier LM (0.535 tie), or Qwen Fracture (0.529 poison).**",
-            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels`, `flight0234/rsna-knee-hybrid-report-labels`, `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`, `laymond/rsna-knee-abnormality-qwen3-8b-weak-labels`, and `pilkwang/rsna-knee-llm-labels`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, `report_labels_v5.csv` for Gemini ACL + Gemini Effusion + Gemini Lateral Meniscus, `weak_labels_v2_filled.csv` for Qwen LM, and `report_labels_v2.csv` for pilkwang Medial Meniscus via explicit `/kaggle/input/datasets/<owner>/<slug>` mounts plus depth-6 BFS. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only pilkwang Medial Meniscus soft labels. Drop any test UID. Use the `Medial Meniscus` score column (not verdict/conf). Do not read the Report column.",
-            "- Do **not** remix pilkwang Effusion, pilkwang LM, pilkwang ACL, frontier Fracture, frontier MM, frontier Effusion, frontier ACL, frontier LM, Qwen Fracture, Qwen MM, Qwen LM mix-weights, Qwen Effusion, Qwen ACL, Gemini Baker's, LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, Gemini Effusion mix-weights, Gemini LM mix-weights, Gemini MM, hybrid mix-weights, v4 LM mix-weights, v4 Effusion mix-weights, v4 ACL mix-weights, Gemini ACL mix-weights, v4 Medial Meniscus, Medial OA, Lateral OA, or PF OA.",
+            "- **Add yunusgmsoy 2-source `report_labels_v2.csv` ACL 50/50 only if that head has std>1e-8. Keep Qwen LM at accepted 50/50. Keep Gemini LM at 50/50, Gemini ACL at 50/50, Gemini Effusion at majority 0.40/0.60, v4 ACL at 50/50, v4 Effusion at 0.40/0.60, and v4 Lateral Meniscus at 50/50. Do not remix pilkwang MM (0.535 tie), pilkwang Effusion (0.535 tie), pilkwang LM (0.534 poison), pilkwang ACL (0.534 poison), frontier Fracture (0.530 poison), frontier MM (0.535 tie), frontier Effusion (0.535 tie), frontier ACL (0.535 tie), frontier LM (0.535 tie), or Qwen Fracture (0.529 poison).**",
+            "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels`, `flight0234/rsna-knee-hybrid-report-labels`, `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`, `laymond/rsna-knee-abnormality-qwen3-8b-weak-labels`, and `yunusgmsoy/rsna-knee-llm-labels-2-source-merged`; keep `enable_internet` false.",
+            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, `report_labels_v5.csv` for Gemini ACL + Gemini Effusion + Gemini Lateral Meniscus, `weak_labels_v2_filled.csv` for Qwen LM, and 2-source `report_labels_v2.csv` for yunusgmsoy ACL via explicit `/kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-2-source-merged` plus depth-6 BFS that prefers 2-source paths. Skip image/DICOM dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only 2-source ACL soft labels. Drop any test UID. Use the `ACL` score column (not verdict/conf). Do not read the Report column.",
+            "- Do **not** remix pilkwang MM, pilkwang Effusion, pilkwang LM, pilkwang ACL, frontier Fracture, frontier MM, frontier Effusion, frontier ACL, frontier LM, Qwen Fracture, Qwen MM, Qwen LM mix-weights, Qwen Effusion, Qwen ACL, Gemini Baker's, LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, Gemini Effusion mix-weights, Gemini LM mix-weights, Gemini MM, hybrid mix-weights, v4 LM mix-weights, v4 Effusion mix-weights, v4 ACL mix-weights, Gemini ACL mix-weights, v4 Medial Meniscus, Medial OA, Lateral OA, or PF OA.",
             "- Leave parser-Baker's/v4-ACL/Gemini-ACL/hybrid-Fracture/v4-LM/Gemini-LM/Qwen-LM mix weights at 50/50, v4 Effusion at majority 0.40/0.60, and Gemini Effusion at majority 0.40/0.60.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_pilk < 20, the pilkwang CSV is missing, or pilkwang Medial Meniscus std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen (0.535).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_pilk` (0.535 tie, 57945154), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_pilk` (0.534 poison, 57944096), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_pilk` (0.534 poison, 57941669), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_front` (0.530 poison, 57938474), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_front` (0.535 tie, 57935572), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_front` (0.535 tie, 57907807), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_front` (0.535 tie, 57905322), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_front` (0.535 tie, 57902815), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen` (0.529 poison, 57900067), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_qwen` (0.535 tie, 57871069), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen` (0.535 accepted, 57864395), or earlier weak-label failures.",
+            "- If n_2src < 20, the 2-source CSV is missing, or 2-source ACL std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen (0.535).",
+            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk` (0.535 tie, 57947039), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_pilk` (0.535 tie, 57945154), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_pilk` (0.534 poison, 57944096), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_pilk` (0.534 poison, 57941669), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_front` (0.530 poison, 57938474), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_front` (0.535 tie, 57935572), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_front` (0.535 tie, 57907807), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_front` (0.535 tie, 57905322), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_front` (0.535 tie, 57902815), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_qwen` (0.529 poison, 57900067), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_qwen` (0.535 tie, 57871069), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen` (0.535 accepted, 57864395), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk":
+        lines += [
+            "- Already falsified at public 0.535 (submission 57947039). Kernel mixed pilkwang Medial Meniscus (n=4406, std=0.408, w_gold=0.5); public MM 0.323276–0.542026 vs typical 0.323–0.511.",
+            "- **Do not resubmit.** Pilkwang MM 50/50 is a falsified tie. Do not retry pilkwang MM mix-weights.",
+            "- Keep weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_pilk":
