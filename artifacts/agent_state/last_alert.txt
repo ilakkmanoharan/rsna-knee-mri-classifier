@@ -1,13 +1,10 @@
-2026-11-03 cycle 05 QUOTA SKIP — no Kaggle submit
+2026-11-04 cycle 00 COMPLETE — acl_2src submitted, public 0.535 TIE (57976260)
 
-Strategy queued: weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src
-Chicago day 2026-11-03 already 5/5 (57938474, 57941669, 57944096, 57945154, 57947039).
-Clock 2026-11-04 00:07 CST; reset 01:00 CST (~53 min). Hard-stop buffer 60 min.
+Kernel mixed 2-source ACL n=4407 std=0.354 w_gold=0.5.
+Public ACL 0.312231–0.476293 vs Gemini 0.336–0.476.
+Quota used 1/5 on Chicago day 2026-11-04.
 
-Wrote research/analysis/hypothesis/plan for acl_2src only.
-Did not --force a sixth submit.
-
-Fallback remains weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen (0.535).
-Do not resubmit mm_pilk (0.535 tie, 57947039).
-Next after reset: submit acl_2src (yunusgmsoy 2-source ACL 50/50).
-SMTP unset; this local file is the skip record.
+Do not resubmit acl_2src or retry 2-source ACL mix-weights.
+Next: weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src
+One cycle per run — do not submit lm_2src in this invocation.
+SMTP unset; this local file is the cycle record.

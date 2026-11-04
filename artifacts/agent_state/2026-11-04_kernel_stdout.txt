@@ -1,0 +1,90 @@
+[{"stream_name":"stderr","time":8.121468147,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.121517412,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.121522747,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.121525651,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.832306599,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.832361601,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.832366793,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.832369697,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":11.628014639,"data":"top-level ['competitions', 'datasets']\n"}
+,{"stream_name":"stdout","time":11.628056742,"data":"ROOT /kaggle/input/competitions/rsna-knee-abnormality-detection STRATEGY weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src CYCLE 00_20261104T013314-0600\n"}
+,{"stream_name":"stdout","time":12.711652868,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src blend 0.5 *7d + 0.5 *plane-protocol lamI 3.5 n7 58 nI 58\n"}
+,{"stream_name":"stdout","time":24.4082289,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src named-weak blend 0.50/0.50 n7w 4407 nIw 4407\n"}
+,{"stream_name":"stdout","time":24.408267523,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed named targets [\"Baker's\"] w_gold 0.5\n"}
+,{"stream_name":"stdout","time":24.408273385,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":25.012204362,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL n 4407 path llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":25.012240429,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":25.621314762,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL n 4407 path llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":25.621374193,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL blend 0.50/0.50 n7l 4407 nIl 4407\n"}
+,{"stream_name":"stdout","time":25.621380593,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed LLM ACL std 0.4082474739672821 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":25.6213852,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":26.255219629,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL n 4407 path report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":26.25525479,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":26.898494758,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL n 4407 path report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":26.898542563,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini ACL blend 0.50/0.50 n7ga 4407 nIga 4407\n"}
+,{"stream_name":"stdout","time":26.898549468,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed Gemini ACL std 0.20412373698364103 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":26.898554021,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":27.466038869,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Effusion n 4407 path llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":27.466074466,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":28.064797222,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Effusion n 4407 path llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":28.064831582,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Effusion blend 0.50/0.50 n7e 4407 nIe 4407\n"}
+,{"stream_name":"stdout","time":28.064836875,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed LLM Effusion std 0.4082474739672821 w_gold 0.4\n"}
+,{"stream_name":"stdout","time":28.064841213,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src hybrid csv explicit /kaggle/input/datasets/flight0234/rsna-knee-hybrid-report-labels/report_labels_v4hybrid.csv\n"}
+,{"stream_name":"stdout","time":28.661428638,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Fracture n 4407 path report_labels_v4hybrid.csv\n"}
+,{"stream_name":"stdout","time":28.66146364,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src hybrid csv explicit /kaggle/input/datasets/flight0234/rsna-knee-hybrid-report-labels/report_labels_v4hybrid.csv\n"}
+,{"stream_name":"stdout","time":29.309481837,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Fracture n 4407 path report_labels_v4hybrid.csv\n"}
+,{"stream_name":"stdout","time":29.309521012,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src hybrid Fracture blend 0.50/0.50 n7h 4407 nIh 4407\n"}
+,{"stream_name":"stdout","time":29.309526918,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed hybrid Fracture std 0.20412373698364103 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":29.3095318,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":29.853576018,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus n 4407 path llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":29.853617951,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm csv explicit /kaggle/input/datasets/stevenleehans/rsna-knee-llm-report-labels/llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":30.471607571,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus n 4407 path llm_labels_v4_blend.csv\n"}
+,{"stream_name":"stdout","time":30.471642284,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus blend 0.50/0.50 n7lm 4407 nIlm 4407\n"}
+,{"stream_name":"stdout","time":30.471663299,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed LLM Lateral Meniscus std 0.4082474739672821 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":30.471667896,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":31.052469289,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Effusion n 4407 path report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":31.052503643,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":31.693828681,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Effusion n 4407 path report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":31.693858828,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini Effusion blend 0.50/0.50 n7ge 4407 nIge 4407\n"}
+,{"stream_name":"stdout","time":31.693864863,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed Gemini Effusion std 0.4082474739672821 w_gold 0.4\n"}
+,{"stream_name":"stdout","time":31.693869469,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":32.28035591,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus n 4407 path report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":32.280393032,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-4-source-merged/report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":32.880800126,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus n 4407 path report_labels_v5.csv\n"}
+,{"stream_name":"stdout","time":32.880833405,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src gemini Lateral Meniscus blend 0.50/0.50 n7glm 4407 nIglm 4407\n"}
+,{"stream_name":"stdout","time":32.88083889,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed Gemini Lateral Meniscus std 0.35355268348649255 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":32.880843361,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src qwen csv explicit /kaggle/input/datasets/laymond/rsna-knee-abnormality-qwen3-8b-weak-labels/weak_labels_v2_filled.csv\n"}
+,{"stream_name":"stdout","time":33.771610823,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus n 4407 path weak_labels_v2_filled.csv\n"}
+,{"stream_name":"stdout","time":33.771647236,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src qwen csv explicit /kaggle/input/datasets/laymond/rsna-knee-abnormality-qwen3-8b-weak-labels/weak_labels_v2_filled.csv\n"}
+,{"stream_name":"stdout","time":34.560810951,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm Lateral Meniscus n 4407 path weak_labels_v2_filled.csv\n"}
+,{"stream_name":"stdout","time":34.560847305,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src qwen Lateral Meniscus blend 0.50/0.50 n7ql 4407 nIql 4407\n"}
+,{"stream_name":"stdout","time":34.560853543,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed Qwen Lateral Meniscus std 0.4082474739672821 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":34.870236987,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src 2src csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-2-source-merged/report_labels_v2.csv\n"}
+,{"stream_name":"stdout","time":35.506710535,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL n 4407 path report_labels_v2.csv\n"}
+,{"stream_name":"stdout","time":35.506749447,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src 2src csv explicit /kaggle/input/datasets/yunusgmsoy/rsna-knee-llm-labels-2-source-merged/report_labels_v2.csv\n"}
+,{"stream_name":"stdout","time":35.941837756,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src llm ACL n 4407 path report_labels_v2.csv\n"}
+,{"stream_name":"stdout","time":35.941866361,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src 2src ACL blend 0.50/0.50 n7s2 4407 nIs2 4407\n"}
+,{"stream_name":"stdout","time":35.94187139,"data":"weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src mixed 2src ACL std 0.35355268348649255 w_gold 0.5\n"}
+,{"stream_name":"stdout","time":35.941875682,"data":"Wrote /kaggle/working/submission.csv (3, 13)\n"}
+,{"stream_name":"stdout","time":35.941879166,"data":"                      mean           std       min       max\n"}
+,{"stream_name":"stdout","time":35.941882685,"data":"ACL               0.413793  8.873277e-02  0.312231  0.476293\n"}
+,{"stream_name":"stdout","time":35.941886279,"data":"MCL               0.155172  1.249998e-01  0.030173  0.280172\n"}
+,{"stream_name":"stdout","time":35.941889909,"data":"Medial Meniscus   0.448276  1.082530e-01  0.323276  0.510776\n"}
+,{"stream_name":"stdout","time":35.941893455,"data":"Lateral Meniscus  0.396552  1.134829e-01  0.279364  0.505927\n"}
+,{"stream_name":"stdout","time":35.941897178,"data":"Medial OA         0.258621  1.249998e-01  0.133621  0.383620\n"}
+,{"stream_name":"stdout","time":35.941900966,"data":"Lateral OA        0.189655  1.249998e-01  0.064655  0.314655\n"}
+,{"stream_name":"stdout","time":35.941904507,"data":"PF OA             0.362069  1.249998e-01  0.237069  0.487069\n"}
+,{"stream_name":"stdout","time":35.941908515,"data":"Effusion          0.603448  1.203119e-01  0.478449  0.718448\n"}
+,{"stream_name":"stdout","time":35.941912281,"data":"Synovitis         0.465517  1.249998e-01  0.340517  0.590517\n"}
+,{"stream_name":"stdout","time":35.941915793,"data":"Baker's           0.206897  2.775558e-17  0.206897  0.206897\n"}
+,{"stream_name":"stdout","time":35.941919129,"data":"Contusion         0.327586  1.082530e-01  0.265086  0.452586\n"}
+,{"stream_name":"stdout","time":35.941922848,"data":"Fracture          0.310345  6.249988e-02  0.247845  0.372845\n"}
+,{"stream_name":"stderr","time":38.99486226,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":38.994897823,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":39.18038726,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":39.180415109,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":40.070846164,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":40.161877318,"data":"[NbConvertApp] Writing 186596 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":43.196783405,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":44.427011011,"data":"[NbConvertApp] Writing 889534 bytes to __results__.html\n"}
+]
