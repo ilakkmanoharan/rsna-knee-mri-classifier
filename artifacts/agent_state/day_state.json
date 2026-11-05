@@ -1,89 +1,25 @@
 {
-  "day_id": "2026-11-04",
-  "submissions_used": 5,
-  "cycles_completed": 5,
-  "last_cycle_at": "2026-11-05T00:07:05.368233-06:00",
-  "last_submission_ref": "58012035",
-  "last_public_score": 0.534,
+  "day_id": "2026-11-05",
+  "submissions_used": 1,
+  "cycles_completed": 1,
+  "last_cycle_at": "2026-11-05T01:35:40.394736-06:00",
+  "last_submission_ref": "58014616",
+  "last_public_score": 0.535,
   "history": [
     {
-      "cycle_id": "00_20261104T013314-0600",
-      "strategy": "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src",
-      "research": "/workspace/Research/2026-11-04_cycle00_20261104T013314-0600_research.md",
-      "analysis": "/workspace/Analysis/2026-11-04_cycle00_20261104T013314-0600_analysis.md",
-      "hypothesis": "/workspace/Hypothesis/2026-11-04_cycle00_20261104T013314-0600_hypotheses.md",
-      "plan": "/workspace/Plans/2026-11-04_cycle00_20261104T013314-0600_plan.md",
+      "cycle_id": "00_20261105T013310-0600",
+      "strategy": "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_sol",
+      "research": "/workspace/Research/2026-11-05_cycle00_20261105T013310-0600_research.md",
+      "analysis": "/workspace/Analysis/2026-11-05_cycle00_20261105T013310-0600_analysis.md",
+      "hypothesis": "/workspace/Hypothesis/2026-11-05_cycle00_20261105T013310-0600_hypotheses.md",
+      "plan": "/workspace/Plans/2026-11-05_cycle00_20261105T013310-0600_plan.md",
       "submit": {
-        "kernel": "kaggle-user/rsna-knee-asra-agent-20261104-c00",
+        "kernel": "kaggle-user/rsna-knee-asra-agent-20261105-c00",
         "kernel_version": 1,
-        "submission_ref": 57976260,
+        "submission_ref": 58014616,
         "status": "SubmissionStatus.COMPLETE",
         "public_score": 0.535,
-        "message": "agent1 2026-11-04 cycle 0 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src | 2026-11-04_cycle00_20261104T013314-0600_hypotheses.md"
-      }
-    },
-    {
-      "cycle_id": "01_20261104T030808-0600",
-      "strategy": "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src",
-      "research": "/workspace/Research/2026-11-04_cycle01_20261104T030808-0600_research.md",
-      "analysis": "/workspace/Analysis/2026-11-04_cycle01_20261104T030808-0600_analysis.md",
-      "hypothesis": "/workspace/Hypothesis/2026-11-04_cycle01_20261104T030808-0600_hypotheses.md",
-      "plan": "/workspace/Plans/2026-11-04_cycle01_20261104T030808-0600_plan.md",
-      "submit": {
-        "kernel": "kaggle-user/rsna-knee-asra-agent-20261104-c01",
-        "kernel_version": 1,
-        "submission_ref": 57979214,
-        "status": "SubmissionStatus.COMPLETE",
-        "public_score": 0.534,
-        "message": "agent1 2026-11-04 cycle 1 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src | 2026-11-04_cycle01_20261104T030808-0600_hypotheses.md"
-      }
-    },
-    {
-      "cycle_id": "02_20261104T043717-0600",
-      "strategy": "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src",
-      "research": "/workspace/Research/2026-11-04_cycle02_20261104T043717-0600_research.md",
-      "analysis": "/workspace/Analysis/2026-11-04_cycle02_20261104T043717-0600_analysis.md",
-      "hypothesis": "/workspace/Hypothesis/2026-11-04_cycle02_20261104T043717-0600_hypotheses.md",
-      "plan": "/workspace/Plans/2026-11-04_cycle02_20261104T043717-0600_plan.md",
-      "submit": {
-        "kernel": "kaggle-user/rsna-knee-asra-agent-20261104-c02",
-        "kernel_version": 1,
-        "submission_ref": 57981528,
-        "status": "SubmissionStatus.COMPLETE",
-        "public_score": 0.535,
-        "message": "agent1 2026-11-04 cycle 2 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src | 2026-11-04_cycle02_20261104T043717-0600_hypotheses.md"
-      }
-    },
-    {
-      "cycle_id": "03_20261104T060350-0600",
-      "strategy": "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_2src",
-      "research": "/workspace/Research/2026-11-04_cycle03_20261104T060350-0600_research.md",
-      "analysis": "/workspace/Analysis/2026-11-04_cycle03_20261104T060350-0600_analysis.md",
-      "hypothesis": "/workspace/Hypothesis/2026-11-04_cycle03_20261104T060350-0600_hypotheses.md",
-      "plan": "/workspace/Plans/2026-11-04_cycle03_20261104T060350-0600_plan.md",
-      "submit": {
-        "kernel": "kaggle-user/rsna-knee-asra-agent-20261104-c03",
-        "kernel_version": 1,
-        "submission_ref": 57983832,
-        "status": "SubmissionStatus.COMPLETE",
-        "public_score": 0.535,
-        "message": "agent1 2026-11-04 cycle 3 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_2src | 2026-11-04_cycle03_20261104T060350-0600_hypotheses.md"
-      }
-    },
-    {
-      "cycle_id": "04_20261105T000355-0600",
-      "strategy": "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_sol",
-      "research": "/workspace/Research/2026-11-04_cycle04_20261105T000355-0600_research.md",
-      "analysis": "/workspace/Analysis/2026-11-04_cycle04_20261105T000355-0600_analysis.md",
-      "hypothesis": "/workspace/Hypothesis/2026-11-04_cycle04_20261105T000355-0600_hypotheses.md",
-      "plan": "/workspace/Plans/2026-11-04_cycle04_20261105T000355-0600_plan.md",
-      "submit": {
-        "kernel": "kaggle-user/rsna-knee-asra-agent-20261104-c04",
-        "kernel_version": 1,
-        "submission_ref": 58012035,
-        "status": "SubmissionStatus.COMPLETE",
-        "public_score": 0.534,
-        "message": "agent1 2026-11-04 cycle 4 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_sol | 2026-11-04_cycle04_20261105T000355-0600_hypotheses.md"
+        "message": "agent1 2026-11-05 cycle 0 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_sol | 2026-11-05_cycle00_20261105T013310-0600_hypotheses.md"
       }
     }
   ]
