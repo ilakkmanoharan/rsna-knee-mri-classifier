@@ -1,0 +1,182 @@
+[
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-06 12:05:00.527000",
+    "description": "agent1 2026-11-06 cycle 3 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_song | 2026-11-06_cycle03_20261106T060323-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 58056924
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-06 10:36:15.293000",
+    "description": "agent1 2026-11-06 cycle 2 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_song | 2026-11-06_cycle02_20261106T043427-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.533,
+    "privateScore": 0.521,
+    "ref": 58054860
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-06 09:07:39.043000",
+    "description": "agent1 2026-11-06 cycle 1 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_3src | 2026-11-06_cycle01_20261106T030609-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 58052796
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-06 07:33:44.760000",
+    "description": "agent1 2026-11-06 cycle 0 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_3src | 2026-11-06_cycle00_20261106T013215-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.521,
+    "ref": 58050095
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-06 06:11:53.910000",
+    "description": "agent1 2026-11-05 cycle 4 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_3src | 2026-11-05_cycle04_20261106T000351-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 58048080
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-05 12:04:58.030000",
+    "description": "agent1 2026-11-05 cycle 3 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_3src | 2026-11-05_cycle03_20261105T060338-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.534,
+    "privateScore": 0.521,
+    "ref": 58022193
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-05 10:35:19.353000",
+    "description": "agent1 2026-11-05 cycle 2 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_sol | 2026-11-05_cycle02_20261105T043342-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.534,
+    "privateScore": 0.52,
+    "ref": 58019833
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-05 09:08:54.730000",
+    "description": "agent1 2026-11-05 cycle 1 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_sol | 2026-11-05_cycle01_20261105T030726-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.521,
+    "ref": 58017601
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-05 07:34:22.407000",
+    "description": "agent1 2026-11-05 cycle 0 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_sol | 2026-11-05_cycle00_20261105T013310-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 58014616
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-05 06:05:31.893000",
+    "description": "agent1 2026-11-04 cycle 4 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_sol | 2026-11-04_cycle04_20261105T000355-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.534,
+    "privateScore": 0.52,
+    "ref": 58012035
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-04 12:05:10.547000",
+    "description": "agent1 2026-11-04 cycle 3 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_2src | 2026-11-04_cycle03_20261104T060350-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 57983832
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-04 10:38:47.340000",
+    "description": "agent1 2026-11-04 cycle 2 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_2src | 2026-11-04_cycle02_20261104T043717-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.521,
+    "ref": 57981528
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-04 09:09:36.977000",
+    "description": "agent1 2026-11-04 cycle 1 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_2src | 2026-11-04_cycle01_20261104T030808-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.534,
+    "privateScore": 0.521,
+    "ref": 57979214
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-04 07:34:33.923000",
+    "description": "agent1 2026-11-04 cycle 0 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_2src | 2026-11-04_cycle00_20261104T013314-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 57976260
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-03 12:13:46.117000",
+    "description": "agent1 2026-11-03 cycle 4 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_pilk | 2026-11-03_cycle04_20261103T061209-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 57947039
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-03 11:11:00.120000",
+    "description": "agent1 2026-11-03 cycle 3 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_pilk | 2026-11-03_cycle03_20261103T050934-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 57945154
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-03 10:36:09.623000",
+    "description": "agent1 2026-11-03 cycle 2 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_pilk | 2026-11-03_cycle02_20261103T043440-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.534,
+    "privateScore": 0.521,
+    "ref": 57944096
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-03 09:09:15.800000",
+    "description": "agent1 2026-11-03 cycle 1 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_pilk | 2026-11-03_cycle01_20261103T030701-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.534,
+    "privateScore": 0.521,
+    "ref": 57941669
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-03 07:39:00.223000",
+    "description": "agent1 2026-11-03 cycle 0 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_frac_front | 2026-11-03_cycle00_20261103T013545-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.53,
+    "privateScore": 0.52,
+    "ref": 57938474
+  },
+  {
+    "fileName": "submission.csv",
+    "date": "2026-11-03 06:09:21.557000",
+    "description": "agent1 2026-11-02 cycle 4 strategy=weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_front | 2026-11-02_cycle04_20261103T000419-0600_hypotheses.md",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": 0.535,
+    "privateScore": 0.52,
+    "ref": 57935572
+  }
+]
