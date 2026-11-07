@@ -17,11 +17,11 @@ def run_plan(
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     strategy = [
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng",
-        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_cheng",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_cheng",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_cheng",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_cheng",
+        "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_cheng",
     ][cycle_num % 5]
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -51,18 +51,25 @@ def run_plan(
         "### Strategy details",
         "",
     ]
-    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng":
+    if strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_cheng":
         lines += [
             "- Start from frozen `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen` (public 0.535): gold_rank_w50 + parser Baker's 50/50 + v4 LLM ACL 50/50 + majority v4 LLM Effusion 0.40/0.60 + hybrid Fracture 50/50 + v4 LLM Lateral Meniscus 50/50 + Gemini ACL 50/50 + majority Gemini Effusion 0.40/0.60 + Gemini Lateral Meniscus 50/50 + Qwen Lateral Meniscus 50/50 if std>1e-8.",
-            "- **Add chengtingyi `1_text/labels4407_text.csv` Effusion 50/50 only if that head has std>1e-8. Keep Qwen LM at accepted 50/50. Keep Gemini LM at 50/50, Gemini ACL at 50/50, Gemini Effusion at majority 0.40/0.60, v4 ACL at 50/50, v4 Effusion at 0.40/0.60, and v4 Lateral Meniscus at 50/50. Do not remix cheng LM (0.535 tie, 58088938), cheng ACL (0.534 poison, 58086759), song MM (0.535 tie, 58084331), song Effusion (0.530 poison, 58081630), song LM (0.535 tie, 58056924), song ACL (0.533 poison, 58054860), 3-source MM (0.535 tie, 58052796), 3-source Effusion (0.535 tie, 58050095), 3-source LM (0.535 tie, 58048080), 3-source ACL (0.534 poison, 58022193), or earlier tying/poison heads.**",
+            "- **Add chengtingyi `1_text/labels4407_text.csv` Medial Meniscus 50/50 only if that head has std>1e-8. Keep Qwen LM at accepted 50/50. Keep Gemini LM at 50/50, Gemini ACL at 50/50, Gemini Effusion at majority 0.40/0.60, v4 ACL at 50/50, v4 Effusion at 0.40/0.60, and v4 Lateral Meniscus at 50/50. Do not remix cheng Effusion (0.535 tie, 58091079), cheng LM (0.535 tie, 58088938), cheng ACL (0.534 poison, 58086759), song MM (0.535 tie, 58084331), song Effusion (0.530 poison, 58081630), song LM (0.535 tie, 58056924), song ACL (0.533 poison, 58054860), 3-source MM (0.535 tie, 58052796), 3-source Effusion (0.535 tie, 58050095), 3-source LM (0.535 tie, 58048080), 3-source ACL (0.534 poison, 58022193), or earlier tying/poison heads.**",
             "- Attach dataset_sources `stevenleehans/rsna-knee-llm-report-labels`, `flight0234/rsna-knee-hybrid-report-labels`, `yunusgmsoy/rsna-knee-llm-labels-4-source-merged`, `laymond/rsna-knee-abnormality-qwen3-8b-weak-labels`, and `chengtingyi/rsna-knee-llm-weak-labels`; keep `enable_internet` false.",
-            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, `report_labels_v5.csv` for Gemini ACL + Gemini Effusion + Gemini Lateral Meniscus, `weak_labels_v2_filled.csv` for Qwen LM, and chengtingyi `labels4407_text.csv` for cheng Effusion via explicit `/kaggle/input/datasets/chengtingyi/rsna-knee-llm-weak-labels/1_text` plus depth-6 BFS that prefers chengtingyi/rsna-knee-llm-weak-labels/1_text paths. Skip image/DICOM and vision dirs; do **not** rglob DICOM trees.",
-            "- Fit 7-d/13-d ridge heads on train-only cheng Effusion soft labels. Drop any test UID. Use the `Effusion` score column. Do not read the Report column or vision CSVs.",
-            "- Do **not** remix cheng ACL/LM/MM/Baker's/MCL/OA/Synovitis/Contusion/Fracture, song MM, song Effusion, song LM, song ACL, 3-source MM, 3-source Effusion, 3-source LM, 3-source ACL, sol MM, sol Effusion, sol LM, sol ACL, 2-source MM, 2-source Effusion, 2-source LM, 2-source ACL, pilkwang MM, pilkwang Effusion, pilkwang LM, pilkwang ACL, frontier Fracture, frontier MM, frontier Effusion, frontier ACL, frontier LM, Qwen Fracture, Qwen MM, Qwen LM mix-weights, Qwen Effusion, Qwen ACL, Gemini Baker's, LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, Gemini Effusion mix-weights, Gemini LM mix-weights, Gemini MM, hybrid mix-weights, v4 LM mix-weights, v4 Effusion mix-weights, v4 ACL mix-weights, Gemini ACL mix-weights, v4 Medial Meniscus, Medial OA, Lateral OA, or PF OA.",
+            "- Discover `llm_labels_v4_blend.csv` for ACL/Effusion/Lateral Meniscus, `report_labels_v4hybrid.csv` for hybrid Fracture, `report_labels_v5.csv` for Gemini ACL + Gemini Effusion + Gemini Lateral Meniscus, `weak_labels_v2_filled.csv` for Qwen LM, and chengtingyi `labels4407_text.csv` for cheng Medial Meniscus via explicit `/kaggle/input/datasets/chengtingyi/rsna-knee-llm-weak-labels/1_text` plus depth-6 BFS that prefers chengtingyi/rsna-knee-llm-weak-labels/1_text paths. Skip image/DICOM and vision dirs; do **not** rglob DICOM trees.",
+            "- Fit 7-d/13-d ridge heads on train-only cheng Medial Meniscus soft labels. Drop any test UID. Use the `Medial Meniscus` score column. Do not read the Report column or vision CSVs.",
+            "- Do **not** remix cheng ACL/LM/Effusion/Baker's/MCL/OA/Synovitis/Contusion/Fracture, song MM, song Effusion, song LM, song ACL, 3-source MM, 3-source Effusion, 3-source LM, 3-source ACL, sol MM, sol Effusion, sol LM, sol ACL, 2-source MM, 2-source Effusion, 2-source LM, 2-source ACL, pilkwang MM, pilkwang Effusion, pilkwang LM, pilkwang ACL, frontier Fracture, frontier MM, frontier Effusion, frontier ACL, frontier LM, Qwen Fracture, Qwen MM, Qwen LM mix-weights, Qwen Effusion, Qwen ACL, Gemini Baker's, LLM Baker's, LLM MCL, Synovitis, Contusion, v4 Fracture, Gemini Fracture, Gemini Effusion mix-weights, Gemini LM mix-weights, Gemini MM, hybrid mix-weights, v4 LM mix-weights, v4 Effusion mix-weights, v4 ACL mix-weights, Gemini ACL mix-weights, v4 Medial Meniscus, Medial OA, Lateral OA, or PF OA.",
             "- Leave parser-Baker's/v4-ACL/Gemini-ACL/hybrid-Fracture/v4-LM/Gemini-LM/Qwen-LM mix weights at 50/50, v4 Effusion at majority 0.40/0.60, and Gemini Effusion at majority 0.40/0.60.",
             "- **Never open test reports.** No live LLM/API calls.",
-            "- If n_cheng < 20, the cheng CSV is missing, or cheng Effusion std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen (0.535).",
-            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_cheng` (0.535 tie, 58088938), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_cheng` (0.534 poison, 58086759), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_song` (0.535 tie, 58084331), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_song` (0.530 poison, 58081630), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_song` (0.535 tie, 58056924), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_song` (0.533 poison, 58054860), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen` (0.535 accepted, 57864395), or earlier weak-label failures.",
+            "- If n_cheng < 20, the cheng CSV is missing, or cheng Medial Meniscus std is 0, fall back to weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen (0.535).",
+            "- Do **not** resubmit `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng` (0.535 tie, 58091079), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_cheng` (0.535 tie, 58088938), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_cheng` (0.534 poison, 58086759), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_mm_song` (0.535 tie, 58084331), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_song` (0.530 poison, 58081630), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_song` (0.535 tie, 58056924), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_acl_song` (0.533 poison, 58054860), `weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen` (0.535 accepted, 57864395), or earlier weak-label failures.",
+            "",
+        ]
+    elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_eff_cheng":
+        lines += [
+            "- Already falsified at public 0.535 (submission 58091079). Kernel mixed cheng Effusion (n=4407, std=0.408, w_gold=0.5); public Effusion 0.478449–0.723448 vs Gemini 0.478–0.718.",
+            "- **Do not resubmit.** Cheng Effusion 50/50 is a falsified tie. Do not retry cheng Effusion mix-weights.",
+            "- Keep weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen as the frozen fallback.",
             "",
         ]
     elif strategy == "weak_rank_bakers_frac_hyb_lm_eff_acl_gem_eff_gem_lm_gem_lm_qwen_lm_cheng":
