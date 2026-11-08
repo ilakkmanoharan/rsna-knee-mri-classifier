@@ -26,6 +26,11 @@
       "at": "2026-11-08T10:17:37.439937-06:00",
       "verdict": "failing",
       "report": "Supervision/2026-11-08_20261108T101738-0600_supervision.md"
+    },
+    {
+      "at": "2026-11-08T14:44:59.412588-06:00",
+      "verdict": "failing",
+      "report": "Supervision/2026-11-08_20261108T144500-0600_supervision.md"
     }
   ]
 }
