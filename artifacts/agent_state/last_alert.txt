@@ -1,4 +1,4 @@
-[grok-bot] needs your input — RSNA knee day 2026-11-21
+[grok-bot] needs your input — RSNA knee day 2026-11-22
 
 The Grok supervisor bot needs a decision from you (verdict: **failing**).
 
@@ -8,11 +8,11 @@ The Grok supervisor bot needs a decision from you (verdict: **failing**).
 - [ ] XAI_API_KEY is not set, so I am running rule-based checks without Grok's review. Add the XAI_API_KEY repo secret to enable full Grok supervision.
 
 ### Why
-- Research/ has 0 write-up(s) for day 2026-11-21 but 2 were due by now
-- Analysis/ has 0 write-up(s) for day 2026-11-21 but 2 were due by now
-- Hypothesis/ has 0 write-up(s) for day 2026-11-21 but 2 were due by now
-- Quota at risk: 5 submission(s) left but only 135 min until 2026-11-21T05:00:00-06:00 at a 30-min floor
+- Research/ has 0 write-up(s) for day 2026-11-22 but 3 were due by now
+- Analysis/ has 0 write-up(s) for day 2026-11-22 but 3 were due by now
+- Hypothesis/ has 0 write-up(s) for day 2026-11-22 but 3 were due by now
+- Quota at risk: 5 submission(s) left but only 44 min until 2026-11-22T05:00:00-06:00 at a 30-min floor
 
-Submissions due by now: 2/5 · submissions today: None · full pipelines: []
+Submissions due by now: 3/5 · submissions today: None · full pipelines: []
 
 Reply in a comment on this issue; the bot reads open issues on its next run.
